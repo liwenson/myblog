@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="zh-CN,en,zh-HK,zh-TW,default">
+  <head hexo-theme='https://github.com/volantis-x/hexo-theme-volantis/tree/4.3.1'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://cdn.jsdelivr.net'>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <link rel="preload" href="/css/first.css" as="style">
+  
+
+  <!-- 页面元数据 -->
+  
+  <title>Saltstack 简单使用 - Hexo</title>
+  
+    <meta name="keywords" content="salt">
+  
+
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  
+    <link rel="shortcut icon" type='image/x-icon' href="https://cdn.jsdelivr.net/gh/xaoxuu/assets@master/favicon/favicon.ico">
+  
+
+  <!-- import link -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/first.css">
+
+  
+
+  
+  <link rel="stylesheet" href="/css/style.css" media="print" onload="this.media='all';this.onload=null">
+  <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
+  
+
+  <script id="loadcss"></script>
+
+  
+<script>
+if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMode))
+    document.write(
+	'<style>'+
+		'html{'+
+			'overflow-x: hidden !important;'+
+			'overflow-y: hidden !important;'+
+		'}'+
+		'.kill-ie{'+
+			'text-align:center;'+
+			'height: 100%;'+
+			'margin-top: 15%;'+
+			'margin-bottom: 5500%;'+
+		'}'+
+	'</style>'+
+    '<div class="kill-ie">'+
+        '<h1><b>抱歉，您的浏览器无法访问本站</b></h1>'+
+        '<h3>微软已经于2016年终止了对 Internet Explorer (IE) 10 及更早版本的支持，<br/>'+
+        '继续使用存在极大的安全隐患，请使用当代主流的浏览器进行访问。</h3><br/>'+
+        '<a target="_blank" rel="noopener" href="https://www.microsoft.com/zh-cn/WindowsForBusiness/End-of-IE-support"><strong>了解详情 ></strong></a>'+
+    '</div>');
+</script>
+
+
+<noscript>
+	<style>
+		html{
+			overflow-x: hidden !important;
+			overflow-y: hidden !important;
+		}
+		.kill-noscript{
+			text-align:center;
+			height: 100%;
+			margin-top: 15%;
+			margin-bottom: 5500%;
+		}
+	</style>
+    <div class="kill-noscript">
+        <h1><b>抱歉，您的浏览器无法访问本站</b></h1>
+        <h3>本页面需要浏览器支持（启用）JavaScript</h3><br/>
+        <a target="_blank" rel="noopener" href="https://www.baidu.com/s?wd=启用JavaScript"><strong>了解详情 ></strong></a>
+    </div>
+</noscript>
+
+</head>
+
+  <body>
+    
+
+<header id="l_header" class="l_header auto shadow blur show" style='opacity: 0' >
+  <div class='container'>
+  <div id='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h m-phone' id="pjax-header-nav-list">
+        <li><a id="s-comment" class="fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a id="s-toc" class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h m-pc'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h m-phone'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+    <div id="l_body">
+      <div id="l_cover">
+  
+    
+        <div id="full" class='cover-wrapper post dock' style="display: none;">
+          
+            <div class='cover-bg lazyload placeholder' data-bg="https://uploadbeta.com/api/pictures/random/?key=BingEverydayWallpaperPicture"></div>
+          
+          <div class='cover-body'>
+  <div class='top'>
+    
+    
+      <p class="title">Volantis</p>
+    
+    
+  </div>
+  <div class='bottom'>
+    <div class='menu navigation'>
+      <div class='list-h'>
+        
+          
+            <a href="/v4/getting-started/"
+              
+              
+              id="v4getting-started">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f5c3.svg'><p>文档</p>
+            </a>
+          
+            <a href="/faqs/"
+              
+              
+              id="faqs">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f516.svg'><p>帮助</p>
+            </a>
+          
+            <a href="/examples/"
+              
+              
+              id="examples">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f396.svg'><p>示例</p>
+            </a>
+          
+            <a href="/contributors/"
+              
+              
+              id="contributors">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f389.svg'><p>社区</p>
+            </a>
+          
+            <a href="/archives/"
+              
+              
+              id="archives">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
+            </a>
+          
+            <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
+              
+              
+              id="https:githubcomvolantis-xhexo-theme-volantis">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f9ec.svg'><p>源码</p>
+            </a>
+          
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+          <div id="scroll-down" style="display: none;"><i class="fa fa-chevron-down scroll-down-effects"></i></div>
+        </div>
+    
+  
+  </div>
+
+      <div id="safearea">
+        <div class="body-wrapper" id="pjax-container">
+          
+
+<div class='l_main'>
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
+  
+
+
+  
+  <div class="article-meta" id="top">
+    
+    
+    
+      <h1 class="title">
+        Saltstack 简单使用
+      </h1>
+      <div class='new-meta-box'>
+        
+          
+            
+<div class='new-meta-item author'>
+  <a class='author' href="/" rel="nofollow">
+    <img no-lazy src="">
+    <p>请设置文章作者</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class='new-meta-item category'>
+    <a class='notlink'>
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <a class="category-link" href="/categories/salt/">salt</a>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：2020年9月21日</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class="new-meta-item browse leancloud">
+    <a class='notlink'>
+      
+      <div id="lc-pv" data-title="Saltstack 简单使用" data-path="/2020/09/21/saltstack/saltstack/">
+        <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
+        <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+        次浏览
+      </div>
+    </a>
+  </div>
+
+
+          
+        
+      </div>
+    
+  </div>
+
+
+  
+  
+  <p>SaltStack 使用</p>
+<h3 id="SaltStack-介绍"><a href="#SaltStack-介绍" class="headerlink" title="SaltStack 介绍"></a>SaltStack 介绍</h3><ul>
+<li>SaltStack是一款Python开发的开源配置管理工具；</li>
+<li>可用来发现、监控、响应、协调、自动化管理本地、混合、云和IOT资产;</li>
+<li>其最主要的差异是主从模式，分为master和minions(slave)；</li>
+<li>经过配置之后master可以管理成千上万个minions；</li>
+<li>master安装的是服务端组件salt-mater，minions安装的是salt-minion；</li>
+<li>Salt使用基于ZeroMQ的强大异步网络拓扑，主要是为实现最快的通信；</li>
+<li>Salt Master运行2个网络服务，ZeroMQ PUB系统，默认运行在4505端口；ZeroMQ REP系统，用于与Salt Minion进行双向通信，默认运行在4506端口；</li>
+<li>Salt客户端(salt命令)发送的命令将通过ZeroMQ PUB/SUB广播给各个Salt Minion。前提是Salt Minion配置了Mater，并且Salt Master通过salt-key命令信任了对应的Salt Minion。建立连接之后，Salt Minion可以接收到广播命令，并且执行；</li>
+<li>PUB/SUB是单向通信，因此一旦广播结束，Master服务器上的PUB接口就不会再与Minion进行任何通信。Minion在运行命令之后，通过REP端口(4506)将命令的返回数据发回Master。</li>
+</ul>
+<h4 id="命令发布过程"><a href="#命令发布过程" class="headerlink" title="命令发布过程"></a>命令发布过程</h4><p>SaltStack 的 Master 与 Minion 之间通过 ZeroMq 进行消息传递，使用 ZeroMq 的发布订阅模式，连接方式包括 TCP 和 IPC 。</p>
+<p>Salt 命令，将 cmd.run ls  命令从 salt.client.LocalClient.cmd_cli 发布到 Master，获取一个 JobID ,根据 jobID 获取命令执行结果。</p>
+<p>Master 接收到命令后，将要执行的命令发送给客户端 minion</p>
+<p>Minion 从消息总线上接收到要处理的命令，交给 minion._handle_aes  处理。</p>
+<p>Minion  minion._handle_aes   发起一个本地线程调用 cmdmod 执行 ls 命令。线程执行完 ls 后，调用 Minion._return_pub 方法。将执行结果通过消息总线返回给master。 </p>
+<p>Master接收到客户端返回的结果，调用 master.handle_ase 方法将结果写到文件中。</p>
+<p>Salt.client.LocalClient.cmd_cli 通过轮询获取Job 执行结果，将结果输出到终端。</p>
+<h4 id="salt部署基本架构"><a href="#salt部署基本架构" class="headerlink" title="salt部署基本架构"></a>salt部署基本架构</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">stateDiagram</span><br><span class="line">    [*] --&gt; Master</span><br><span class="line">    Master --&gt; OS_Minion</span><br><span class="line">    Master --&gt; Web01_Minion</span><br><span class="line">    Master --&gt; Web02_Minion</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="salt端口"><a href="#salt端口" class="headerlink" title="salt端口"></a>salt端口</h4><p>安装好salt之后开始配置，salt-master默认监听两个端口：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4505</span>   publish_port   提供远程命令发送功能</span><br><span class="line"><span class="number">4506</span>   ret_port       提供认证，文件服务，结果收集等功能</span><br><span class="line">确保客户端可以通信服务器的此<span class="number">2</span>个端口，保证防火墙允许端口通过。因此在测试环境直接关闭防火墙。</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">salt-master的配置文件是/etc/salt/master</span><br><span class="line">salt-minion的配置文件是/etc/salt/minion</span><br><span class="line">配置文件中包含了大量可调整的参数，这些参数控制master和minion各个方面</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置-salt-master"><a href="#配置-salt-master" class="headerlink" title="配置 salt-master"></a>配置 salt-master</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# grep -v ^# /etc/salt/master|grep -v ^$</span><br><span class="line">interface: 0.0.0.0  #绑定到本地的0.0.0.0地址</span><br><span class="line"></span><br><span class="line">publish_port: 4505　　#管理端口，命令发送</span><br><span class="line"></span><br><span class="line">user: root　　　　　　#运行salt进程的用户</span><br><span class="line"></span><br><span class="line">worker_threads: 5　　#salt运行线程数，线程越多处理速度越快，不要超过cpu个数</span><br><span class="line"> </span><br><span class="line">ret_port: 4506　　#执行结果返回端口</span><br><span class="line"></span><br><span class="line">pidfile: /var/run/salt-master.pid #pid文件位置</span><br><span class="line"></span><br><span class="line">log_file: /var/log/salt/master　　#日志文件地址</span><br><span class="line"></span><br><span class="line">#自动接收minion的key</span><br><span class="line">auto_accept: False</span><br><span class="line"></span><br><span class="line"># minion的识别ID，可以是IP，域名，或是可以通过DNS解析的字符串</span><br><span class="line">id: slave   # 最好使用主机名</span><br><span class="line"></span><br><span class="line"># salt运行的用户权限</span><br><span class="line">user: root</span><br><span class="line"></span><br><span class="line"># master的识别ID，可以是IP，域名，或是可以通过DNS解析的字符串</span><br><span class="line">master : master    #master 地址</span><br><span class="line"> </span><br><span class="line"># master通信端口</span><br><span class="line">master_port: <span class="number">4506</span></span><br><span class="line"> </span><br><span class="line"># 备份模式，minion是本地备份，当进行文件管理时的文件备份模式</span><br><span class="line">backup_mode: minion</span><br><span class="line"> </span><br><span class="line"># 执行salt-call时候的输出方式</span><br><span class="line">output: nested</span><br><span class="line"> </span><br><span class="line"># minion等待master接受认证的时间</span><br><span class="line">acceptance_wait_time: <span class="number">10</span></span><br><span class="line"> </span><br><span class="line"># 失败重连次数，0表示无限次，非零会不断尝试到设置值后停止尝试</span><br><span class="line">acceptance_wait_time_max: <span class="number">0</span></span><br><span class="line"> </span><br><span class="line"># 重新认证延迟时间，可以避免因为master的key改变导致minion需要重新认证的syn风暴</span><br><span class="line">random_reauth_delay: <span class="number">60</span></span><br><span class="line"></span><br><span class="line"># salt state执行时候的根目录</span><br><span class="line">file_roots:</span><br><span class="line">  base:</span><br><span class="line">    - <span class="regexp">/srv/</span>salt</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置satl-minion"><a href="#配置satl-minion" class="headerlink" title="配置satl-minion"></a>配置satl-minion</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@slave ~]# grep -v ^# /etc/salt/minion|grep -v ^$</span><br><span class="line">master: master    #master 地址</span><br><span class="line">master_port: <span class="number">4506</span></span><br><span class="line">user: root</span><br><span class="line">id: slave   # 最好使用主机名</span><br><span class="line">acceptance_wait_time: <span class="number">10</span></span><br><span class="line">log_file: <span class="regexp">/var/</span>log/salt/minion</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="启动salt-master和salt-minion"><a href="#启动salt-master和salt-minion" class="headerlink" title="启动salt-master和salt-minion"></a>启动salt-master和salt-minion</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">systemctl start salt-minion</span><br><span class="line">systemctl start salt-master</span><br><span class="line"></span><br><span class="line">#检查salt状态</span><br><span class="line">systemctl status salt-minion</span><br><span class="line">systemctl status salt-master</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="SaltStack-VS-Ansible"><a href="#SaltStack-VS-Ansible" class="headerlink" title="SaltStack VS Ansible"></a>SaltStack VS Ansible</h3><table>
+<thead>
+<tr>
+<th>SaltStack</th>
+<th>Ansible</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SaltStack 依靠ZeroMQ速度快</td>
+<td>Ansible SSH传输速度慢一些</td>
+</tr>
+<tr>
+<td>ZeroMQ本身不加密，AES加密，需注意MITM攻击</td>
+<td>SSH安全性高</td>
+</tr>
+<tr>
+<td>Master需要守护进程</td>
+<td>无额外开支，SSH即可</td>
+</tr>
+<tr>
+<td>State语法需要学习</td>
+<td>playbook语法相对简单，容易学习</td>
+</tr>
+<tr>
+<td>excution模块+state模块，state会调用excution模块</td>
+<td>Ansible模块+playbook</td>
+</tr>
+<tr>
+<td>使用topfile <a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/states/top.html">top.sls</a> 使用<a target="_blank" rel="noopener" href="http://yaml.org/">YAML</a></td>
+<td>playbook使用YAML</td>
+</tr>
+<tr>
+<td>围绕Master输入命令，首次连接使用加密key，使用ZeroMQ库不会拥堵，持续连接速度更快</td>
+<td>使用SSH通道，无固定Master，更安全，也有MQ版本</td>
+</tr>
+<tr>
+<td>未提及</td>
+<td>配置记录文件，原始vs生产</td>
+</tr>
+<tr>
+<td>默认本地root，客户端root</td>
+<td>支持多用户sudo操作</td>
+</tr>
+<tr>
+<td>密码容易保管，命令容易审计</td>
+<td>SSH，公钥连接</td>
+</tr>
+<tr>
+<td>配置模块化，学习成本更高</td>
+<td>克隆Ansible Git，语法简单</td>
+</tr>
+</tbody></table>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><h4 id="SALT-MASTER"><a href="#SALT-MASTER" class="headerlink" title="SALT MASTER"></a>SALT MASTER</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -L https:&#x2F;&#x2F;bootstrap.saltstack.com -o install_salt.sh</span><br><span class="line">sudo sh install_salt.sh -P -M</span><br></pre></td></tr></table></figure>
+
+<h4 id="SALT-MINION"><a href="#SALT-MINION" class="headerlink" title="SALT MINION"></a>SALT MINION</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -L https:&#x2F;&#x2F;bootstrap.saltstack.com -o install_salt.sh</span><br><span class="line">sudo sh install_salt.sh -P</span><br></pre></td></tr></table></figure>
+
+<p>配置脚本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;bash</span><br><span class="line"></span><br><span class="line">HostName&#x3D;&#96;hostname&#96;</span><br><span class="line">cp &#x2F;etc&#x2F;salt&#x2F;minion &#x2F;etc&#x2F;salt&#x2F;minion_bak</span><br><span class="line">sed -i  &quot;17a master: 172.16.102.33&quot; &#x2F;etc&#x2F;salt&#x2F;minion</span><br><span class="line">sed -i  &quot;113a id: $HostName&quot; &#x2F;etc&#x2F;salt&#x2F;minion</span><br><span class="line"></span><br><span class="line">systemctl enable salt-minion</span><br><span class="line">systemctl start salt-minion</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="在master上接收minion秘钥"><a href="#在master上接收minion秘钥" class="headerlink" title="在master上接收minion秘钥"></a>在master上接收minion秘钥</h3><p>在minion启动后连接master会请求master为其签发证书，等待证书签发完成后，master可以信任minion，并且minion和master之间的通信是加密的。</p>
+<p>在salt-master执行</p>
+<p>salt-key命令用于管理mionion秘钥</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# salt-key -L</span><br><span class="line">Accepted Keys:</span><br><span class="line">Denied Keys:</span><br><span class="line">Unaccepted Keys:</span><br><span class="line">slave　　　　#此时已经出现slave</span><br><span class="line">Rejected Keys:</span><br></pre></td></tr></table></figure>
+<p>此时slave已经出现在unaccepted keys中，说明minion已经和master联系，并且master已经获取了minion的公钥，等待下一步指令。</p>
+<h3 id="检查master和minion的秘钥匹配"><a href="#检查master和minion的秘钥匹配" class="headerlink" title="检查master和minion的秘钥匹配"></a>检查master和minion的秘钥匹配</h3><p>在master上执行</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# salt-key -f slave</span><br><span class="line">Unaccepted Keys:</span><br><span class="line">slave:  <span class="number">0</span>a:b9:<span class="number">97</span>:b5:<span class="number">9</span>a:<span class="number">65</span>:b8:<span class="number">49</span>:a1:<span class="number">50</span>:a5:<span class="number">6</span>a:<span class="number">66</span>:ce:<span class="number">33</span>:ea</span><br></pre></td></tr></table></figure>
+
+<p>然后可以在minion上获取minion的秘钥</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@slave ~]# salt-call --local key.finger</span><br><span class="line">local:</span><br><span class="line">    <span class="number">0</span>a:b9:<span class="number">97</span>:b5:<span class="number">9</span>a:<span class="number">65</span>:b8:<span class="number">49</span>:a1:<span class="number">50</span>:a5:<span class="number">6</span>a:<span class="number">66</span>:ce:<span class="number">33</span>:ea</span><br></pre></td></tr></table></figure>
+
+<p>因此可确认秘钥匹配，在master上接收秘钥</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# salt-key -a slave</span><br><span class="line">The following keys are going to be accepted:</span><br><span class="line">Unaccepted Keys:</span><br><span class="line">slave</span><br><span class="line">Proceed? [n/Y] y</span><br><span class="line">Key <span class="keyword">for</span> minion slave accepted.</span><br></pre></td></tr></table></figure>
+
+<p>确认接收秘钥后，检验minion秘钥是否被接收</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# salt-key -L</span><br><span class="line">Accepted Keys:</span><br><span class="line">slave</span><br><span class="line">Denied Keys:</span><br><span class="line">Unaccepted Keys:</span><br><span class="line">Rejected Keys:</span><br></pre></td></tr></table></figure>
+
+<p>秘钥接收完成后，就可以执行第一条salt啦</p>
+<h3 id="认证命令介绍"><a href="#认证命令介绍" class="headerlink" title="认证命令介绍"></a>认证命令介绍</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">salt-key –L #查看所有minion-key</span><br><span class="line">salt-key –a #接受某个minion-key</span><br><span class="line">salt-key –A #接受所有minion-key</span><br><span class="line">salt-key –d #删除某个minion-key</span><br><span class="line">salt-key –D #删除所有minion-key</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="SaltStack-minion-匹配方式"><a href="#SaltStack-minion-匹配方式" class="headerlink" title="SaltStack minion 匹配方式"></a>SaltStack minion 匹配方式</h3><p>1、Glob（salt默认的target 类型，使用shell的通配符来指定一个或多个 minion ID）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \* test.ping  或者 salt &#39;*&#39; test.ping</span><br></pre></td></tr></table></figure>
+
+<p>2、 pcre 兼容正则表达式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -E ‘^[m|M]in.[e|o|u]n$’ test.ping</span><br></pre></td></tr></table></figure>
+
+<p>3、 subnet (通过指定一个IPv4 地址或一个CIDR 的IPv4 子网)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">salt -S 192168.0.42 test.ping</span><br><span class="line">或者</span><br><span class="line">salt -s 192.168.0.0&#x2F;16 test.ping</span><br></pre></td></tr></table></figure>
+
+<p>4、Grains（salt 可以通过操作系统、CPU架构及自定义信息等机器特征进行 target Minion）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">salt -G &#39;os:Ubuntu&#39; test.ping</span><br><span class="line">salt -G &#39;os_family:Debian&#39; test.ping</span><br></pre></td></tr></table></figure>
+
+<p>5、pillar (salt 支持通过 pillar 数据进行匹配)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -l &#39;my_val:my_val&#39; test.ping</span><br></pre></td></tr></table></figure>
+
+<p>6、混合（compound）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -C &#39;web* or G@os:Arch&#39; test.ping</span><br></pre></td></tr></table></figure>
+
+<h3 id="salt-常用模板"><a href="#salt-常用模板" class="headerlink" title="salt 常用模板"></a>salt 常用模板</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">salt &#39;*&#39; status.loadavg            #系统信息</span><br><span class="line">salt &#39;*&#39; status.cpuinfo            #CPU 信息</span><br><span class="line">salt &quot;*&quot; status.diskstats          #查看磁盘信息</span><br><span class="line">salt &quot;*&quot; status.meminfo            #查看内存信息</span><br><span class="line">salt &quot;*&quot; status.w                  #w命令返回信息</span><br><span class="line">salt node01  sys.list_modules      #查看所有module 列表 </span><br><span class="line">salt node01  sys.list_functions cmd    查看指定 module 的所有function 方法</span><br><span class="line">salt node01 sys.doc cmd.run        查看指定 module 用法</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="salt相关命令"><a href="#salt相关命令" class="headerlink" title="salt相关命令"></a>salt相关命令</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">salt-run manage.up 			# 查看存活的minion</span><br><span class="line">salt-run manage.down 		# 查看死掉的minion</span><br><span class="line">salt-run manage.down removekeys&#x3D;True 		# 查看down掉的minion，并将其删除</span><br><span class="line">salt-run manage.status 					# 查看minion的相关状态</span><br><span class="line">salt-run manage.versions 				# 查看salt的所有master和minion的版本信息</span><br><span class="line">salt-run jobs.active 					# 查看哪些系统任务还在处理中</span><br><span class="line">salt-run jobs.list_jobs 				# 显示所有的已完成或部分完成的任务信息</span><br><span class="line">salt &#39;*&#39; saltutil.running 				# 查看运行的jobs ID</span><br><span class="line">salt \* saltutil.kill_job 20151209034239907625 # kill掉进程ID</span><br><span class="line">salt -d 					# 查看帮助文档</span><br><span class="line">salt -d|grep service 				# 查看service相关模块命令</span><br><span class="line">salt &#39;*&#39; sys.doc 				# 查看帮助文档</span><br><span class="line">salt-key -L 				# 查询所有接收到的证书</span><br><span class="line">salt-key -a &lt;证书名&gt; 				# 接收单个证书</span><br><span class="line">salt-key -A 					# 接受所有证书</span><br><span class="line">salt-key -d &lt;证书名&gt; 				# 删除单个证书</span><br><span class="line">salt-key -D 						# 删除所有证书</span><br><span class="line">salt &#39;*&#39; service.get_all 			# 获取主机所有服务</span><br><span class="line">salt &#39;*&#39; service.reload sshd 		# 重载sshd服务</span><br><span class="line">salt &#39;*&#39; pkg.list_pkgs # 显示软件包版本列表</span><br><span class="line">salt &#39;*&#39; pkg.version python # 显示软件包版本信息</span><br><span class="line">salt &#39;*&#39; pkg.install httpd # 安装软件包</span><br><span class="line">salt &#39;node1.com&#39; service.status mysql # 查看mysql服务状态</span><br><span class="line">salt &#39;node1.com&#39; service.start mysql # 启动mysql服务</span><br><span class="line">salt &#39;node1.com&#39; cmd.run &#39;service mysql status&#39; # 与上面一样查看服务</span><br><span class="line">salt &#39;*&#39; sys.list_modules # 模块列表</span><br><span class="line">salt-cp &#39;*&#39; &#x2F;etc&#x2F;hosts &#x2F;etc&#x2F;hosts # 把master上的hosts文件分发到所有主机</span><br><span class="line">salt &#39;*&#39; cp.get_file salt:&#x2F;&#x2F;ceshi&#x2F;b &#x2F;tmp&#x2F;test # 把salt-master端相应的文件，分发文件到minion端</span><br><span class="line">salt &#39;*&#39; cp.get_dir salt:&#x2F;&#x2F;zabbix &#x2F;tmp # 把salt-master端相应的目录，分发文件到minion端</span><br><span class="line">salt &#39;*&#39; file.copy &#x2F;tmp&#x2F;zabbix.sls &#x2F;tmp&#x2F;sls # 把salt-master端对应文件拷贝到minion端相应目录下</span><br><span class="line">salt &#39;*&#39; cmd.run &#39;uptime&#39; # 远程命令执行测试</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p> 远程执行脚本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#39;cmd.script:&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.script salt:&#x2F;&#x2F;scripts&#x2F;runme.sh</span><br><span class="line"> salt &#39;*&#39; cmd.script salt:&#x2F;&#x2F;scripts&#x2F;runme.sh &#39;arg1 arg2 &quot;arg 3&quot;&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.script salt:&#x2F;&#x2F;scripts&#x2F;windows_task.ps1 args&#x3D;&#39; -Input c:\tmp\infile.txt&#39; shell&#x3D;&#39;powershell&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.script salt:&#x2F;&#x2F;scripts&#x2F;runme.sh stdin&#x3D;&#39;one\ntwo\nthree\nfour\nfive\n&#39;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">&#39;cmd.shell:&#39;</span><br><span class="line"></span><br><span class="line"> This passes the cmd argument directly to the shell</span><br><span class="line"> salt &#39;*&#39; cmd.shell &quot;ls -l | awk &#39;&#x2F;foo&#x2F;&#123;print \$2&#125;&#39;&quot;</span><br><span class="line"> salt &#39;*&#39; cmd.shell template&#x3D;jinja &quot;ls -l &#x2F;tmp&#x2F;&#123;&#123;grains.id&#125;&#125; | awk &#39;&#x2F;foo&#x2F;&#123;print \$2&#125;&#39;&quot;</span><br><span class="line"> salt &#39;*&#39; cmd.shell &quot;Get-ChildItem C:\ &quot; shell&#x3D;&#39;powershell&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.shell &quot;grep f&quot; stdin&#x3D;&#39;one\ntwo\nthree\nfour\nfive\n&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.shell cmd&#x3D;&#39;sed -e s&#x2F;&#x3D;&#x2F;:&#x2F;g&#39;</span><br><span class="line"> </span><br><span class="line">&#39;cmd.shells:&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.shells</span><br><span class="line">&#39;cmd.tty:&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.tty tty0 &#39;This is a test&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.tty pts3 &#39;This is a test&#39;</span><br><span class="line"> </span><br><span class="line">&#39;cmd.which:&#39;</span><br><span class="line"> salt &#39;*&#39; cmd.which cat</span><br><span class="line"> </span><br><span class="line">**grains选项：**</span><br><span class="line">salt &#39;*&#39; grains.ls # 查看grains分类</span><br><span class="line">salt &#39;*&#39; grains.items # 查看grains所有信息</span><br><span class="line">salt &#39;*&#39; grains.item osrelease # 查看grains某个信息</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+  
+  
+    
+    <div class='footer'>
+      
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=https://wsliwh.gitee.io/2020/09/21/saltstack/saltstack/>https://wsliwh.gitee.io/2020/09/21/saltstack/saltstack/</a></p>
+              
+            
+          </blockquote>
+        </div>
+      
+      
+    </div>
+  
+  
+    
+
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-21T17:21:29+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020年9月21日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/salt/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>salt</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://wsliwh.gitee.io/2020/09/21/saltstack/saltstack/&title=Saltstack 简单使用 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://wsliwh.gitee.io/2020/09/21/saltstack/saltstack/&title=Saltstack 简单使用 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=https://wsliwh.gitee.io/2020/09/21/saltstack/saltstack/&title=Saltstack 简单使用 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+        <a class='prev' href='/2020/09/21/mongodb/%E5%AE%89%E8%A3%85monogdb3.2/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>mongodb 安装和用户管理</p>
+          <p class='content'>安装mongodb3.2下载mongodb
+1wget https:&#x2F;&#x2F;fastdl.mongodb.org&#x2F;linux&#x2F;mongodb-linux-x8...</p>
+        </a>
+      
+      
+        <a class='next' href='/2020/09/21/saltstack/salt-master%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/'>
+          <p class='title'>salt-master 安装脚本<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>1234567891011121314151617#!/bash/sh#Function: install salt-master echo -e &quot;\033[1;32m ######...</p>
+        </a>
+      
+    </div>
+  
+</article>
+
+
+  
+
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="valine_container" class="valine_thread">
+  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+</div>
+
+  </article>
+
+
+
+
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+
+
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#SaltStack-%E4%BB%8B%E7%BB%8D"><span class="toc-text">SaltStack 介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E5%8F%91%E5%B8%83%E8%BF%87%E7%A8%8B"><span class="toc-text">命令发布过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#salt%E9%83%A8%E7%BD%B2%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84"><span class="toc-text">salt部署基本架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#salt%E7%AB%AF%E5%8F%A3"><span class="toc-text">salt端口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-salt-master"><span class="toc-text">配置 salt-master</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEsatl-minion"><span class="toc-text">配置satl-minion</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8salt-master%E5%92%8Csalt-minion"><span class="toc-text">启动salt-master和salt-minion</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SaltStack-VS-Ansible"><span class="toc-text">SaltStack VS Ansible</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SALT-MASTER"><span class="toc-text">SALT MASTER</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SALT-MINION"><span class="toc-text">SALT MINION</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8master%E4%B8%8A%E6%8E%A5%E6%94%B6minion%E7%A7%98%E9%92%A5"><span class="toc-text">在master上接收minion秘钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5master%E5%92%8Cminion%E7%9A%84%E7%A7%98%E9%92%A5%E5%8C%B9%E9%85%8D"><span class="toc-text">检查master和minion的秘钥匹配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A4%E8%AF%81%E5%91%BD%E4%BB%A4%E4%BB%8B%E7%BB%8D"><span class="toc-text">认证命令介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SaltStack-minion-%E5%8C%B9%E9%85%8D%E6%96%B9%E5%BC%8F"><span class="toc-text">SaltStack minion 匹配方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#salt-%E5%B8%B8%E7%94%A8%E6%A8%A1%E6%9D%BF"><span class="toc-text">salt 常用模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#salt%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="toc-text">salt相关命令</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+
+		  
+		  <!--此文件用来存放一些不方便取值的变量-->
+<!--思路大概是将值藏到重加载的区域内-->
+
+<script>
+  window.pdata={}
+  pdata.ispage=true;
+  pdata.postTitle="Saltstack 简单使用";
+  pdata.commentPath="";
+  pdata.commentPlaceholder="";
+  // header 这里无论是否开启pjax都需要
+  var l_header=document.getElementById("l_header");
+  
+  l_header.classList.add("show");
+  
+  
+    // cover
+    var cover_wrapper=document.querySelector('.cover-wrapper');
+    
+    cover_wrapper.id="none";
+    cover_wrapper.style.display="none";
+    
+  
+</script>
+
+        </div>
+        
+  
+  <footer class="footer clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="mailto:me@xxx.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="https://github.com/liwensong"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=63035382"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>博客内容遵循 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://github.com/volantis-x/hexo-theme-volantis/tree/4.3.1" target="_blank" class="codename">Volantis</a>
+        作为主题
+      
+    
+      
+        <div class='copyright'>
+        <p><a target="_blank" rel="noopener" href="https://xaoxuu.com/">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+
+        <a id="s-top" class="fas fa-arrow-up fa-fw" href="javascript:void(0)"></a>
+      </div>
+    </div>
+    <div>
+      <script>
+/************这个文件存放不需要重载的全局变量和全局函数*********/
+window.volantis={};
+window.volantis.loadcss=document.getElementById("loadcss");
+/******************** Pjax ********************************/
+function VPjax(){
+	this.list=[] // 存放回调函数
+	this.start=()=>{
+	  for(var i=0;i<this.list.length;i++){
+		this.list[i].run();
+	  }
+	}
+	this.push=(fn,name)=>{
+		var f=new PjaxItem(fn,name);
+		this.list.push(f);
+	}
+	// 构造一个可以run的对象
+	function PjaxItem(fn,name){
+		// 函数名称
+		this.name = name || fn.name
+		// run方法
+		this.run=()=>{
+			fn()
+		}
+	}
+}
+volantis.pjax={}
+volantis.pjax.method={
+	complete: new VPjax(),
+	error: new VPjax(),
+	send: new VPjax()
+}
+volantis.pjax={
+	...volantis.pjax,
+	push: volantis.pjax.method.complete.push,
+	error: volantis.pjax.method.error.push,
+	send: volantis.pjax.method.send.push
+}
+/********************脚本懒加载函数********************************/
+// 已经加入了setTimeout
+function loadScript(src, cb) {
+	setTimeout(function() {
+		var HEAD = document.getElementsByTagName('head')[0] || document.documentElement;
+		var script = document.createElement('script');
+		script.setAttribute('type','text/javascript');
+		if (cb) script.onload = cb;
+		script.setAttribute('src', src);
+		HEAD.appendChild(script);
+	});
+}
+//https://github.com/filamentgroup/loadCSS
+var loadCSS = function( href, before, media, attributes ){
+	var doc = window.document;
+	var ss = doc.createElement( "link" );
+	var ref;
+	if( before ){
+		ref = before;
+	}
+	else {
+		var refs = ( doc.body || doc.getElementsByTagName( "head" )[ 0 ] ).childNodes;
+		ref = refs[ refs.length - 1];
+	}
+	var sheets = doc.styleSheets;
+	if( attributes ){
+		for( var attributeName in attributes ){
+			if( attributes.hasOwnProperty( attributeName ) ){
+				ss.setAttribute( attributeName, attributes[attributeName] );
+			}
+		}
+	}
+	ss.rel = "stylesheet";
+	ss.href = href;
+	ss.media = "only x";
+	function ready( cb ){
+		if( doc.body ){
+			return cb();
+		}
+		setTimeout(function(){
+			ready( cb );
+		});
+	}
+	ready( function(){
+		ref.parentNode.insertBefore( ss, ( before ? ref : ref.nextSibling ) );
+	});
+	var onloadcssdefined = function( cb ){
+		var resolvedHref = ss.href;
+		var i = sheets.length;
+		while( i-- ){
+			if( sheets[ i ].href === resolvedHref ){
+				return cb();
+			}
+		}
+		setTimeout(function() {
+			onloadcssdefined( cb );
+		});
+	};
+	function loadCB(){
+		if( ss.addEventListener ){
+			ss.removeEventListener( "load", loadCB );
+		}
+		ss.media = media || "all";
+	}
+	if( ss.addEventListener ){
+		ss.addEventListener( "load", loadCB);
+	}
+	ss.onloadcssdefined = onloadcssdefined;
+	onloadcssdefined( loadCB );
+	return ss;
+};
+</script>
+<script>
+  
+  loadCSS("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14/css/all.min.css", window.volantis.loadcss);
+  
+  
+  
+  
+</script>
+<!-- required -->
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js"></script>
+
+<script>
+  function pjax_fancybox() {
+    $(".md .gallery").find("img").each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("class", "fancybox");
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 判断当前页面是否存在描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".md .gallery").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  function SCload_fancybox() {
+    if ($(".md .gallery").find("img").length == 0) return;
+    loadCSS("https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css", document.getElementById("loadcss"));
+    loadScript('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', pjax_fancybox)
+  };
+  $(function () {
+    SCload_fancybox();
+  });
+  function Pjax_SCload_fancybox(){
+	if (typeof $.fancybox == "undefined") {
+	 SCload_fancybox();
+    } else {
+	 pjax_fancybox();
+    }
+  }
+  volantis.pjax.push(Pjax_SCload_fancybox)
+  volantis.pjax.send(()=>{
+      if (typeof $.fancybox != "undefined") {
+        $.fancybox.close();    // 关闭弹窗
+      }
+  },'fancybox')
+</script>
+
+
+<!-- internal -->
+
+
+
+
+<script>
+  function loadIssuesJS() {
+    if ($(".md").find(".issues-api").length == 0) return;
+	
+	  loadScript('/js/issues.js');
+	
+  };
+  $(function () {
+    loadIssuesJS();
+  });
+  volantis.pjax.push(()=>{
+	if (typeof IssuesAPI == "undefined") {
+	  loadIssuesJS();
+	}
+  },"IssuesJS")
+</script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
+
+
+  
+
+<script>
+  window.FPConfig = {
+	delay: 0,
+	ignoreKeywords: [],
+	maxRPS: 5,
+	hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+<script src="/js/valine.js"></script>
+
+
+<script>
+  function emoji(path, idx, ext) {
+    return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  function pjax_valine() {
+    if(!document.querySelectorAll("#valine_container")[0])return;
+    let pagePlaceholder = pdata.commentPlaceholder || "快来评论吧~";
+    let path = pdata.commentPath;
+    if (path.length == 0) {
+      let defaultPath = '';
+      path = defaultPath || decodeURI(window.location.pathname);
+    }
+    var valine = new Valine();
+    valine.init(Object.assign({"path":null,"placeholder":"快来评论吧~","appId":null,"appKey":null,"meta":["nick","mail","link"],"requiredFields":["nick","mail"],"enableQQ":true,"recordIP":false,"avatar":"robohash","pageSize":10,"lang":"zh-cn","highlight":true,"mathJax":false}, {
+      el: '#valine_container',
+      path: path,
+      placeholder: pagePlaceholder,
+      emojiCDN: 'https://cdn.jsdelivr.net/gh/volantis-x/cdn-emoji/valine/',
+      emojiMaps: emojiMaps,
+    }))
+  }
+  $(function () {
+    pjax_valine();
+  });
+  volantis.pjax.push(pjax_valine);
+</script>
+
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+<!-- optional -->
+
+  <script>
+const SearchServiceimagePath="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@master/img/";
+const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
+
+$('.input.u-search-input').one('focus',function(){
+	
+		loadScript('/js/search/hexo.js',setSearchService);
+	
+})
+
+function listenSearch(){
+  
+    customSearch = new HexoSearch({
+      imagePath: SearchServiceimagePath
+    });
+  
+}
+function setSearchService() {
+	listenSearch();
+	
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  <script defer>
+
+  const LCCounter = {
+    app_id: 'u9j57bwJod4EDmXWdxrwuqQT-MdYXbMMI',
+    app_key: 'jfHtEKVE24j0IVCGHbvuFClp',
+    custom_api_server: '',
+
+    // 查询存储的记录
+    getRecord(Counter, url, title) {
+      return new Promise(function (resolve, reject) {
+        Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({url})))
+          .then(resp => resp.json())
+          .then(({results, code, error}) => {
+            if (code === 401) {
+              throw error;
+            }
+            if (results && results.length > 0) {
+              var record = results[0];
+              resolve(record);
+            } else {
+              Counter('post', '/classes/Counter', {url, title: title, times: 0})
+                .then(resp => resp.json())
+                .then((record, error) => {
+                  if (error) {
+                    throw error;
+                  }
+                  resolve(record);
+                }).catch(error => {
+                console.error('Failed to create', error);
+                reject(error);
+              });
+            }
+          }).catch((error) => {
+          console.error('LeanCloud Counter Error:', error);
+          reject(error);
+        });
+      })
+    },
+
+    // 发起自增请求
+    increment(Counter, incrArr) {
+      return new Promise(function (resolve, reject) {
+        Counter('post', '/batch', {
+          "requests": incrArr
+        }).then((res) => {
+          res = res.json();
+          if (res.error) {
+            throw res.error;
+          }
+          resolve(res);
+        }).catch((error) => {
+          console.error('Failed to save visitor count', error);
+          reject(error);
+        });
+      });
+    },
+
+    // 构建自增请求体
+    buildIncrement(objectId) {
+      return {
+        "method": "PUT",
+        "path": `/1.1/classes/Counter/${ objectId }`,
+        "body": {
+          "times": {
+            '__op': 'Increment',
+            'amount': 1
+          }
+        }
+      }
+    },
+
+    // 校验是否为有效的 UV
+    validUV() {
+      var key = 'LeanCloudUVTimestamp';
+      var flag = localStorage.getItem(key);
+      if (flag) {
+        // 距离标记小于 24 小时则不计为 UV
+        if (new Date().getTime() - parseInt(flag) <= 86400000) {
+          return false;
+        }
+      }
+      localStorage.setItem(key, new Date().getTime().toString());
+      return true;
+    },
+
+    addCount(Counter) {
+      var enableIncr = '' === 'true' && window.location.hostname !== 'localhost';
+      enableIncr = true;
+      var getterArr = [];
+      var incrArr = [];
+      // 请求 PV 并自增
+      var pvCtn = document.querySelector('#lc-sv');
+      if (pvCtn || enableIncr) {
+        var pvGetter = this.getRecord(Counter, 'https://wsliwh.gitee.io' + '/#lc-sv', 'Visits').then((record) => {
+          incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-sv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + 1;
+              if (pvCtn) {
+                pvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(pvGetter);
+      }
+
+      // 请求 UV 并自增
+      var uvCtn = document.querySelector('#lc-uv');
+      if (uvCtn || enableIncr) {
+        var uvGetter = this.getRecord(Counter, 'https://wsliwh.gitee.io' + '/#lc-uv', 'Visitors').then((record) => {
+          var vuv = this.validUV();
+          vuv && incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-uv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + (vuv ? 1 : 0);
+              if (uvCtn) {
+                uvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(uvGetter);
+      }
+
+      // 请求文章的浏览数，如果是当前页面就自增
+      var allPV = document.querySelectorAll('#lc-pv');
+      if (allPV.length > 0 || enableIncr) {
+        for (i = 0; i < allPV.length; i++) {
+          let pv = allPV[i];
+          let title = pv.getAttribute('data-title');
+          var url = 'https://wsliwh.gitee.io' + pv.getAttribute('data-path');
+          if (url) {
+            var viewGetter = this.getRecord(Counter, url, title).then((record) => {
+              // 是当前页面就自增
+              let curPath = window.location.pathname;
+              if (curPath.includes('index.html')) {
+                curPath = curPath.substring(0, curPath.lastIndexOf('index.html'));
+              }
+              if (pv.getAttribute('data-path') == curPath) {
+                incrArr.push(this.buildIncrement(record.objectId));
+              }
+              if (pv) {
+                var ele = pv.querySelector('#lc-pv #number');
+                if (ele) {
+                  if (pv.getAttribute('data-path') == curPath) {
+                    ele.innerText = (record.times || 0) + 1;
+                  } else {
+                    ele.innerText = record.times || 0;
+                  }
+                  pv.style.display = 'inline';
+                }
+              }
+            });
+            getterArr.push(viewGetter);
+          }
+        }
+      }
+
+      // 如果启动计数自增，批量发起自增请求
+      if (enableIncr) {
+        Promise.all(getterArr).then(() => {
+          incrArr.length > 0 && this.increment(Counter, incrArr);
+        })
+      }
+
+    },
+
+
+    fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${ api_server }/1.1${ url }`, {
+          method,
+          headers: {
+            'X-LC-Id': this.app_id,
+            'X-LC-Key': this.app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      this.addCount(Counter);
+    },
+
+    refreshCounter() {
+      var api_server = this.app_id.slice(-9) !== '-MdYXbMMI' ? this.custom_api_server : `https://${ this.app_id.slice(0, 8).toLowerCase() }.api.lncldglobal.com`;
+      if (api_server) {
+        this.fetchData(api_server);
+      } else {
+        fetch('https://app-router.leancloud.cn/2/route?appId=' + this.app_id)
+          .then(resp => resp.json())
+          .then(({api_server}) => {
+            this.fetchData('https://' + api_server);
+          });
+      }
+    }
+
+  };
+
+  LCCounter.refreshCounter();
+
+  document.addEventListener('pjax:complete', function () {
+    LCCounter.refreshCounter();
+  });
+</script>
+
+
+
+
+  <script>
+const rootElement = document.documentElement;
+const darkModeStorageKey = "user-color-scheme";
+const rootElementDarkModeAttributeName = "data-user-color-scheme";
+
+const setLS = (k, v) => {
+    localStorage.setItem(k, v);
+};
+
+const removeLS = (k) => {
+    localStorage.removeItem(k);
+};
+
+const getLS = (k) => {
+    return localStorage.getItem(k);
+};
+
+const getModeFromCSSMediaQuery = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+
+const resetRootDarkModeAttributeAndLS = () => {
+  rootElement.removeAttribute(rootElementDarkModeAttributeName);
+  removeLS(darkModeStorageKey);
+};
+
+const validColorModeKeys = {
+  dark: true,
+  light: true,
+};
+
+const applyCustomDarkModeSettings = (mode) => {
+  const currentSetting = mode || getLS(darkModeStorageKey);
+
+  if (currentSetting === getModeFromCSSMediaQuery()) {
+    resetRootDarkModeAttributeAndLS();
+  } else if (validColorModeKeys[currentSetting]) {
+    rootElement.setAttribute(rootElementDarkModeAttributeName, currentSetting);
+  } else {
+    resetRootDarkModeAttributeAndLS();
+  }
+};
+
+const invertDarkModeObj = {
+  dark: "light",
+  light: "dark",
+};
+
+/**
+ * get target mode
+ */
+const toggleCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  setLS(darkModeStorageKey, currentSetting);
+  return currentSetting;
+};
+
+/**
+ * bind click event for toggle button
+ */
+var btn=$("#wrapper .toggle-mode-btn,#rightmenu-wrapper .toggle-mode-btn");
+function bindToggleButton() {
+    btn.on('click',(e) => {
+      const mode = toggleCustomDarkMode();
+      applyCustomDarkModeSettings(mode);
+    });
+}
+
+applyCustomDarkModeSettings();
+document.addEventListener("DOMContentLoaded", bindToggleButton);
+volantis.pjax.push(bindToggleButton);
+volantis.pjax.send(()=>{
+	btn.unbind('click');
+},'toggle-mode-btn-unbind');
+</script>
+
+
+
+
+
+
+
+
+<script>
+function listennSidebarTOC() {
+  const navItems = document.querySelectorAll(".toc li");
+  if (!navItems.length) return;
+  const sections = [...navItems].map((element) => {
+    const link = element.querySelector(".toc-link");
+    const target = document.getElementById(
+      decodeURI(link.getAttribute("href")).replace("#", "")
+    );
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({
+		top: target.offsetTop + 100,
+		
+		behavior: "smooth"
+		
+	  });
+    });
+    return target;
+  });
+
+  function activateNavByIndex(target) {
+    if (target.classList.contains("active-current")) return;
+
+    document.querySelectorAll(".toc .active").forEach((element) => {
+      element.classList.remove("active", "active-current");
+    });
+    target.classList.add("active", "active-current");
+    let parent = target.parentNode;
+    while (!parent.matches(".toc")) {
+      if (parent.matches("li")) parent.classList.add("active");
+      parent = parent.parentNode;
+    }
+  }
+
+  function findIndex(entries) {
+    let index = 0;
+    let entry = entries[index];
+    if (entry.boundingClientRect.top > 0) {
+      index = sections.indexOf(entry.target);
+      return index === 0 ? 0 : index - 1;
+    }
+    for (; index < entries.length; index++) {
+      if (entries[index].boundingClientRect.top <= 0) {
+        entry = entries[index];
+      } else {
+        return sections.indexOf(entry.target);
+      }
+    }
+    return sections.indexOf(entry.target);
+  }
+
+  function createIntersectionObserver(marginTop) {
+    marginTop = Math.floor(marginTop + 10000);
+    let intersectionObserver = new IntersectionObserver(
+      (entries, observe) => {
+        let scrollHeight = document.documentElement.scrollHeight + 100;
+        if (scrollHeight > marginTop) {
+          observe.disconnect();
+          createIntersectionObserver(scrollHeight);
+          return;
+        }
+        let index = findIndex(entries);
+        activateNavByIndex(navItems[index]);
+      },
+      {
+        rootMargin: marginTop + "px 0px -100% 0px",
+        threshold: 0,
+      }
+    );
+    sections.forEach((element) => {
+      element && intersectionObserver.observe(element);
+    });
+  }
+  createIntersectionObserver(document.documentElement.scrollHeight);
+}
+
+document.addEventListener("DOMContentLoaded", listennSidebarTOC);
+document.addEventListener("pjax:success", listennSidebarTOC);
+</script>
+
+<!-- more -->
+
+ 
+	   
+	    
+
+
+<script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
+
+
+<script>
+    var pjax;
+    document.addEventListener('DOMContentLoaded', function () {
+      pjax = new Pjax({
+        elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([pjax-fancybox])',
+        selectors: [
+          "title",
+          
+          "#pjax-container",
+          "#pjax-header-nav-list"
+        ],
+        cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
+        timeout: 5000
+      });
+    });
+
+    document.addEventListener('pjax:send', function (e) {
+      //window.stop(); // 相当于点击了浏览器的停止按钮
+
+      try {
+        var currentUrl = window.location.pathname;
+        var targetUrl = e.triggerElement.href;
+        var banUrl = [""];
+        if (banUrl[0] != "") {
+          banUrl.forEach(item => {
+            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
+              window.location.href = targetUrl;
+            }
+          });
+        }
+      } catch (error) {}
+
+      window.subData = null; // 移除标题（用于一二级导航栏切换处）
+
+      volantis.$switcher.removeClass('active'); // 关闭移动端激活的搜索框
+      volantis.$header.removeClass('z_search-open'); // 关闭移动端激活的搜索框
+      volantis.$wrapper.removeClass('sub'); // 跳转页面时关闭二级导航
+
+      // 解绑事件 避免重复监听
+      volantis.$topBtn.unbind('click');
+      $('.menu a').unbind('click');
+      $(window).unbind('resize');
+      $(window).unbind('scroll');
+      $(document).unbind('scroll');
+      $(document).unbind('click');
+      $('body').unbind('click');
+	  // 使用 volantis.pjax.send 方法传入pjax:send回调函数 参见layout/_partial/scripts/global.ejs
+	  volantis.pjax.method.send.start();
+    });
+
+    document.addEventListener('pjax:complete', function () {
+      $('.nav-main').find('.list-v').not('.menu-phone').removeAttr("style",""); // 移除小尾巴的移除
+      $('.menu-phone.list-v').removeAttr("style",""); // 移除小尾巴的移除
+      $('script[data-pjax], .pjax-reload script').each(function () {
+        $(this).parent().append($(this).remove());
+      });
+      try{
+		// 使用 volantis.pjax.push 方法传入重载函数 参见layout/_partial/scripts/global.ejs
+		volantis.pjax.method.complete.start();
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    document.addEventListener('pjax:error', function (e) {
+	  // 使用 volantis.pjax.error 方法传入pjax:error回调函数 参见layout/_partial/scripts/global.ejs
+	  volantis.pjax.method.error.start();
+      window.location.href = e.triggerElement.href;
+    });
+</script>
+ 
+	  
+    </div>
+  </body>
+</html>

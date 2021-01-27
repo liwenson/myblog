@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="zh-CN,en,zh-HK,zh-TW,default">
+  <head hexo-theme='https://github.com/volantis-x/hexo-theme-volantis/tree/4.3.1'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://cdn.jsdelivr.net'>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <link rel="preload" href="/css/first.css" as="style">
+  
+
+  <!-- 页面元数据 -->
+  
+  <title>MVC 概要与环境配置 - Hexo</title>
+  
+    <meta name="keywords" content="java,springMVC">
+  
+
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  
+    <link rel="shortcut icon" type='image/x-icon' href="https://cdn.jsdelivr.net/gh/xaoxuu/assets@master/favicon/favicon.ico">
+  
+
+  <!-- import link -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/first.css">
+
+  
+
+  
+  <link rel="stylesheet" href="/css/style.css" media="print" onload="this.media='all';this.onload=null">
+  <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
+  
+
+  <script id="loadcss"></script>
+
+  
+<script>
+if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMode))
+    document.write(
+	'<style>'+
+		'html{'+
+			'overflow-x: hidden !important;'+
+			'overflow-y: hidden !important;'+
+		'}'+
+		'.kill-ie{'+
+			'text-align:center;'+
+			'height: 100%;'+
+			'margin-top: 15%;'+
+			'margin-bottom: 5500%;'+
+		'}'+
+	'</style>'+
+    '<div class="kill-ie">'+
+        '<h1><b>抱歉，您的浏览器无法访问本站</b></h1>'+
+        '<h3>微软已经于2016年终止了对 Internet Explorer (IE) 10 及更早版本的支持，<br/>'+
+        '继续使用存在极大的安全隐患，请使用当代主流的浏览器进行访问。</h3><br/>'+
+        '<a target="_blank" rel="noopener" href="https://www.microsoft.com/zh-cn/WindowsForBusiness/End-of-IE-support"><strong>了解详情 ></strong></a>'+
+    '</div>');
+</script>
+
+
+<noscript>
+	<style>
+		html{
+			overflow-x: hidden !important;
+			overflow-y: hidden !important;
+		}
+		.kill-noscript{
+			text-align:center;
+			height: 100%;
+			margin-top: 15%;
+			margin-bottom: 5500%;
+		}
+	</style>
+    <div class="kill-noscript">
+        <h1><b>抱歉，您的浏览器无法访问本站</b></h1>
+        <h3>本页面需要浏览器支持（启用）JavaScript</h3><br/>
+        <a target="_blank" rel="noopener" href="https://www.baidu.com/s?wd=启用JavaScript"><strong>了解详情 ></strong></a>
+    </div>
+</noscript>
+
+</head>
+
+  <body>
+    
+
+<header id="l_header" class="l_header auto shadow blur show" style='opacity: 0' >
+  <div class='container'>
+  <div id='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h m-phone' id="pjax-header-nav-list">
+        <li><a id="s-comment" class="fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a id="s-toc" class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h m-pc'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h m-phone'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+    <div id="l_body">
+      <div id="l_cover">
+  
+    
+        <div id="full" class='cover-wrapper post dock' style="display: none;">
+          
+            <div class='cover-bg lazyload placeholder' data-bg="https://uploadbeta.com/api/pictures/random/?key=BingEverydayWallpaperPicture"></div>
+          
+          <div class='cover-body'>
+  <div class='top'>
+    
+    
+      <p class="title">Volantis</p>
+    
+    
+  </div>
+  <div class='bottom'>
+    <div class='menu navigation'>
+      <div class='list-h'>
+        
+          
+            <a href="/v4/getting-started/"
+              
+              
+              id="v4getting-started">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f5c3.svg'><p>文档</p>
+            </a>
+          
+            <a href="/faqs/"
+              
+              
+              id="faqs">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f516.svg'><p>帮助</p>
+            </a>
+          
+            <a href="/examples/"
+              
+              
+              id="examples">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f396.svg'><p>示例</p>
+            </a>
+          
+            <a href="/contributors/"
+              
+              
+              id="contributors">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f389.svg'><p>社区</p>
+            </a>
+          
+            <a href="/archives/"
+              
+              
+              id="archives">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
+            </a>
+          
+            <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
+              
+              
+              id="https:githubcomvolantis-xhexo-theme-volantis">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f9ec.svg'><p>源码</p>
+            </a>
+          
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+          <div id="scroll-down" style="display: none;"><i class="fa fa-chevron-down scroll-down-effects"></i></div>
+        </div>
+    
+  
+  </div>
+
+      <div id="safearea">
+        <div class="body-wrapper" id="pjax-container">
+          
+
+<div class='l_main'>
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
+  
+
+
+  
+  <div class="article-meta" id="top">
+    
+    
+    
+      <h1 class="title">
+        MVC 概要与环境配置
+      </h1>
+      <div class='new-meta-box'>
+        
+          
+            
+<div class='new-meta-item author'>
+  <a class='author' href="/" rel="nofollow">
+    <img no-lazy src="">
+    <p>请设置文章作者</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class='new-meta-item category'>
+    <a class='notlink'>
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <a class="category-link" href="/categories/java/">java</a>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：2019年12月13日</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class="new-meta-item browse leancloud">
+    <a class='notlink'>
+      
+      <div id="lc-pv" data-title="MVC 概要与环境配置" data-path="/2019/12/13/SpringMVC%E4%B8%80/">
+        <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
+        <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+        次浏览
+      </div>
+    </a>
+  </div>
+
+
+          
+        
+      </div>
+    
+  </div>
+
+
+  
+  
+  <p>[TOC]</p>
+<h2 id="一、MVC-概要"><a href="#一、MVC-概要" class="headerlink" title="一、MVC 概要"></a>一、MVC 概要</h2><p>MVC 是模型(Model)、视图(View)、控制器(Controller)的简写、是一张软件设计的规范，用一种将业务逻辑、数据、显示分离的方法组织代码，MVC主要作用是降低了视图与业务逻辑间的双向耦合。MVC 不是一种设计模式，MVC 是一种架构模式。当然不同的MVC 存在差异。</p>
+<p><img src="data:image/png;base64,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" alt="image"></p>
+<h2 id="二、Spring-MVC-介绍"><a href="#二、Spring-MVC-介绍" class="headerlink" title="二、Spring MVC 介绍"></a>二、Spring MVC 介绍</h2><p>Spring MVC是Spring Framework的一部分，是基于Java实现MVC的轻量级Web框架。Spring MVC的特点：</p>
+<p>1、 轻量<br>2、 高效<br>3、 与Spring兼容性好<br>4、 功能强大<br>  RESTful、数据验证、格式化、绑定机制、本地化、主题等<br>5、 简洁灵活</p>
+<p>Spring的web框架围绕DispatcherServlet设计。 DispatcherServlet的作用是将请求分发到不同的处理器。从Spring 2.5开始，使用Java 5或者以上版本的用户可以采用基于注解的controller声明方式。官网上说Spring的web模块提供了大量独特的功能，包括:<br><strong>清晰的角色划分</strong>：控制器（controller）、验证器（validator）、 命令对象（command object）、表单对象（form object）、模型对象（model object）、 Servlet分发器（DispatcherServlet）、 处理器映射（handler mapping）、视图解析器（view resolver）等等。 每一个角色都可以由一个专门的对象来实现。</p>
+<p><strong>强大而直接的配置方式</strong>：将框架类和应用程序类都能作为JavaBean配置，支持跨多个context的引用，例如，在web控制器中对业务对象和验证器（validator）的引用。</p>
+<p><strong>可适配、非侵入</strong>：可以根据不同的应用场景，选择合适的控制器子类 （simple型、command型、form型、wizard型、multi-action型或者自定义），而不是从单一控制器 （比如Action/ActionForm）继承。</p>
+<p><strong>可重用的业务代码</strong>：可以使用现有的业务对象作为命令或表单对象，而不需要去扩展某个特定框架的基类。</p>
+<p><strong>可定制的绑定（binding） 和验证（validation）</strong>：比如将类型不匹配作为应用级的验证错误， 这可以保存错误的值。再比如本地化的日期和数字绑定等等。在其他某些框架中，你只能使用字符串表单对象， 需要手动解析它并转换到业务对象。</p>
+<p><strong>可定制的handler mapping和view resolution</strong>：Spring提供从最简单的URL映射， 到复杂的、专用的定制策略。与某些web MVC框架强制开发人员使用单一特定技术相比，Spring显得更加灵活。</p>
+<p><strong>灵活的model转换</strong>：在Springweb框架中，使用基于Map的 键/值对来达到轻易地与各种视图技术的集成。</p>
+<p><strong>可定制的本地化和主题（theme）解析</strong>：支持在JSP中可选择地使用Spring标签库、支持JSTL、支持Velocity（不需要额外的中间层）等等。</p>
+<p><strong>简单而强大的JSP标签库（Spring Tag Library）</strong>：支持包括诸如数据绑定和主题（theme） 之类的许多功能。它提供在标记方面的最大灵活性。</p>
+<p><strong>JSP表单标签库</strong>：在Spring2.0中引入的表单标签库，使得在JSP中编写 表单更加容易。</p>
+<p><strong>Spring Bean的生命周期可以被限制在当前的HTTP Request或者HTTP Session</strong>。 准确的说，这并非Spring MVC框架本身特性，而应归属于Sping MVC使用的WebApplicationContext容器。</p>
+<h2 id="三、创建Spring-MVC-项目"><a href="#三、创建Spring-MVC-项目" class="headerlink" title="三、创建Spring MVC 项目"></a>三、创建Spring MVC 项目</h2><h2 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h2>
+  
+  
+    
+    <div class='footer'>
+      
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=https://wsliwh.gitee.io/2019/12/13/SpringMVC%E4%B8%80/>https://wsliwh.gitee.io/2019/12/13/SpringMVC%E4%B8%80/</a></p>
+              
+            
+          </blockquote>
+        </div>
+      
+      
+    </div>
+  
+  
+    
+
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-12-17T11:32:50+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2019年12月17日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/springMVC/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>springMVC</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://wsliwh.gitee.io/2019/12/13/SpringMVC%E4%B8%80/&title=MVC 概要与环境配置 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://wsliwh.gitee.io/2019/12/13/SpringMVC%E4%B8%80/&title=MVC 概要与环境配置 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=https://wsliwh.gitee.io/2019/12/13/SpringMVC%E4%B8%80/&title=MVC 概要与环境配置 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+        <a class='prev' href='/2019/12/13/SpringBoot%E4%B8%80/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>MVC 概要与环境配置</p>
+          <p class='content'>[TOC]
+Spring Boot 简介Spring boot 来简化Spring 应用开发的一个框架
+整个Spring技术栈的一个大整合
+J2EE 开发的一站式解决方案
+解决
+</p>
+        </a>
+      
+      
+        <a class='next' href='/2019/12/13/flume%E5%AE%89%E8%A3%85/'>
+          <p class='title'>Flume安装<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>准备 flume安装jdk
+官方文档
+http://flume.apache.org/FlumeUserGuide.html
+下载地址
+1234567http:&#x2F;&#x2F;mirro...</p>
+        </a>
+      
+    </div>
+  
+</article>
+
+
+  
+
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="valine_container" class="valine_thread">
+  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+</div>
+
+  </article>
+
+
+
+
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+
+
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81MVC-%E6%A6%82%E8%A6%81"><span class="toc-text">一、MVC 概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Spring-MVC-%E4%BB%8B%E7%BB%8D"><span class="toc-text">二、Spring MVC 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%9B%E5%BB%BASpring-MVC-%E9%A1%B9%E7%9B%AE"><span class="toc-text">三、创建Spring MVC 项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BE%E7%89%87"><span class="toc-text">图片</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+
+		  
+		  <!--此文件用来存放一些不方便取值的变量-->
+<!--思路大概是将值藏到重加载的区域内-->
+
+<script>
+  window.pdata={}
+  pdata.ispage=true;
+  pdata.postTitle="MVC 概要与环境配置";
+  pdata.commentPath="";
+  pdata.commentPlaceholder="";
+  // header 这里无论是否开启pjax都需要
+  var l_header=document.getElementById("l_header");
+  
+  l_header.classList.add("show");
+  
+  
+    // cover
+    var cover_wrapper=document.querySelector('.cover-wrapper');
+    
+    cover_wrapper.id="none";
+    cover_wrapper.style.display="none";
+    
+  
+</script>
+
+        </div>
+        
+  
+  <footer class="footer clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="mailto:me@xxx.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="https://github.com/liwensong"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=63035382"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>博客内容遵循 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://github.com/volantis-x/hexo-theme-volantis/tree/4.3.1" target="_blank" class="codename">Volantis</a>
+        作为主题
+      
+    
+      
+        <div class='copyright'>
+        <p><a target="_blank" rel="noopener" href="https://xaoxuu.com/">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+
+        <a id="s-top" class="fas fa-arrow-up fa-fw" href="javascript:void(0)"></a>
+      </div>
+    </div>
+    <div>
+      <script>
+/************这个文件存放不需要重载的全局变量和全局函数*********/
+window.volantis={};
+window.volantis.loadcss=document.getElementById("loadcss");
+/******************** Pjax ********************************/
+function VPjax(){
+	this.list=[] // 存放回调函数
+	this.start=()=>{
+	  for(var i=0;i<this.list.length;i++){
+		this.list[i].run();
+	  }
+	}
+	this.push=(fn,name)=>{
+		var f=new PjaxItem(fn,name);
+		this.list.push(f);
+	}
+	// 构造一个可以run的对象
+	function PjaxItem(fn,name){
+		// 函数名称
+		this.name = name || fn.name
+		// run方法
+		this.run=()=>{
+			fn()
+		}
+	}
+}
+volantis.pjax={}
+volantis.pjax.method={
+	complete: new VPjax(),
+	error: new VPjax(),
+	send: new VPjax()
+}
+volantis.pjax={
+	...volantis.pjax,
+	push: volantis.pjax.method.complete.push,
+	error: volantis.pjax.method.error.push,
+	send: volantis.pjax.method.send.push
+}
+/********************脚本懒加载函数********************************/
+// 已经加入了setTimeout
+function loadScript(src, cb) {
+	setTimeout(function() {
+		var HEAD = document.getElementsByTagName('head')[0] || document.documentElement;
+		var script = document.createElement('script');
+		script.setAttribute('type','text/javascript');
+		if (cb) script.onload = cb;
+		script.setAttribute('src', src);
+		HEAD.appendChild(script);
+	});
+}
+//https://github.com/filamentgroup/loadCSS
+var loadCSS = function( href, before, media, attributes ){
+	var doc = window.document;
+	var ss = doc.createElement( "link" );
+	var ref;
+	if( before ){
+		ref = before;
+	}
+	else {
+		var refs = ( doc.body || doc.getElementsByTagName( "head" )[ 0 ] ).childNodes;
+		ref = refs[ refs.length - 1];
+	}
+	var sheets = doc.styleSheets;
+	if( attributes ){
+		for( var attributeName in attributes ){
+			if( attributes.hasOwnProperty( attributeName ) ){
+				ss.setAttribute( attributeName, attributes[attributeName] );
+			}
+		}
+	}
+	ss.rel = "stylesheet";
+	ss.href = href;
+	ss.media = "only x";
+	function ready( cb ){
+		if( doc.body ){
+			return cb();
+		}
+		setTimeout(function(){
+			ready( cb );
+		});
+	}
+	ready( function(){
+		ref.parentNode.insertBefore( ss, ( before ? ref : ref.nextSibling ) );
+	});
+	var onloadcssdefined = function( cb ){
+		var resolvedHref = ss.href;
+		var i = sheets.length;
+		while( i-- ){
+			if( sheets[ i ].href === resolvedHref ){
+				return cb();
+			}
+		}
+		setTimeout(function() {
+			onloadcssdefined( cb );
+		});
+	};
+	function loadCB(){
+		if( ss.addEventListener ){
+			ss.removeEventListener( "load", loadCB );
+		}
+		ss.media = media || "all";
+	}
+	if( ss.addEventListener ){
+		ss.addEventListener( "load", loadCB);
+	}
+	ss.onloadcssdefined = onloadcssdefined;
+	onloadcssdefined( loadCB );
+	return ss;
+};
+</script>
+<script>
+  
+  loadCSS("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14/css/all.min.css", window.volantis.loadcss);
+  
+  
+  
+  
+</script>
+<!-- required -->
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js"></script>
+
+<script>
+  function pjax_fancybox() {
+    $(".md .gallery").find("img").each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("class", "fancybox");
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 判断当前页面是否存在描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".md .gallery").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  function SCload_fancybox() {
+    if ($(".md .gallery").find("img").length == 0) return;
+    loadCSS("https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css", document.getElementById("loadcss"));
+    loadScript('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', pjax_fancybox)
+  };
+  $(function () {
+    SCload_fancybox();
+  });
+  function Pjax_SCload_fancybox(){
+	if (typeof $.fancybox == "undefined") {
+	 SCload_fancybox();
+    } else {
+	 pjax_fancybox();
+    }
+  }
+  volantis.pjax.push(Pjax_SCload_fancybox)
+  volantis.pjax.send(()=>{
+      if (typeof $.fancybox != "undefined") {
+        $.fancybox.close();    // 关闭弹窗
+      }
+  },'fancybox')
+</script>
+
+
+<!-- internal -->
+
+
+
+
+<script>
+  function loadIssuesJS() {
+    if ($(".md").find(".issues-api").length == 0) return;
+	
+	  loadScript('/js/issues.js');
+	
+  };
+  $(function () {
+    loadIssuesJS();
+  });
+  volantis.pjax.push(()=>{
+	if (typeof IssuesAPI == "undefined") {
+	  loadIssuesJS();
+	}
+  },"IssuesJS")
+</script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
+
+
+  
+
+<script>
+  window.FPConfig = {
+	delay: 0,
+	ignoreKeywords: [],
+	maxRPS: 5,
+	hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+<script src="/js/valine.js"></script>
+
+
+<script>
+  function emoji(path, idx, ext) {
+    return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  function pjax_valine() {
+    if(!document.querySelectorAll("#valine_container")[0])return;
+    let pagePlaceholder = pdata.commentPlaceholder || "快来评论吧~";
+    let path = pdata.commentPath;
+    if (path.length == 0) {
+      let defaultPath = '';
+      path = defaultPath || decodeURI(window.location.pathname);
+    }
+    var valine = new Valine();
+    valine.init(Object.assign({"path":null,"placeholder":"快来评论吧~","appId":null,"appKey":null,"meta":["nick","mail","link"],"requiredFields":["nick","mail"],"enableQQ":true,"recordIP":false,"avatar":"robohash","pageSize":10,"lang":"zh-cn","highlight":true,"mathJax":false}, {
+      el: '#valine_container',
+      path: path,
+      placeholder: pagePlaceholder,
+      emojiCDN: 'https://cdn.jsdelivr.net/gh/volantis-x/cdn-emoji/valine/',
+      emojiMaps: emojiMaps,
+    }))
+  }
+  $(function () {
+    pjax_valine();
+  });
+  volantis.pjax.push(pjax_valine);
+</script>
+
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+<!-- optional -->
+
+  <script>
+const SearchServiceimagePath="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@master/img/";
+const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
+
+$('.input.u-search-input').one('focus',function(){
+	
+		loadScript('/js/search/hexo.js',setSearchService);
+	
+})
+
+function listenSearch(){
+  
+    customSearch = new HexoSearch({
+      imagePath: SearchServiceimagePath
+    });
+  
+}
+function setSearchService() {
+	listenSearch();
+	
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  <script defer>
+
+  const LCCounter = {
+    app_id: 'u9j57bwJod4EDmXWdxrwuqQT-MdYXbMMI',
+    app_key: 'jfHtEKVE24j0IVCGHbvuFClp',
+    custom_api_server: '',
+
+    // 查询存储的记录
+    getRecord(Counter, url, title) {
+      return new Promise(function (resolve, reject) {
+        Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({url})))
+          .then(resp => resp.json())
+          .then(({results, code, error}) => {
+            if (code === 401) {
+              throw error;
+            }
+            if (results && results.length > 0) {
+              var record = results[0];
+              resolve(record);
+            } else {
+              Counter('post', '/classes/Counter', {url, title: title, times: 0})
+                .then(resp => resp.json())
+                .then((record, error) => {
+                  if (error) {
+                    throw error;
+                  }
+                  resolve(record);
+                }).catch(error => {
+                console.error('Failed to create', error);
+                reject(error);
+              });
+            }
+          }).catch((error) => {
+          console.error('LeanCloud Counter Error:', error);
+          reject(error);
+        });
+      })
+    },
+
+    // 发起自增请求
+    increment(Counter, incrArr) {
+      return new Promise(function (resolve, reject) {
+        Counter('post', '/batch', {
+          "requests": incrArr
+        }).then((res) => {
+          res = res.json();
+          if (res.error) {
+            throw res.error;
+          }
+          resolve(res);
+        }).catch((error) => {
+          console.error('Failed to save visitor count', error);
+          reject(error);
+        });
+      });
+    },
+
+    // 构建自增请求体
+    buildIncrement(objectId) {
+      return {
+        "method": "PUT",
+        "path": `/1.1/classes/Counter/${ objectId }`,
+        "body": {
+          "times": {
+            '__op': 'Increment',
+            'amount': 1
+          }
+        }
+      }
+    },
+
+    // 校验是否为有效的 UV
+    validUV() {
+      var key = 'LeanCloudUVTimestamp';
+      var flag = localStorage.getItem(key);
+      if (flag) {
+        // 距离标记小于 24 小时则不计为 UV
+        if (new Date().getTime() - parseInt(flag) <= 86400000) {
+          return false;
+        }
+      }
+      localStorage.setItem(key, new Date().getTime().toString());
+      return true;
+    },
+
+    addCount(Counter) {
+      var enableIncr = '' === 'true' && window.location.hostname !== 'localhost';
+      enableIncr = true;
+      var getterArr = [];
+      var incrArr = [];
+      // 请求 PV 并自增
+      var pvCtn = document.querySelector('#lc-sv');
+      if (pvCtn || enableIncr) {
+        var pvGetter = this.getRecord(Counter, 'https://wsliwh.gitee.io' + '/#lc-sv', 'Visits').then((record) => {
+          incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-sv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + 1;
+              if (pvCtn) {
+                pvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(pvGetter);
+      }
+
+      // 请求 UV 并自增
+      var uvCtn = document.querySelector('#lc-uv');
+      if (uvCtn || enableIncr) {
+        var uvGetter = this.getRecord(Counter, 'https://wsliwh.gitee.io' + '/#lc-uv', 'Visitors').then((record) => {
+          var vuv = this.validUV();
+          vuv && incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-uv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + (vuv ? 1 : 0);
+              if (uvCtn) {
+                uvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(uvGetter);
+      }
+
+      // 请求文章的浏览数，如果是当前页面就自增
+      var allPV = document.querySelectorAll('#lc-pv');
+      if (allPV.length > 0 || enableIncr) {
+        for (i = 0; i < allPV.length; i++) {
+          let pv = allPV[i];
+          let title = pv.getAttribute('data-title');
+          var url = 'https://wsliwh.gitee.io' + pv.getAttribute('data-path');
+          if (url) {
+            var viewGetter = this.getRecord(Counter, url, title).then((record) => {
+              // 是当前页面就自增
+              let curPath = window.location.pathname;
+              if (curPath.includes('index.html')) {
+                curPath = curPath.substring(0, curPath.lastIndexOf('index.html'));
+              }
+              if (pv.getAttribute('data-path') == curPath) {
+                incrArr.push(this.buildIncrement(record.objectId));
+              }
+              if (pv) {
+                var ele = pv.querySelector('#lc-pv #number');
+                if (ele) {
+                  if (pv.getAttribute('data-path') == curPath) {
+                    ele.innerText = (record.times || 0) + 1;
+                  } else {
+                    ele.innerText = record.times || 0;
+                  }
+                  pv.style.display = 'inline';
+                }
+              }
+            });
+            getterArr.push(viewGetter);
+          }
+        }
+      }
+
+      // 如果启动计数自增，批量发起自增请求
+      if (enableIncr) {
+        Promise.all(getterArr).then(() => {
+          incrArr.length > 0 && this.increment(Counter, incrArr);
+        })
+      }
+
+    },
+
+
+    fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${ api_server }/1.1${ url }`, {
+          method,
+          headers: {
+            'X-LC-Id': this.app_id,
+            'X-LC-Key': this.app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      this.addCount(Counter);
+    },
+
+    refreshCounter() {
+      var api_server = this.app_id.slice(-9) !== '-MdYXbMMI' ? this.custom_api_server : `https://${ this.app_id.slice(0, 8).toLowerCase() }.api.lncldglobal.com`;
+      if (api_server) {
+        this.fetchData(api_server);
+      } else {
+        fetch('https://app-router.leancloud.cn/2/route?appId=' + this.app_id)
+          .then(resp => resp.json())
+          .then(({api_server}) => {
+            this.fetchData('https://' + api_server);
+          });
+      }
+    }
+
+  };
+
+  LCCounter.refreshCounter();
+
+  document.addEventListener('pjax:complete', function () {
+    LCCounter.refreshCounter();
+  });
+</script>
+
+
+
+
+  <script>
+const rootElement = document.documentElement;
+const darkModeStorageKey = "user-color-scheme";
+const rootElementDarkModeAttributeName = "data-user-color-scheme";
+
+const setLS = (k, v) => {
+    localStorage.setItem(k, v);
+};
+
+const removeLS = (k) => {
+    localStorage.removeItem(k);
+};
+
+const getLS = (k) => {
+    return localStorage.getItem(k);
+};
+
+const getModeFromCSSMediaQuery = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+
+const resetRootDarkModeAttributeAndLS = () => {
+  rootElement.removeAttribute(rootElementDarkModeAttributeName);
+  removeLS(darkModeStorageKey);
+};
+
+const validColorModeKeys = {
+  dark: true,
+  light: true,
+};
+
+const applyCustomDarkModeSettings = (mode) => {
+  const currentSetting = mode || getLS(darkModeStorageKey);
+
+  if (currentSetting === getModeFromCSSMediaQuery()) {
+    resetRootDarkModeAttributeAndLS();
+  } else if (validColorModeKeys[currentSetting]) {
+    rootElement.setAttribute(rootElementDarkModeAttributeName, currentSetting);
+  } else {
+    resetRootDarkModeAttributeAndLS();
+  }
+};
+
+const invertDarkModeObj = {
+  dark: "light",
+  light: "dark",
+};
+
+/**
+ * get target mode
+ */
+const toggleCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  setLS(darkModeStorageKey, currentSetting);
+  return currentSetting;
+};
+
+/**
+ * bind click event for toggle button
+ */
+var btn=$("#wrapper .toggle-mode-btn,#rightmenu-wrapper .toggle-mode-btn");
+function bindToggleButton() {
+    btn.on('click',(e) => {
+      const mode = toggleCustomDarkMode();
+      applyCustomDarkModeSettings(mode);
+    });
+}
+
+applyCustomDarkModeSettings();
+document.addEventListener("DOMContentLoaded", bindToggleButton);
+volantis.pjax.push(bindToggleButton);
+volantis.pjax.send(()=>{
+	btn.unbind('click');
+},'toggle-mode-btn-unbind');
+</script>
+
+
+
+
+
+
+
+
+<script>
+function listennSidebarTOC() {
+  const navItems = document.querySelectorAll(".toc li");
+  if (!navItems.length) return;
+  const sections = [...navItems].map((element) => {
+    const link = element.querySelector(".toc-link");
+    const target = document.getElementById(
+      decodeURI(link.getAttribute("href")).replace("#", "")
+    );
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({
+		top: target.offsetTop + 100,
+		
+		behavior: "smooth"
+		
+	  });
+    });
+    return target;
+  });
+
+  function activateNavByIndex(target) {
+    if (target.classList.contains("active-current")) return;
+
+    document.querySelectorAll(".toc .active").forEach((element) => {
+      element.classList.remove("active", "active-current");
+    });
+    target.classList.add("active", "active-current");
+    let parent = target.parentNode;
+    while (!parent.matches(".toc")) {
+      if (parent.matches("li")) parent.classList.add("active");
+      parent = parent.parentNode;
+    }
+  }
+
+  function findIndex(entries) {
+    let index = 0;
+    let entry = entries[index];
+    if (entry.boundingClientRect.top > 0) {
+      index = sections.indexOf(entry.target);
+      return index === 0 ? 0 : index - 1;
+    }
+    for (; index < entries.length; index++) {
+      if (entries[index].boundingClientRect.top <= 0) {
+        entry = entries[index];
+      } else {
+        return sections.indexOf(entry.target);
+      }
+    }
+    return sections.indexOf(entry.target);
+  }
+
+  function createIntersectionObserver(marginTop) {
+    marginTop = Math.floor(marginTop + 10000);
+    let intersectionObserver = new IntersectionObserver(
+      (entries, observe) => {
+        let scrollHeight = document.documentElement.scrollHeight + 100;
+        if (scrollHeight > marginTop) {
+          observe.disconnect();
+          createIntersectionObserver(scrollHeight);
+          return;
+        }
+        let index = findIndex(entries);
+        activateNavByIndex(navItems[index]);
+      },
+      {
+        rootMargin: marginTop + "px 0px -100% 0px",
+        threshold: 0,
+      }
+    );
+    sections.forEach((element) => {
+      element && intersectionObserver.observe(element);
+    });
+  }
+  createIntersectionObserver(document.documentElement.scrollHeight);
+}
+
+document.addEventListener("DOMContentLoaded", listennSidebarTOC);
+document.addEventListener("pjax:success", listennSidebarTOC);
+</script>
+
+<!-- more -->
+
+ 
+	   
+	    
+
+
+<script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
+
+
+<script>
+    var pjax;
+    document.addEventListener('DOMContentLoaded', function () {
+      pjax = new Pjax({
+        elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([pjax-fancybox])',
+        selectors: [
+          "title",
+          
+          "#pjax-container",
+          "#pjax-header-nav-list"
+        ],
+        cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
+        timeout: 5000
+      });
+    });
+
+    document.addEventListener('pjax:send', function (e) {
+      //window.stop(); // 相当于点击了浏览器的停止按钮
+
+      try {
+        var currentUrl = window.location.pathname;
+        var targetUrl = e.triggerElement.href;
+        var banUrl = [""];
+        if (banUrl[0] != "") {
+          banUrl.forEach(item => {
+            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
+              window.location.href = targetUrl;
+            }
+          });
+        }
+      } catch (error) {}
+
+      window.subData = null; // 移除标题（用于一二级导航栏切换处）
+
+      volantis.$switcher.removeClass('active'); // 关闭移动端激活的搜索框
+      volantis.$header.removeClass('z_search-open'); // 关闭移动端激活的搜索框
+      volantis.$wrapper.removeClass('sub'); // 跳转页面时关闭二级导航
+
+      // 解绑事件 避免重复监听
+      volantis.$topBtn.unbind('click');
+      $('.menu a').unbind('click');
+      $(window).unbind('resize');
+      $(window).unbind('scroll');
+      $(document).unbind('scroll');
+      $(document).unbind('click');
+      $('body').unbind('click');
+	  // 使用 volantis.pjax.send 方法传入pjax:send回调函数 参见layout/_partial/scripts/global.ejs
+	  volantis.pjax.method.send.start();
+    });
+
+    document.addEventListener('pjax:complete', function () {
+      $('.nav-main').find('.list-v').not('.menu-phone').removeAttr("style",""); // 移除小尾巴的移除
+      $('.menu-phone.list-v').removeAttr("style",""); // 移除小尾巴的移除
+      $('script[data-pjax], .pjax-reload script').each(function () {
+        $(this).parent().append($(this).remove());
+      });
+      try{
+		// 使用 volantis.pjax.push 方法传入重载函数 参见layout/_partial/scripts/global.ejs
+		volantis.pjax.method.complete.start();
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    document.addEventListener('pjax:error', function (e) {
+	  // 使用 volantis.pjax.error 方法传入pjax:error回调函数 参见layout/_partial/scripts/global.ejs
+	  volantis.pjax.method.error.start();
+      window.location.href = e.triggerElement.href;
+    });
+</script>
+ 
+	  
+    </div>
+  </body>
+</html>

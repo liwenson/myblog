@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="zh-CN,en,zh-HK,zh-TW,default">
+  <head hexo-theme='https://github.com/volantis-x/hexo-theme-volantis/tree/4.3.1'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://cdn.jsdelivr.net'>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <link rel="preload" href="/css/first.css" as="style">
+  
+
+  <!-- 页面元数据 -->
+  
+  <title>本地搭建CA 证书服务 - Hexo</title>
+  
+    <meta name="keywords" content="ca,ssl">
+  
+
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  
+    <link rel="shortcut icon" type='image/x-icon' href="https://cdn.jsdelivr.net/gh/xaoxuu/assets@master/favicon/favicon.ico">
+  
+
+  <!-- import link -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/first.css">
+
+  
+
+  
+  <link rel="stylesheet" href="/css/style.css" media="print" onload="this.media='all';this.onload=null">
+  <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
+  
+
+  <script id="loadcss"></script>
+
+  
+<script>
+if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMode))
+    document.write(
+	'<style>'+
+		'html{'+
+			'overflow-x: hidden !important;'+
+			'overflow-y: hidden !important;'+
+		'}'+
+		'.kill-ie{'+
+			'text-align:center;'+
+			'height: 100%;'+
+			'margin-top: 15%;'+
+			'margin-bottom: 5500%;'+
+		'}'+
+	'</style>'+
+    '<div class="kill-ie">'+
+        '<h1><b>抱歉，您的浏览器无法访问本站</b></h1>'+
+        '<h3>微软已经于2016年终止了对 Internet Explorer (IE) 10 及更早版本的支持，<br/>'+
+        '继续使用存在极大的安全隐患，请使用当代主流的浏览器进行访问。</h3><br/>'+
+        '<a target="_blank" rel="noopener" href="https://www.microsoft.com/zh-cn/WindowsForBusiness/End-of-IE-support"><strong>了解详情 ></strong></a>'+
+    '</div>');
+</script>
+
+
+<noscript>
+	<style>
+		html{
+			overflow-x: hidden !important;
+			overflow-y: hidden !important;
+		}
+		.kill-noscript{
+			text-align:center;
+			height: 100%;
+			margin-top: 15%;
+			margin-bottom: 5500%;
+		}
+	</style>
+    <div class="kill-noscript">
+        <h1><b>抱歉，您的浏览器无法访问本站</b></h1>
+        <h3>本页面需要浏览器支持（启用）JavaScript</h3><br/>
+        <a target="_blank" rel="noopener" href="https://www.baidu.com/s?wd=启用JavaScript"><strong>了解详情 ></strong></a>
+    </div>
+</noscript>
+
+</head>
+
+  <body>
+    
+
+<header id="l_header" class="l_header auto shadow blur show" style='opacity: 0' >
+  <div class='container'>
+  <div id='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h m-phone' id="pjax-header-nav-list">
+        <li><a id="s-comment" class="fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a id="s-toc" class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h m-pc'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h m-phone'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+    <div id="l_body">
+      <div id="l_cover">
+  
+    
+        <div id="full" class='cover-wrapper post dock' style="display: none;">
+          
+            <div class='cover-bg lazyload placeholder' data-bg="https://uploadbeta.com/api/pictures/random/?key=BingEverydayWallpaperPicture"></div>
+          
+          <div class='cover-body'>
+  <div class='top'>
+    
+    
+      <p class="title">Volantis</p>
+    
+    
+  </div>
+  <div class='bottom'>
+    <div class='menu navigation'>
+      <div class='list-h'>
+        
+          
+            <a href="/v4/getting-started/"
+              
+              
+              id="v4getting-started">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f5c3.svg'><p>文档</p>
+            </a>
+          
+            <a href="/faqs/"
+              
+              
+              id="faqs">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f516.svg'><p>帮助</p>
+            </a>
+          
+            <a href="/examples/"
+              
+              
+              id="examples">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f396.svg'><p>示例</p>
+            </a>
+          
+            <a href="/contributors/"
+              
+              
+              id="contributors">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f389.svg'><p>社区</p>
+            </a>
+          
+            <a href="/archives/"
+              
+              
+              id="archives">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
+            </a>
+          
+            <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
+              
+              
+              id="https:githubcomvolantis-xhexo-theme-volantis">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f9ec.svg'><p>源码</p>
+            </a>
+          
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+          <div id="scroll-down" style="display: none;"><i class="fa fa-chevron-down scroll-down-effects"></i></div>
+        </div>
+    
+  
+  </div>
+
+      <div id="safearea">
+        <div class="body-wrapper" id="pjax-container">
+          
+
+<div class='l_main'>
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
+  
+
+
+  
+  <div class="article-meta" id="top">
+    
+    
+    
+      <h1 class="title">
+        本地搭建CA 证书服务
+      </h1>
+      <div class='new-meta-box'>
+        
+          
+            
+<div class='new-meta-item author'>
+  <a class='author' href="/" rel="nofollow">
+    <img no-lazy src="">
+    <p>请设置文章作者</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class='new-meta-item category'>
+    <a class='notlink'>
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <a class="category-link" href="/categories/Linux/">Linux</a>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：2019年12月18日</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class="new-meta-item browse leancloud">
+    <a class='notlink'>
+      
+      <div id="lc-pv" data-title="本地搭建CA 证书服务" data-path="/2019/12/18/CA%E8%AF%81%E4%B9%A6%E6%9C%8D%E5%8A%A1/">
+        <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
+        <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+        次浏览
+      </div>
+    </a>
+  </div>
+
+
+          
+        
+      </div>
+    
+  </div>
+
+
+  
+  
+  <p>[TOC]</p>
+<h2 id="一、搭建CA服务"><a href="#一、搭建CA服务" class="headerlink" title="一、搭建CA服务"></a>一、搭建CA服务</h2><p>openssl 默认配置文件: <code> /etc/pki/tls/openssl.cnf</code></p>
+<h3 id="1、初始化目录"><a href="#1、初始化目录" class="headerlink" title="1、初始化目录"></a>1、初始化目录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> /etc/pki/CA</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> mkdir certs crl newcerts private</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> tree</span></span><br><span class="line">.</span><br><span class="line">|-- certs</span><br><span class="line">|-- crl</span><br><span class="line">|-- newcerts</span><br><span class="line">`-- private</span><br><span class="line"></span><br><span class="line">4 directories, 0 files</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、创建CA需要的文件"><a href="#2、创建CA需要的文件" class="headerlink" title="2、创建CA需要的文件"></a>2、创建CA需要的文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># touch index.txt</span></span><br><span class="line"><span class="comment"># echo 01 &gt; serial</span></span><br><span class="line"><span class="comment"># ll</span></span><br><span class="line">total 20</span><br><span class="line">drwx--x--x 2 root root 4096 Dec 18 02:59 certs</span><br><span class="line">drwx--x--x 2 root root 4096 Dec 18 02:59 crl</span><br><span class="line">-rw------- 1 root root    0 Dec 18 02:59 index.txt</span><br><span class="line">drwx--x--x 2 root root 4096 Dec 18 02:59 newcerts</span><br><span class="line">drwx--x--x 2 root root 4096 Dec 18 02:59 private</span><br><span class="line">-rw------- 1 root root    3 Dec 18 03:00 serial</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3、给CA创建私钥"><a href="#3、给CA创建私钥" class="headerlink" title="3、给CA创建私钥"></a>3、给CA创建私钥</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd</span></span><br><span class="line">/etc/pki/CA</span><br><span class="line"></span><br><span class="line"><span class="comment"># (umask 066;openssl genrsa -out private/cakey.pem 2048)</span></span><br><span class="line">Generating RSA private key, 2048 bit long modulus</span><br><span class="line">........+++</span><br><span class="line">.................+++</span><br><span class="line">e is 65537 (0x10001)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># tree</span></span><br><span class="line">.</span><br><span class="line">|-- certs</span><br><span class="line">|-- crl</span><br><span class="line">|-- index.txt</span><br><span class="line">|-- newcerts</span><br><span class="line">|-- private</span><br><span class="line">|   `-- cakey.pem</span><br><span class="line">`-- serial</span><br><span class="line"></span><br><span class="line">4 directories, 3 files</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4、给CA生成自签名证书"><a href="#4、给CA生成自签名证书" class="headerlink" title="4、给CA生成自签名证书"></a>4、给CA生成自签名证书</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># openssl req -new -x509 -key private&#x2F;cakey.pem -days 7300 -out cacert.pem</span><br><span class="line"></span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#39;.&#39;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [CN]:</span><br><span class="line">State or Province Name (full name) [ZheJiang]:</span><br><span class="line">Locality Name (eg, city) [HangZhou]:</span><br><span class="line">Organization Name (eg, company) [ZTYC]:</span><br><span class="line">Organizational Unit Name (eg, section) [ztyc]:</span><br><span class="line">Common Name (eg, your name or your server&#39;s hostname) []:</span><br><span class="line">Email Address []:</span><br><span class="line"></span><br><span class="line"># ls</span><br><span class="line">cacert.pem  certs  crl  index.txt  newcerts  private  serial</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="二、使用CA给客户颁发证书"><a href="#二、使用CA给客户颁发证书" class="headerlink" title="二、使用CA给客户颁发证书"></a>二、使用CA给客户颁发证书</h2><h3 id="1、客户机生成私钥"><a href="#1、客户机生成私钥" class="headerlink" title="1、客户机生成私钥"></a>1、客户机生成私钥</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">client opt]<span class="comment"># (umask 066;openssl genrsa -out wms.qa.ops.com.key 2048)</span></span><br><span class="line"></span><br><span class="line">Generating RSA private key, 2048 bit long modulus</span><br><span class="line">..............+++</span><br><span class="line">.........................................................................+++</span><br><span class="line">e is 65537 (0x10001)</span><br><span class="line"></span><br><span class="line">client opt]<span class="comment"># ls</span></span><br><span class="line">wms.qa.ops.com.key</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2、生成证书申请文件"><a href="#2、生成证书申请文件" class="headerlink" title="2、生成证书申请文件"></a>2、生成证书申请文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">client opt]<span class="comment"># openssl req -new -key wms.qa.ops.com.key -days 365 -out wms.qa.ops.com.csr</span></span><br><span class="line"></span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter <span class="string">&#x27;.&#x27;</span>, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [CN]:</span><br><span class="line">State or Province Name (full name) [ZheJiang]:</span><br><span class="line">Locality Name (eg, city) [HangZhou]:</span><br><span class="line">Organization Name (eg, company) [ZTYC]:</span><br><span class="line">Organizational Unit Name (eg, section) [ztyc]:</span><br><span class="line">Common Name (eg, your name or your server<span class="string">&#x27;s hostname) []:wms.qa.ops.com</span></span><br><span class="line"><span class="string">Email Address []:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Please enter the following &#x27;</span>extra<span class="string">&#x27; attributes</span></span><br><span class="line"><span class="string">to be sent with your certificate request</span></span><br><span class="line"><span class="string">A challenge password []:</span></span><br><span class="line"><span class="string">An optional company name []:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">client opt]#ls</span></span><br><span class="line"><span class="string">wms.qa.ops.com.csr  wms.qa.ops.com.key</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3、将证书申请文件传输到CA服务器上"><a href="#3、将证书申请文件传输到CA服务器上" class="headerlink" title="3、将证书申请文件传输到CA服务器上"></a>3、将证书申请文件传输到CA服务器上</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd</span></span><br><span class="line">/etc/pki/CA</span><br><span class="line"></span><br><span class="line"><span class="comment"># ls crl/</span></span><br><span class="line">wms.qa.ops.com.csr</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4、在CA上给申请签证的客户签署证书"><a href="#4、在CA上给申请签证的客户签署证书" class="headerlink" title="4、在CA上给申请签证的客户签署证书"></a>4、在CA上给申请签证的客户签署证书</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"># pwd</span><br><span class="line">&#x2F;etc&#x2F;pki&#x2F;CA</span><br><span class="line"></span><br><span class="line"># openssl ca -in crl&#x2F;wms.qa.ops.com.csr -out certs&#x2F;wms.qa.ops.com.crt -days 365</span><br><span class="line"></span><br><span class="line">Using configuration from &#x2F;etc&#x2F;pki&#x2F;tls&#x2F;openssl.cnf</span><br><span class="line">Check that the request matches the signature</span><br><span class="line">Signature ok</span><br><span class="line">Certificate Details:</span><br><span class="line">        Serial Number: 1 (0x1)</span><br><span class="line">        Validity</span><br><span class="line">            Not Before: Dec 18 03:33:30 2019 GMT</span><br><span class="line">            Not After : Dec 17 03:33:30 2020 GMT</span><br><span class="line">        Subject:</span><br><span class="line">            countryName               &#x3D; CN</span><br><span class="line">            stateOrProvinceName       &#x3D; ZheJiang</span><br><span class="line">            organizationName          &#x3D; ZTYC</span><br><span class="line">            organizationalUnitName    &#x3D; ztyc</span><br><span class="line">            commonName                &#x3D; wms.qa.ops.com</span><br><span class="line">        X509v3 extensions:</span><br><span class="line">            X509v3 Basic Constraints: </span><br><span class="line">                CA:FALSE</span><br><span class="line">            Netscape Comment: </span><br><span class="line">                OpenSSL Generated Certificate</span><br><span class="line">            X509v3 Subject Key Identifier: </span><br><span class="line">                B2:35:6B:B9:16:86:4C:76:99:C8:27:64:7A:60:FC:B0:82:59:64:8A</span><br><span class="line">            X509v3 Authority Key Identifier: </span><br><span class="line">                keyid:70:EB:D1:7E:7A:D0:29:AE:65:10:73:D3:16:7D:6C:CD:12:C8:F1:FB</span><br><span class="line"></span><br><span class="line">Certificate is to be certified until Dec 17 03:33:30 2020 GMT (365 days)</span><br><span class="line">Sign the certificate? [y&#x2F;n]:y</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">1 out of 1 certificate requests certified, commit? [y&#x2F;n]y</span><br><span class="line">Write out database with 1 new entries</span><br><span class="line">Data Base Updated</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5、将CA上将签署好的证书传输给申请的客户"><a href="#5、将CA上将签署好的证书传输给申请的客户" class="headerlink" title="5、将CA上将签署好的证书传输给申请的客户"></a>5、将CA上将签署好的证书传输给申请的客户</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client opt]<span class="comment"># ls </span></span><br><span class="line">wms.qa.ops.com.crt  wms.qa.ops.com.csr  wms.qa.ops.com.key</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="6、查看颁发的证书"><a href="#6、查看颁发的证书" class="headerlink" title="6、查看颁发的证书"></a>6、查看颁发的证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">client opt]<span class="comment"># openssl x509 -in wms.qa.ops.com.crt -noout -text</span></span><br><span class="line"></span><br><span class="line">Certificate:</span><br><span class="line">    Data:</span><br><span class="line">        Version: 3 (0x2)</span><br><span class="line">        Serial Number: 1 (0x1)</span><br><span class="line">    Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">        Issuer: C=CN, ST=ZheJiang, L=HangZhou, O=ZTYC, OU=ztyc</span><br><span class="line">        Validity</span><br><span class="line">            Not Before: Dec 18 03:33:30 2019 GMT</span><br><span class="line">            Not After : Dec 17 03:33:30 2020 GMT</span><br><span class="line">        Subject: C=CN, ST=ZheJiang, O=ZTYC, OU=ztyc, CN=wms.qa.ops.com</span><br><span class="line">        Subject Public Key Info:</span><br><span class="line">            Public Key Algorithm: rsaEncryption</span><br><span class="line">                Public-Key: (2048 bit)</span><br><span class="line">                Modulus:</span><br><span class="line">                    00:b9:20:cf:dc:bc:d4:06:b6:a0:15:1a:22:52:21:</span><br><span class="line">                    1f:64:c1:81:90:47:83:70:21:00:0a:ba:2a:ac:00:</span><br><span class="line">                    22:3d:3d:c3:d7:4a:2c:51:11:5e:df:e8:6c:41:2e:</span><br><span class="line">.....</span><br><span class="line">.....</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="7、crt转pem格式"><a href="#7、crt转pem格式" class="headerlink" title="7、crt转pem格式"></a>7、crt转pem格式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client opt]<span class="comment"># openssl x509 -in wms.qa.ops.com.crt -inform DER -outform PEM -out wms.qa.ops.com.pem</span></span><br><span class="line">client opt]<span class="comment"># ls</span></span><br><span class="line">wms.qa.ops.com.crt  wms.qa.ops.com.csr  wms.qa.ops.com.key  wms.qa.ops.com.pem</span><br></pre></td></tr></table></figure>
+
+<h3 id="8、证书转换为PKCS12文件"><a href="#8、证书转换为PKCS12文件" class="headerlink" title="8、证书转换为PKCS12文件"></a>8、证书转换为PKCS12文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">client opt]# openssl pkcs12 -export -clcerts -in wms.qa.ops.com.crt \</span><br><span class="line">-inkey wms.qa.ops.com.key -out wms.qa.ops.com.key.p12</span><br><span class="line">client opt]# ls</span><br><span class="line">wms.qa.ops.com.crt  wms.qa.ops.com.csr  wms.qa.ops.com.key  wms.qa.ops.com.pem   wms.qa.ops.com.key.p12</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="三、CA上吊销证书"><a href="#三、CA上吊销证书" class="headerlink" title="三、CA上吊销证书"></a>三、CA上吊销证书</h2><h3 id="查看证书的serial以及subject信息"><a href="#查看证书的serial以及subject信息" class="headerlink" title="查看证书的serial以及subject信息"></a>查看证书的serial以及subject信息</h3><p>1、在申请吊销证书的客户机上查看需要吊销的证书的serial以及subject信息，并提交给CA</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client opt]<span class="comment"># openssl x509 -in qa.ops.com.crt -noout -serial -subject</span></span><br><span class="line">serial=03</span><br><span class="line">subject= /C=CN/ST=ZheJiang/O=ZTYC/OU=ops/CN=qa.ops.com/emailAddress=ops@ztyc.com</span><br></pre></td></tr></table></figure>
+
+<p>2、在CA上根据客户提交的serial以及subject信息，比对服务器上index.txt文件中的信息一致后，执行吊销证书操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd</span></span><br><span class="line">/etc/pki/CA</span><br><span class="line"></span><br><span class="line"><span class="comment"># openssl x509 -in certs/qa.ops.com.crt -noout -serial -subject</span></span><br><span class="line">serial=03</span><br><span class="line">subject= /C=CN/ST=ZheJiang/O=ZTYC/OU=ops/CN=qa.ops.com/emailAddress=ops@ztyc.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># cat index.txt</span></span><br><span class="line"></span><br><span class="line">V	291215081847Z		03	unknown	/C=CN/ST=ZheJiang/O=ZTYC/OU=ops/CN=qa.ops.com/emailAddress=ops@ztyc.com</span><br></pre></td></tr></table></figure>
+
+<p>3、信息确认一致，正式执行吊销操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># openssl ca -revoke newcerts/03.pem </span></span><br><span class="line">Using configuration from /etc/pki/tls/openssl.cnf</span><br><span class="line">Revoking Certificate 03.</span><br><span class="line">Data Base Updated</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>4、生成吊销证书的编号（第一次吊销证书时才需要执行本操作)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd</span></span><br><span class="line">/etc/pki/CA</span><br><span class="line"></span><br><span class="line"><span class="comment"># echo 01 &gt; crlnumber</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># openssl ca -gencrl -out crl/qa.ops.com.csr </span></span><br><span class="line">Using configuration from /etc/pki/tls/openssl.cnf</span><br><span class="line"></span><br><span class="line"><span class="comment"># openssl crl -in crl/qa.ops.com.csr -noout -text</span></span><br><span class="line">Certificate Revocation List (CRL):</span><br><span class="line">        Version 2 (0x1)</span><br><span class="line">    Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">        Issuer: /C=CN/ST=ZheJiang/L=HangZhou/O=ZTYC/OU=ztyc</span><br><span class="line">        Last Update: Dec 18 08:32:01 2019 GMT</span><br><span class="line">        Next Update: Jan 17 08:32:01 2020 GMT</span><br><span class="line">        CRL extensions:</span><br><span class="line">            X509v3 CRL Number: </span><br><span class="line">                1</span><br><span class="line">Revoked Certificates:</span><br><span class="line">    Serial Number: 01</span><br><span class="line">        Revocation Date: Dec 18 08:29:24 2019 GMT</span><br><span class="line">    Serial Number: 03</span><br><span class="line">        Revocation Date: Dec 18 08:29:31 2019 GMT</span><br><span class="line">    Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">         5e:68:d9:a1:ef:1d:7f:83:23:a4:57:95:19:1b:7a:36:82:cc:</span><br><span class="line">         3a:2a:73:d8:1d:77:03:1a:e5:fd:5d:40:a8:e2:0a:af:34:d7:</span><br><span class="line">         04:e5:7e:a8:c6:58:36:34:33:d7:79:bf:e0:07:29:f3:72:5b:</span><br><span class="line">         e8:5d:f4:06:ba:e3:1f:00:2e:f5:4b:47:18:7c:e1:0d:00:3e:</span><br><span class="line">         2e:13:eb:57:06:be:7f:48:5a:13:ef:62:cc:1e:92:76:22:f3:</span><br><span class="line">         c2:6b:d0:12:e0:26:4c:33:be:fe:fd:14:de:77:da:6a:20:ce:</span><br><span class="line">         f5:41:6e:e7:f1:e0:5d:d1:4f:91:e3:97:49:0d:a4:c9:0d:c4:</span><br><span class="line">         <span class="built_in">cd</span>:3a:51:5f:31:5b:ed:<span class="built_in">fc</span>:55:9f:6b:9c:72:c9:7d:92:25:7b:</span><br><span class="line">         e8:ec:e0:96:b6:98:96:ac:b7:63:40:d5:ec:b7:09:74:e9:c0:</span><br><span class="line">         96:b6:2c:55:4b:de:fa:fa:2c:74:2e:f8:96:2e:4f:bc:5f:d2:</span><br><span class="line">         0b:15:1a:6d:1f:e7:1e:8b:d3:af:51:d6:ca:2d:90:9f:9f:03:</span><br><span class="line">         c2:da:03:f7:0f:a5:6a:e4:f7:3d:25:a1:06:05:c4:de:5e:62:</span><br><span class="line">         5e:a5:7d:25:7e:9c:16:82:7f:21:28:d0:a3:d6:5c:e7:26:48:</span><br><span class="line">         03:e0:93:84:fb:f3:b3:0a:d9:e6:35:3e:ae:d7:9f:65:b5:b6:</span><br><span class="line">         fa:6a:69:67</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="四、在浏览器中访问"><a href="#四、在浏览器中访问" class="headerlink" title="四、在浏览器中访问"></a>四、在浏览器中访问</h2><p>在浏览器中打开https://<domain_name>来访问。</p>
+<p>在Firefox浏览器中可以添加 Security Exception 来忽略HTTPS错误警告。</p>
+<p>Chrome浏览器可以尝试通过导入CA证书的方式来忽略HTTPS错误警告。</p>
+<blockquote>
+<p>注意：Chrome 浏览器可能有导入CA证书后仍然无法访问的问题；不同浏览器对自签名SSL证书的检查和限制也有所区别。</p>
+</blockquote>
+<h2 id="五、脚本"><a href="#五、脚本" class="headerlink" title="五、脚本"></a>五、脚本</h2><h3 id="一、结合上面文档使用"><a href="#一、结合上面文档使用" class="headerlink" title="一、结合上面文档使用"></a>一、结合上面文档使用</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash -e</span></span><br><span class="line"></span><br><span class="line">SSL_IP=&#x27;&#x27;</span><br><span class="line">SSL_DNS=&#x27;wms.qa.ztocwst.com&#x27;</span><br><span class="line">CN=$&#123;SSL_DNS&#125;</span><br><span class="line">SSL_SIZE=2048</span><br><span class="line"></span><br><span class="line">DATE=$&#123;DATE:-3650&#125;</span><br><span class="line"></span><br><span class="line">SSL_CONFIG=&#x27;openssl.cnf&#x27;</span><br><span class="line">SSL_SUBJECT=&quot;/C=CN/ST=ZheJiang/L=HangZhou/O=ZTYC/OU=ops/CN=$&#123;CN&#125;/emailAddress=ops@ztyc.com&quot;</span><br><span class="line">CA_DIR=&#x27;/etc/pki/CA&#x27;</span><br><span class="line"></span><br><span class="line">if [[ -z $SILENT ]]; then</span><br><span class="line">echo &quot;----------------------------&quot;</span><br><span class="line">echo &quot;| SSL Cert Generator |&quot;</span><br><span class="line">echo &quot;----------------------------&quot;</span><br><span class="line">echo</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">export SSL_DNS=$&#123;SSL_DNS&#125;</span><br><span class="line">export SSL_IP=$&#123;SSL_IP&#125;</span><br><span class="line">export SSL_KEY=$CN.key</span><br><span class="line">export SSL_CSR=$CN.csr</span><br><span class="line">export SSL_SUBJECT=$&#123;SSL_SUBJECT&#125;</span><br><span class="line">export CA_DIR=$&#123;CA_DIR&#125;</span><br><span class="line">export SSL_CERT=$CN.crt</span><br><span class="line">export SSL_PEM=$CN.pem</span><br><span class="line"></span><br><span class="line">dir=$(pwd)</span><br><span class="line">echo -e &quot;The current working directory is \033[36m $&#123;dir&#125; \033[0m&quot;</span><br><span class="line"></span><br><span class="line">echo &quot;====&gt; Generating new config file $&#123;SSL_CONFIG&#125;&quot;</span><br><span class="line">cat &gt; $&#123;SSL_CONFIG&#125; &lt;&lt;EOM</span><br><span class="line">[req]</span><br><span class="line">req_extensions = v3_req</span><br><span class="line">distinguished_name = req_distinguished_name</span><br><span class="line">[req_distinguished_name]</span><br><span class="line">[ v3_req ]</span><br><span class="line">basicConstraints = CA:FALSE</span><br><span class="line">keyUsage = nonRepudiation, digitalSignature, keyEncipherment</span><br><span class="line">extendedKeyUsage = clientAuth, serverAuth</span><br><span class="line">EOM</span><br><span class="line"></span><br><span class="line">if [[ -n $&#123;SSL_DNS&#125; || -n $&#123;SSL_IP&#125; ]]; then</span><br><span class="line">cat &gt;&gt; $&#123;SSL_CONFIG&#125; &lt;&lt;EOM</span><br><span class="line">subjectAltName = @alt_names</span><br><span class="line">[alt_names]</span><br><span class="line">EOM</span><br><span class="line">    IFS=&quot;,&quot;</span><br><span class="line">    dns=($&#123;SSL_DNS&#125;)</span><br><span class="line">    for i in &quot;$&#123;!dns[@]&#125;&quot;; do</span><br><span class="line">      echo DNS.$((i+1)) = $&#123;dns[$i]&#125; &gt;&gt; $&#123;SSL_CONFIG&#125;</span><br><span class="line">    done</span><br><span class="line"></span><br><span class="line">    if [[ -n $&#123;SSL_IP&#125; ]]; then</span><br><span class="line">        ip=($&#123;SSL_IP&#125;)</span><br><span class="line">        for i in &quot;$&#123;!ip[@]&#125;&quot;; do</span><br><span class="line">          echo IP.$((i+1)) = $&#123;ip[$i]&#125; &gt;&gt; $&#123;SSL_CONFIG&#125;</span><br><span class="line">        done</span><br><span class="line">    fi</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">[[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Generating new SSL KEY $&#123;SSL_KEY&#125;&quot;</span><br><span class="line">echo -e &quot;\033[36m openssl genrsa -out $&#123;SSL_KEY&#125; $&#123;SSL_SIZE&#125; \033[0m&quot;</span><br><span class="line">openssl genrsa -out $&#123;SSL_KEY&#125; $&#123;SSL_SIZE&#125; &gt; /dev/null || exit 1</span><br><span class="line"></span><br><span class="line">[[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Generating new SSL CSR $&#123;SSL_CSR&#125;&quot;</span><br><span class="line">echo -e &quot;\033[36m openssl req -sha256 -new -key $&#123;SSL_KEY&#125; -out $&#123;SSL_CSR&#125; -subj \&quot;$&#123;SSL_SUBJECT&#125;\&quot; -config $&#123;SSL_CONFIG&#125; \033[0m&quot;</span><br><span class="line">openssl req -sha256 -new -key $&#123;SSL_KEY&#125; -out $&#123;SSL_CSR&#125; \</span><br><span class="line">-subj &quot;$&#123;SSL_SUBJECT&#125;&quot; -config $&#123;SSL_CONFIG&#125; &gt; /dev/null || exit 1</span><br><span class="line"></span><br><span class="line">[[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Generating new SSL CERT $&#123;SSL_CERT&#125;&quot;</span><br><span class="line">\cp $&#123;SSL_CSR&#125; $&#123;CA_DIR&#125;/crl</span><br><span class="line">cd $&#123;CA_DIR&#125;</span><br><span class="line">echo -e &quot;The current working directory is \033[36m $(pwd)\033[0m&quot;</span><br><span class="line">echo -e &quot;\033[36m openssl ca -in crl/$&#123;SSL_CSR&#125; -out certs/$&#123;SSL_CERT&#125;  -days $&#123;DATE&#125; \033[0m&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash">openssl ca -<span class="keyword">in</span> crl/<span class="variable">$&#123;SSL_CSR&#125;</span> -out certs/<span class="variable">$&#123;SSL_CERT&#125;</span>  -days <span class="variable">$&#123;DATE&#125;</span>  || <span class="built_in">exit</span> 1</span></span><br><span class="line">/usr/bin/expect &lt;&lt;END</span><br><span class="line">  spawn openssl ca -in crl/$&#123;SSL_CSR&#125; -out certs/$&#123;SSL_CERT&#125;  -days $&#123;DATE&#125;</span><br><span class="line">  expect &#123;</span><br><span class="line">    &quot;*y/n]:&quot; &#123;send &quot;y\r&quot;;exp_continue&#125;</span><br><span class="line">    &quot;*y/n]&quot; &#123;send &quot;y\r&quot;;exp_continue&#125;</span><br><span class="line">  &#125;</span><br><span class="line">END</span><br><span class="line">\cp certs/$&#123;SSL_CERT&#125; $&#123;dir&#125;</span><br><span class="line">cd $&#123;dir&#125;</span><br><span class="line"></span><br><span class="line">echo -e &quot;The current working directory is \033[36m $(pwd)\033[0m&quot;</span><br><span class="line">echo -e &quot;\033[36m openssl x509 -in $&#123;SSL_CERT&#125; -out $&#123;SSL_PEM&#125; -outform PEM \033[0m&quot;</span><br><span class="line">openssl x509 -in $&#123;SSL_CERT&#125;  -out $&#123;SSL_PEM&#125; -outform PEM</span><br><span class="line">ls</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if [[ -z $SILENT ]]; then</span><br><span class="line">echo &quot;====&gt; Complete&quot;</span><br><span class="line">echo -e &quot;keys can be found in volume mapped to \033[36m $(pwd)\033[0m&quot;</span><br><span class="line">echo</span><br><span class="line">echo &quot;====&gt; Output results as YAML&quot;</span><br><span class="line">openssl x509 -in $&#123;SSL_CERT&#125; -noout -text</span><br><span class="line">fi</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="二、独立使用"><a href="#二、独立使用" class="headerlink" title="二、独立使用"></a>二、独立使用</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash -e</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> * 为必改项</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> * 更换为你自己的域名</span></span><br><span class="line">CN=&#x27;&#x27; # 例如: demo.rancher.com</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 扩展信任IP或域名</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 一般ssl证书只信任域名的访问请求，有时候需要使用ip去访问server，那么需要给ssl证书添加扩展IP，</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 多个IP用逗号隔开。如果想多个域名访问，则添加扩展域名（SSL_DNS）,多个SSL_DNS用逗号隔开</span></span></span><br><span class="line">SSL_IP=&#x27;&#x27; # 例如: 1.2.3.4</span><br><span class="line">SSL_DNS=&#x27;&#x27; # 例如: demo.rancher.com</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 国家名(2个字母的代号)</span></span><br><span class="line">C=CN</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 证书加密位数</span></span><br><span class="line">SSL_SIZE=2048</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 证书有效期</span></span><br><span class="line">DATE=$&#123;DATE:-3650&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置文件</span></span><br><span class="line">SSL_CONFIG=&#x27;openssl.cnf&#x27;</span><br><span class="line"></span><br><span class="line">if [[ -z $SILENT ]]; then</span><br><span class="line">echo &quot;----------------------------&quot;</span><br><span class="line">echo &quot;| SSL Cert Generator |&quot;</span><br><span class="line">echo &quot;----------------------------&quot;</span><br><span class="line">echo</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">export CA_KEY=$&#123;CA_KEY-&quot;cakey.pem&quot;&#125;</span><br><span class="line">export CA_CERT=$&#123;CA_CERT-&quot;cacerts.pem&quot;&#125;</span><br><span class="line">export CA_SUBJECT=ca-$CN</span><br><span class="line">export CA_EXPIRE=$&#123;DATE&#125;</span><br><span class="line"></span><br><span class="line">export SSL_CONFIG=$&#123;SSL_CONFIG&#125;</span><br><span class="line">export SSL_KEY=$CN.key</span><br><span class="line">export SSL_CSR=$CN.csr</span><br><span class="line">export SSL_CERT=$CN.crt</span><br><span class="line">export SSL_EXPIRE=$&#123;DATE&#125;</span><br><span class="line"></span><br><span class="line">export SSL_SUBJECT=$&#123;CN&#125;</span><br><span class="line">export SSL_DNS=$&#123;SSL_DNS&#125;</span><br><span class="line">export SSL_IP=$&#123;SSL_IP&#125;</span><br><span class="line"></span><br><span class="line">export K8S_SECRET_COMBINE_CA=$&#123;K8S_SECRET_COMBINE_CA:-&#x27;true&#x27;&#125;</span><br><span class="line"></span><br><span class="line">[[ -z $SILENT ]] &amp;&amp; echo &quot;--&gt; Certificate Authority&quot;</span><br><span class="line"></span><br><span class="line">if [[ -e ./$&#123;CA_KEY&#125; ]]; then</span><br><span class="line">    [[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Using existing CA Key $&#123;CA_KEY&#125;&quot;</span><br><span class="line">else</span><br><span class="line">    [[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Generating new CA key $&#123;CA_KEY&#125;&quot;</span><br><span class="line">    openssl genrsa -out $&#123;CA_KEY&#125; $&#123;SSL_SIZE&#125; &gt; /dev/null</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [[ -e ./$&#123;CA_CERT&#125; ]]; then</span><br><span class="line">    [[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Using existing CA Certificate $&#123;CA_CERT&#125;&quot;</span><br><span class="line">else</span><br><span class="line">    [[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Generating new CA Certificate $&#123;CA_CERT&#125;&quot;</span><br><span class="line">    openssl req -x509 -sha256 -new -nodes -key $&#123;CA_KEY&#125; \</span><br><span class="line">    -days $&#123;CA_EXPIRE&#125; -out $&#123;CA_CERT&#125; -subj &quot;/CN=$&#123;CA_SUBJECT&#125;&quot; &gt; /dev/null || exit 1</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">echo &quot;====&gt; Generating new config file $&#123;SSL_CONFIG&#125;&quot;</span><br><span class="line">cat &gt; $&#123;SSL_CONFIG&#125; &lt;&lt;EOM</span><br><span class="line">[req]</span><br><span class="line">req_extensions = v3_req</span><br><span class="line">distinguished_name = req_distinguished_name</span><br><span class="line">[req_distinguished_name]</span><br><span class="line">[ v3_req ]</span><br><span class="line">basicConstraints = CA:FALSE</span><br><span class="line">keyUsage = nonRepudiation, digitalSignature, keyEncipherment</span><br><span class="line">extendedKeyUsage = clientAuth, serverAuth</span><br><span class="line">EOM</span><br><span class="line"></span><br><span class="line">if [[ -n $&#123;SSL_DNS&#125; || -n $&#123;SSL_IP&#125; ]]; then</span><br><span class="line">    cat &gt;&gt; $&#123;SSL_CONFIG&#125; &lt;&lt;EOM</span><br><span class="line">subjectAltName = @alt_names</span><br><span class="line">[alt_names]</span><br><span class="line">EOM</span><br><span class="line">    IFS=&quot;,&quot;</span><br><span class="line">    dns=($&#123;SSL_DNS&#125;)</span><br><span class="line">    dns+=($&#123;SSL_SUBJECT&#125;)</span><br><span class="line">    for i in &quot;$&#123;!dns[@]&#125;&quot;; do</span><br><span class="line">      echo DNS.$((i+1)) = $&#123;dns[$i]&#125; &gt;&gt; $&#123;SSL_CONFIG&#125;</span><br><span class="line">    done</span><br><span class="line"></span><br><span class="line">    if [[ -n $&#123;SSL_IP&#125; ]]; then</span><br><span class="line">        ip=($&#123;SSL_IP&#125;)</span><br><span class="line">        for i in &quot;$&#123;!ip[@]&#125;&quot;; do</span><br><span class="line">          echo IP.$((i+1)) = $&#123;ip[$i]&#125; &gt;&gt; $&#123;SSL_CONFIG&#125;</span><br><span class="line">        done</span><br><span class="line">    fi</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">[[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Generating new SSL KEY $&#123;SSL_KEY&#125;&quot;</span><br><span class="line">openssl genrsa -out $&#123;SSL_KEY&#125; $&#123;SSL_SIZE&#125; &gt; /dev/null || exit 1</span><br><span class="line"></span><br><span class="line">[[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Generating new SSL CSR $&#123;SSL_CSR&#125;&quot;</span><br><span class="line">openssl req -sha256 -new -key $&#123;SSL_KEY&#125; -out $&#123;SSL_CSR&#125; \</span><br><span class="line">-subj &quot;/CN=$&#123;SSL_SUBJECT&#125;&quot; -config $&#123;SSL_CONFIG&#125; &gt; /dev/null || exit 1</span><br><span class="line"></span><br><span class="line">[[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Generating new SSL CERT $&#123;SSL_CERT&#125;&quot;</span><br><span class="line">openssl x509 -sha256 -req -in $&#123;SSL_CSR&#125; -CA $&#123;CA_CERT&#125; \</span><br><span class="line">    -CAkey $&#123;CA_KEY&#125; -CAcreateserial -out $&#123;SSL_CERT&#125; \</span><br><span class="line">    -days $&#123;SSL_EXPIRE&#125; -extensions v3_req \</span><br><span class="line">    -extfile $&#123;SSL_CONFIG&#125; &gt; /dev/null || exit 1</span><br><span class="line"></span><br><span class="line">if [[ -z $SILENT ]]; then</span><br><span class="line">echo &quot;====&gt; Complete&quot;</span><br><span class="line">echo &quot;keys can be found in volume mapped to $(pwd)&quot;</span><br><span class="line">echo</span><br><span class="line">echo &quot;====&gt; Output results as YAML&quot;</span><br><span class="line">echo &quot;---&quot;</span><br><span class="line">echo &quot;ca_key: |&quot;</span><br><span class="line">cat $CA_KEY | sed &#x27;s/^/  /&#x27;</span><br><span class="line">echo</span><br><span class="line">echo &quot;ca_cert: |&quot;</span><br><span class="line">cat $CA_CERT | sed &#x27;s/^/  /&#x27;</span><br><span class="line">echo</span><br><span class="line">echo &quot;ssl_key: |&quot;</span><br><span class="line">cat $SSL_KEY | sed &#x27;s/^/  /&#x27;</span><br><span class="line">echo</span><br><span class="line">echo &quot;ssl_csr: |&quot;</span><br><span class="line">cat $SSL_CSR | sed &#x27;s/^/  /&#x27;</span><br><span class="line">echo</span><br><span class="line">echo &quot;ssl_cert: |&quot;</span><br><span class="line">cat $SSL_CERT | sed &#x27;s/^/  /&#x27;</span><br><span class="line">echo</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [[ -n $K8S_SECRET_NAME ]]; then</span><br><span class="line"></span><br><span class="line">  if [[ -n $K8S_SECRET_COMBINE_CA ]]; then</span><br><span class="line">    [[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Adding CA to Cert file&quot;</span><br><span class="line">    cat $&#123;CA_CERT&#125; &gt;&gt; $&#123;SSL_CERT&#125;</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  [[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Creating Kubernetes secret: $K8S_SECRET_NAME&quot;</span><br><span class="line">  kubectl delete secret $K8S_SECRET_NAME --ignore-not-found</span><br><span class="line"></span><br><span class="line">  if [[ -n $K8S_SECRET_SEPARATE_CA ]]; then</span><br><span class="line">    kubectl create secret generic \</span><br><span class="line">    $K8S_SECRET_NAME \</span><br><span class="line">    --from-file=&quot;tls.crt=$&#123;SSL_CERT&#125;&quot; \</span><br><span class="line">    --from-file=&quot;tls.key=$&#123;SSL_KEY&#125;&quot; \</span><br><span class="line">    --from-file=&quot;ca.crt=$&#123;CA_CERT&#125;&quot;</span><br><span class="line">  else</span><br><span class="line">    kubectl create secret tls \</span><br><span class="line">    $K8S_SECRET_NAME \</span><br><span class="line">    --cert=$&#123;SSL_CERT&#125; \</span><br><span class="line">    --key=$&#123;SSL_KEY&#125;</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  if [[ -n $K8S_SECRET_LABELS ]]; then</span><br><span class="line">    [[ -z $SILENT ]] &amp;&amp; echo &quot;====&gt; Labeling Kubernetes secret&quot;</span><br><span class="line">    IFS=$&#x27; \n\t&#x27; # We have to reset IFS or label secret will misbehave on some systems</span><br><span class="line">    kubectl label secret \</span><br><span class="line">      $K8S_SECRET_NAME \</span><br><span class="line">      $K8S_SECRET_LABELS</span><br><span class="line">  fi</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">echo &quot;4. 重命名服务证书&quot;</span><br><span class="line">mv $&#123;CN&#125;.key tls.key</span><br><span class="line">mv $&#123;CN&#125;.crt tls.crt</span><br></pre></td></tr></table></figure>
+
+
+  
+  
+    
+    <div class='footer'>
+      
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=https://wsliwh.gitee.io/2019/12/18/CA%E8%AF%81%E4%B9%A6%E6%9C%8D%E5%8A%A1/>https://wsliwh.gitee.io/2019/12/18/CA%E8%AF%81%E4%B9%A6%E6%9C%8D%E5%8A%A1/</a></p>
+              
+            
+          </blockquote>
+        </div>
+      
+      
+    </div>
+  
+  
+    
+
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-12-19T10:32:15+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2019年12月19日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/ca/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>ca</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/ssl/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>ssl</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://wsliwh.gitee.io/2019/12/18/CA%E8%AF%81%E4%B9%A6%E6%9C%8D%E5%8A%A1/&title=本地搭建CA 证书服务 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://wsliwh.gitee.io/2019/12/18/CA%E8%AF%81%E4%B9%A6%E6%9C%8D%E5%8A%A1/&title=本地搭建CA 证书服务 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=https://wsliwh.gitee.io/2019/12/18/CA%E8%AF%81%E4%B9%A6%E6%9C%8D%E5%8A%A1/&title=本地搭建CA 证书服务 - Hexo&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+        <a class='prev' href='/2019/12/18/jenkins/jenkins/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>jenkins 常见问题</p>
+          <p class='content'>jenkins 工作目录修改旧：
+1系统管理→系统设置→主目录（的右边问号下面）→高级（是不是忽略了啊\(^o^)&#x2F;~）→工作空间根目录
+
+点开后面的问号可以看见3个参数（配置路径需要...</p>
+        </a>
+      
+      
+        <a class='next' href='/2019/12/13/SpringBoot%E4%B8%80/'>
+          <p class='title'>MVC 概要与环境配置<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>[TOC]
+Spring Boot 简介Spring boot 来简化Spring 应用开发的一个框架
+整个Spring技术栈的一个大整合
+J2EE 开发的一站式解决方案
+解决
+</p>
+        </a>
+      
+    </div>
+  
+</article>
+
+
+  
+
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="valine_container" class="valine_thread">
+  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+</div>
+
+  </article>
+
+
+
+
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+
+
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%90%AD%E5%BB%BACA%E6%9C%8D%E5%8A%A1"><span class="toc-text">一、搭建CA服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9B%AE%E5%BD%95"><span class="toc-text">1、初始化目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%88%9B%E5%BB%BACA%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6"><span class="toc-text">2、创建CA需要的文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E7%BB%99CA%E5%88%9B%E5%BB%BA%E7%A7%81%E9%92%A5"><span class="toc-text">3、给CA创建私钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E7%BB%99CA%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6"><span class="toc-text">4、给CA生成自签名证书</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BD%BF%E7%94%A8CA%E7%BB%99%E5%AE%A2%E6%88%B7%E9%A2%81%E5%8F%91%E8%AF%81%E4%B9%A6"><span class="toc-text">二、使用CA给客户颁发证书</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%AE%A2%E6%88%B7%E6%9C%BA%E7%94%9F%E6%88%90%E7%A7%81%E9%92%A5"><span class="toc-text">1、客户机生成私钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6%E7%94%B3%E8%AF%B7%E6%96%87%E4%BB%B6"><span class="toc-text">2、生成证书申请文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E5%B0%86%E8%AF%81%E4%B9%A6%E7%94%B3%E8%AF%B7%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%88%B0CA%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A"><span class="toc-text">3、将证书申请文件传输到CA服务器上</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%9C%A8CA%E4%B8%8A%E7%BB%99%E7%94%B3%E8%AF%B7%E7%AD%BE%E8%AF%81%E7%9A%84%E5%AE%A2%E6%88%B7%E7%AD%BE%E7%BD%B2%E8%AF%81%E4%B9%A6"><span class="toc-text">4、在CA上给申请签证的客户签署证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E5%B0%86CA%E4%B8%8A%E5%B0%86%E7%AD%BE%E7%BD%B2%E5%A5%BD%E7%9A%84%E8%AF%81%E4%B9%A6%E4%BC%A0%E8%BE%93%E7%BB%99%E7%94%B3%E8%AF%B7%E7%9A%84%E5%AE%A2%E6%88%B7"><span class="toc-text">5、将CA上将签署好的证书传输给申请的客户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6%E3%80%81%E6%9F%A5%E7%9C%8B%E9%A2%81%E5%8F%91%E7%9A%84%E8%AF%81%E4%B9%A6"><span class="toc-text">6、查看颁发的证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7%E3%80%81crt%E8%BD%ACpem%E6%A0%BC%E5%BC%8F"><span class="toc-text">7、crt转pem格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8%E3%80%81%E8%AF%81%E4%B9%A6%E8%BD%AC%E6%8D%A2%E4%B8%BAPKCS12%E6%96%87%E4%BB%B6"><span class="toc-text">8、证书转换为PKCS12文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81CA%E4%B8%8A%E5%90%8A%E9%94%80%E8%AF%81%E4%B9%A6"><span class="toc-text">三、CA上吊销证书</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E8%AF%81%E4%B9%A6%E7%9A%84serial%E4%BB%A5%E5%8F%8Asubject%E4%BF%A1%E6%81%AF"><span class="toc-text">查看证书的serial以及subject信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%AD%E8%AE%BF%E9%97%AE"><span class="toc-text">四、在浏览器中访问</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%84%9A%E6%9C%AC"><span class="toc-text">五、脚本</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%BB%93%E5%90%88%E4%B8%8A%E9%9D%A2%E6%96%87%E6%A1%A3%E4%BD%BF%E7%94%A8"><span class="toc-text">一、结合上面文档使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8B%AC%E7%AB%8B%E4%BD%BF%E7%94%A8"><span class="toc-text">二、独立使用</span></a></li></ol></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+
+		  
+		  <!--此文件用来存放一些不方便取值的变量-->
+<!--思路大概是将值藏到重加载的区域内-->
+
+<script>
+  window.pdata={}
+  pdata.ispage=true;
+  pdata.postTitle="本地搭建CA 证书服务";
+  pdata.commentPath="";
+  pdata.commentPlaceholder="";
+  // header 这里无论是否开启pjax都需要
+  var l_header=document.getElementById("l_header");
+  
+  l_header.classList.add("show");
+  
+  
+    // cover
+    var cover_wrapper=document.querySelector('.cover-wrapper');
+    
+    cover_wrapper.id="none";
+    cover_wrapper.style.display="none";
+    
+  
+</script>
+
+        </div>
+        
+  
+  <footer class="footer clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="mailto:me@xxx.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="https://github.com/liwensong"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=63035382"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+                
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>博客内容遵循 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://github.com/volantis-x/hexo-theme-volantis/tree/4.3.1" target="_blank" class="codename">Volantis</a>
+        作为主题
+      
+    
+      
+        <div class='copyright'>
+        <p><a target="_blank" rel="noopener" href="https://xaoxuu.com/">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+
+        <a id="s-top" class="fas fa-arrow-up fa-fw" href="javascript:void(0)"></a>
+      </div>
+    </div>
+    <div>
+      <script>
+/************这个文件存放不需要重载的全局变量和全局函数*********/
+window.volantis={};
+window.volantis.loadcss=document.getElementById("loadcss");
+/******************** Pjax ********************************/
+function VPjax(){
+	this.list=[] // 存放回调函数
+	this.start=()=>{
+	  for(var i=0;i<this.list.length;i++){
+		this.list[i].run();
+	  }
+	}
+	this.push=(fn,name)=>{
+		var f=new PjaxItem(fn,name);
+		this.list.push(f);
+	}
+	// 构造一个可以run的对象
+	function PjaxItem(fn,name){
+		// 函数名称
+		this.name = name || fn.name
+		// run方法
+		this.run=()=>{
+			fn()
+		}
+	}
+}
+volantis.pjax={}
+volantis.pjax.method={
+	complete: new VPjax(),
+	error: new VPjax(),
+	send: new VPjax()
+}
+volantis.pjax={
+	...volantis.pjax,
+	push: volantis.pjax.method.complete.push,
+	error: volantis.pjax.method.error.push,
+	send: volantis.pjax.method.send.push
+}
+/********************脚本懒加载函数********************************/
+// 已经加入了setTimeout
+function loadScript(src, cb) {
+	setTimeout(function() {
+		var HEAD = document.getElementsByTagName('head')[0] || document.documentElement;
+		var script = document.createElement('script');
+		script.setAttribute('type','text/javascript');
+		if (cb) script.onload = cb;
+		script.setAttribute('src', src);
+		HEAD.appendChild(script);
+	});
+}
+//https://github.com/filamentgroup/loadCSS
+var loadCSS = function( href, before, media, attributes ){
+	var doc = window.document;
+	var ss = doc.createElement( "link" );
+	var ref;
+	if( before ){
+		ref = before;
+	}
+	else {
+		var refs = ( doc.body || doc.getElementsByTagName( "head" )[ 0 ] ).childNodes;
+		ref = refs[ refs.length - 1];
+	}
+	var sheets = doc.styleSheets;
+	if( attributes ){
+		for( var attributeName in attributes ){
+			if( attributes.hasOwnProperty( attributeName ) ){
+				ss.setAttribute( attributeName, attributes[attributeName] );
+			}
+		}
+	}
+	ss.rel = "stylesheet";
+	ss.href = href;
+	ss.media = "only x";
+	function ready( cb ){
+		if( doc.body ){
+			return cb();
+		}
+		setTimeout(function(){
+			ready( cb );
+		});
+	}
+	ready( function(){
+		ref.parentNode.insertBefore( ss, ( before ? ref : ref.nextSibling ) );
+	});
+	var onloadcssdefined = function( cb ){
+		var resolvedHref = ss.href;
+		var i = sheets.length;
+		while( i-- ){
+			if( sheets[ i ].href === resolvedHref ){
+				return cb();
+			}
+		}
+		setTimeout(function() {
+			onloadcssdefined( cb );
+		});
+	};
+	function loadCB(){
+		if( ss.addEventListener ){
+			ss.removeEventListener( "load", loadCB );
+		}
+		ss.media = media || "all";
+	}
+	if( ss.addEventListener ){
+		ss.addEventListener( "load", loadCB);
+	}
+	ss.onloadcssdefined = onloadcssdefined;
+	onloadcssdefined( loadCB );
+	return ss;
+};
+</script>
+<script>
+  
+  loadCSS("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14/css/all.min.css", window.volantis.loadcss);
+  
+  
+  
+  
+</script>
+<!-- required -->
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js"></script>
+
+<script>
+  function pjax_fancybox() {
+    $(".md .gallery").find("img").each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("class", "fancybox");
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 判断当前页面是否存在描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".md .gallery").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  function SCload_fancybox() {
+    if ($(".md .gallery").find("img").length == 0) return;
+    loadCSS("https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css", document.getElementById("loadcss"));
+    loadScript('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', pjax_fancybox)
+  };
+  $(function () {
+    SCload_fancybox();
+  });
+  function Pjax_SCload_fancybox(){
+	if (typeof $.fancybox == "undefined") {
+	 SCload_fancybox();
+    } else {
+	 pjax_fancybox();
+    }
+  }
+  volantis.pjax.push(Pjax_SCload_fancybox)
+  volantis.pjax.send(()=>{
+      if (typeof $.fancybox != "undefined") {
+        $.fancybox.close();    // 关闭弹窗
+      }
+  },'fancybox')
+</script>
+
+
+<!-- internal -->
+
+
+
+
+<script>
+  function loadIssuesJS() {
+    if ($(".md").find(".issues-api").length == 0) return;
+	
+	  loadScript('/js/issues.js');
+	
+  };
+  $(function () {
+    loadIssuesJS();
+  });
+  volantis.pjax.push(()=>{
+	if (typeof IssuesAPI == "undefined") {
+	  loadIssuesJS();
+	}
+  },"IssuesJS")
+</script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
+
+
+  
+
+<script>
+  window.FPConfig = {
+	delay: 0,
+	ignoreKeywords: [],
+	maxRPS: 5,
+	hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+<script src="/js/valine.js"></script>
+
+
+<script>
+  function emoji(path, idx, ext) {
+    return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  function pjax_valine() {
+    if(!document.querySelectorAll("#valine_container")[0])return;
+    let pagePlaceholder = pdata.commentPlaceholder || "快来评论吧~";
+    let path = pdata.commentPath;
+    if (path.length == 0) {
+      let defaultPath = '';
+      path = defaultPath || decodeURI(window.location.pathname);
+    }
+    var valine = new Valine();
+    valine.init(Object.assign({"path":null,"placeholder":"快来评论吧~","appId":null,"appKey":null,"meta":["nick","mail","link"],"requiredFields":["nick","mail"],"enableQQ":true,"recordIP":false,"avatar":"robohash","pageSize":10,"lang":"zh-cn","highlight":true,"mathJax":false}, {
+      el: '#valine_container',
+      path: path,
+      placeholder: pagePlaceholder,
+      emojiCDN: 'https://cdn.jsdelivr.net/gh/volantis-x/cdn-emoji/valine/',
+      emojiMaps: emojiMaps,
+    }))
+  }
+  $(function () {
+    pjax_valine();
+  });
+  volantis.pjax.push(pjax_valine);
+</script>
+
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+<!-- optional -->
+
+  <script>
+const SearchServiceimagePath="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@master/img/";
+const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
+
+$('.input.u-search-input').one('focus',function(){
+	
+		loadScript('/js/search/hexo.js',setSearchService);
+	
+})
+
+function listenSearch(){
+  
+    customSearch = new HexoSearch({
+      imagePath: SearchServiceimagePath
+    });
+  
+}
+function setSearchService() {
+	listenSearch();
+	
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  <script defer>
+
+  const LCCounter = {
+    app_id: 'u9j57bwJod4EDmXWdxrwuqQT-MdYXbMMI',
+    app_key: 'jfHtEKVE24j0IVCGHbvuFClp',
+    custom_api_server: '',
+
+    // 查询存储的记录
+    getRecord(Counter, url, title) {
+      return new Promise(function (resolve, reject) {
+        Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({url})))
+          .then(resp => resp.json())
+          .then(({results, code, error}) => {
+            if (code === 401) {
+              throw error;
+            }
+            if (results && results.length > 0) {
+              var record = results[0];
+              resolve(record);
+            } else {
+              Counter('post', '/classes/Counter', {url, title: title, times: 0})
+                .then(resp => resp.json())
+                .then((record, error) => {
+                  if (error) {
+                    throw error;
+                  }
+                  resolve(record);
+                }).catch(error => {
+                console.error('Failed to create', error);
+                reject(error);
+              });
+            }
+          }).catch((error) => {
+          console.error('LeanCloud Counter Error:', error);
+          reject(error);
+        });
+      })
+    },
+
+    // 发起自增请求
+    increment(Counter, incrArr) {
+      return new Promise(function (resolve, reject) {
+        Counter('post', '/batch', {
+          "requests": incrArr
+        }).then((res) => {
+          res = res.json();
+          if (res.error) {
+            throw res.error;
+          }
+          resolve(res);
+        }).catch((error) => {
+          console.error('Failed to save visitor count', error);
+          reject(error);
+        });
+      });
+    },
+
+    // 构建自增请求体
+    buildIncrement(objectId) {
+      return {
+        "method": "PUT",
+        "path": `/1.1/classes/Counter/${ objectId }`,
+        "body": {
+          "times": {
+            '__op': 'Increment',
+            'amount': 1
+          }
+        }
+      }
+    },
+
+    // 校验是否为有效的 UV
+    validUV() {
+      var key = 'LeanCloudUVTimestamp';
+      var flag = localStorage.getItem(key);
+      if (flag) {
+        // 距离标记小于 24 小时则不计为 UV
+        if (new Date().getTime() - parseInt(flag) <= 86400000) {
+          return false;
+        }
+      }
+      localStorage.setItem(key, new Date().getTime().toString());
+      return true;
+    },
+
+    addCount(Counter) {
+      var enableIncr = '' === 'true' && window.location.hostname !== 'localhost';
+      enableIncr = true;
+      var getterArr = [];
+      var incrArr = [];
+      // 请求 PV 并自增
+      var pvCtn = document.querySelector('#lc-sv');
+      if (pvCtn || enableIncr) {
+        var pvGetter = this.getRecord(Counter, 'https://wsliwh.gitee.io' + '/#lc-sv', 'Visits').then((record) => {
+          incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-sv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + 1;
+              if (pvCtn) {
+                pvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(pvGetter);
+      }
+
+      // 请求 UV 并自增
+      var uvCtn = document.querySelector('#lc-uv');
+      if (uvCtn || enableIncr) {
+        var uvGetter = this.getRecord(Counter, 'https://wsliwh.gitee.io' + '/#lc-uv', 'Visitors').then((record) => {
+          var vuv = this.validUV();
+          vuv && incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-uv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + (vuv ? 1 : 0);
+              if (uvCtn) {
+                uvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(uvGetter);
+      }
+
+      // 请求文章的浏览数，如果是当前页面就自增
+      var allPV = document.querySelectorAll('#lc-pv');
+      if (allPV.length > 0 || enableIncr) {
+        for (i = 0; i < allPV.length; i++) {
+          let pv = allPV[i];
+          let title = pv.getAttribute('data-title');
+          var url = 'https://wsliwh.gitee.io' + pv.getAttribute('data-path');
+          if (url) {
+            var viewGetter = this.getRecord(Counter, url, title).then((record) => {
+              // 是当前页面就自增
+              let curPath = window.location.pathname;
+              if (curPath.includes('index.html')) {
+                curPath = curPath.substring(0, curPath.lastIndexOf('index.html'));
+              }
+              if (pv.getAttribute('data-path') == curPath) {
+                incrArr.push(this.buildIncrement(record.objectId));
+              }
+              if (pv) {
+                var ele = pv.querySelector('#lc-pv #number');
+                if (ele) {
+                  if (pv.getAttribute('data-path') == curPath) {
+                    ele.innerText = (record.times || 0) + 1;
+                  } else {
+                    ele.innerText = record.times || 0;
+                  }
+                  pv.style.display = 'inline';
+                }
+              }
+            });
+            getterArr.push(viewGetter);
+          }
+        }
+      }
+
+      // 如果启动计数自增，批量发起自增请求
+      if (enableIncr) {
+        Promise.all(getterArr).then(() => {
+          incrArr.length > 0 && this.increment(Counter, incrArr);
+        })
+      }
+
+    },
+
+
+    fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${ api_server }/1.1${ url }`, {
+          method,
+          headers: {
+            'X-LC-Id': this.app_id,
+            'X-LC-Key': this.app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      this.addCount(Counter);
+    },
+
+    refreshCounter() {
+      var api_server = this.app_id.slice(-9) !== '-MdYXbMMI' ? this.custom_api_server : `https://${ this.app_id.slice(0, 8).toLowerCase() }.api.lncldglobal.com`;
+      if (api_server) {
+        this.fetchData(api_server);
+      } else {
+        fetch('https://app-router.leancloud.cn/2/route?appId=' + this.app_id)
+          .then(resp => resp.json())
+          .then(({api_server}) => {
+            this.fetchData('https://' + api_server);
+          });
+      }
+    }
+
+  };
+
+  LCCounter.refreshCounter();
+
+  document.addEventListener('pjax:complete', function () {
+    LCCounter.refreshCounter();
+  });
+</script>
+
+
+
+
+  <script>
+const rootElement = document.documentElement;
+const darkModeStorageKey = "user-color-scheme";
+const rootElementDarkModeAttributeName = "data-user-color-scheme";
+
+const setLS = (k, v) => {
+    localStorage.setItem(k, v);
+};
+
+const removeLS = (k) => {
+    localStorage.removeItem(k);
+};
+
+const getLS = (k) => {
+    return localStorage.getItem(k);
+};
+
+const getModeFromCSSMediaQuery = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+
+const resetRootDarkModeAttributeAndLS = () => {
+  rootElement.removeAttribute(rootElementDarkModeAttributeName);
+  removeLS(darkModeStorageKey);
+};
+
+const validColorModeKeys = {
+  dark: true,
+  light: true,
+};
+
+const applyCustomDarkModeSettings = (mode) => {
+  const currentSetting = mode || getLS(darkModeStorageKey);
+
+  if (currentSetting === getModeFromCSSMediaQuery()) {
+    resetRootDarkModeAttributeAndLS();
+  } else if (validColorModeKeys[currentSetting]) {
+    rootElement.setAttribute(rootElementDarkModeAttributeName, currentSetting);
+  } else {
+    resetRootDarkModeAttributeAndLS();
+  }
+};
+
+const invertDarkModeObj = {
+  dark: "light",
+  light: "dark",
+};
+
+/**
+ * get target mode
+ */
+const toggleCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  setLS(darkModeStorageKey, currentSetting);
+  return currentSetting;
+};
+
+/**
+ * bind click event for toggle button
+ */
+var btn=$("#wrapper .toggle-mode-btn,#rightmenu-wrapper .toggle-mode-btn");
+function bindToggleButton() {
+    btn.on('click',(e) => {
+      const mode = toggleCustomDarkMode();
+      applyCustomDarkModeSettings(mode);
+    });
+}
+
+applyCustomDarkModeSettings();
+document.addEventListener("DOMContentLoaded", bindToggleButton);
+volantis.pjax.push(bindToggleButton);
+volantis.pjax.send(()=>{
+	btn.unbind('click');
+},'toggle-mode-btn-unbind');
+</script>
+
+
+
+
+
+
+
+
+<script>
+function listennSidebarTOC() {
+  const navItems = document.querySelectorAll(".toc li");
+  if (!navItems.length) return;
+  const sections = [...navItems].map((element) => {
+    const link = element.querySelector(".toc-link");
+    const target = document.getElementById(
+      decodeURI(link.getAttribute("href")).replace("#", "")
+    );
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({
+		top: target.offsetTop + 100,
+		
+		behavior: "smooth"
+		
+	  });
+    });
+    return target;
+  });
+
+  function activateNavByIndex(target) {
+    if (target.classList.contains("active-current")) return;
+
+    document.querySelectorAll(".toc .active").forEach((element) => {
+      element.classList.remove("active", "active-current");
+    });
+    target.classList.add("active", "active-current");
+    let parent = target.parentNode;
+    while (!parent.matches(".toc")) {
+      if (parent.matches("li")) parent.classList.add("active");
+      parent = parent.parentNode;
+    }
+  }
+
+  function findIndex(entries) {
+    let index = 0;
+    let entry = entries[index];
+    if (entry.boundingClientRect.top > 0) {
+      index = sections.indexOf(entry.target);
+      return index === 0 ? 0 : index - 1;
+    }
+    for (; index < entries.length; index++) {
+      if (entries[index].boundingClientRect.top <= 0) {
+        entry = entries[index];
+      } else {
+        return sections.indexOf(entry.target);
+      }
+    }
+    return sections.indexOf(entry.target);
+  }
+
+  function createIntersectionObserver(marginTop) {
+    marginTop = Math.floor(marginTop + 10000);
+    let intersectionObserver = new IntersectionObserver(
+      (entries, observe) => {
+        let scrollHeight = document.documentElement.scrollHeight + 100;
+        if (scrollHeight > marginTop) {
+          observe.disconnect();
+          createIntersectionObserver(scrollHeight);
+          return;
+        }
+        let index = findIndex(entries);
+        activateNavByIndex(navItems[index]);
+      },
+      {
+        rootMargin: marginTop + "px 0px -100% 0px",
+        threshold: 0,
+      }
+    );
+    sections.forEach((element) => {
+      element && intersectionObserver.observe(element);
+    });
+  }
+  createIntersectionObserver(document.documentElement.scrollHeight);
+}
+
+document.addEventListener("DOMContentLoaded", listennSidebarTOC);
+document.addEventListener("pjax:success", listennSidebarTOC);
+</script>
+
+<!-- more -->
+
+ 
+	   
+	    
+
+
+<script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
+
+
+<script>
+    var pjax;
+    document.addEventListener('DOMContentLoaded', function () {
+      pjax = new Pjax({
+        elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([pjax-fancybox])',
+        selectors: [
+          "title",
+          
+          "#pjax-container",
+          "#pjax-header-nav-list"
+        ],
+        cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
+        timeout: 5000
+      });
+    });
+
+    document.addEventListener('pjax:send', function (e) {
+      //window.stop(); // 相当于点击了浏览器的停止按钮
+
+      try {
+        var currentUrl = window.location.pathname;
+        var targetUrl = e.triggerElement.href;
+        var banUrl = [""];
+        if (banUrl[0] != "") {
+          banUrl.forEach(item => {
+            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
+              window.location.href = targetUrl;
+            }
+          });
+        }
+      } catch (error) {}
+
+      window.subData = null; // 移除标题（用于一二级导航栏切换处）
+
+      volantis.$switcher.removeClass('active'); // 关闭移动端激活的搜索框
+      volantis.$header.removeClass('z_search-open'); // 关闭移动端激活的搜索框
+      volantis.$wrapper.removeClass('sub'); // 跳转页面时关闭二级导航
+
+      // 解绑事件 避免重复监听
+      volantis.$topBtn.unbind('click');
+      $('.menu a').unbind('click');
+      $(window).unbind('resize');
+      $(window).unbind('scroll');
+      $(document).unbind('scroll');
+      $(document).unbind('click');
+      $('body').unbind('click');
+	  // 使用 volantis.pjax.send 方法传入pjax:send回调函数 参见layout/_partial/scripts/global.ejs
+	  volantis.pjax.method.send.start();
+    });
+
+    document.addEventListener('pjax:complete', function () {
+      $('.nav-main').find('.list-v').not('.menu-phone').removeAttr("style",""); // 移除小尾巴的移除
+      $('.menu-phone.list-v').removeAttr("style",""); // 移除小尾巴的移除
+      $('script[data-pjax], .pjax-reload script').each(function () {
+        $(this).parent().append($(this).remove());
+      });
+      try{
+		// 使用 volantis.pjax.push 方法传入重载函数 参见layout/_partial/scripts/global.ejs
+		volantis.pjax.method.complete.start();
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    document.addEventListener('pjax:error', function (e) {
+	  // 使用 volantis.pjax.error 方法传入pjax:error回调函数 参见layout/_partial/scripts/global.ejs
+	  volantis.pjax.method.error.start();
+      window.location.href = e.triggerElement.href;
+    });
+</script>
+ 
+	  
+    </div>
+  </body>
+</html>
