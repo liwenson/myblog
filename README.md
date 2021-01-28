@@ -1,30 +1,21 @@
 ## 博客源码
 
-操作步骤
+1、下载源码
+```
+git clone XXXX
+```
+2、编写文档
+```
 
-1、切换到 source 分支
 ```
-git checkout source
+3、生成，发布文档
 ```
-2、编辑文档
-3、合并master 到 source
+hexo clean && hexo g && hexo d
 ```
-git checkout source && git merge master
+4、提交源码
 ```
-4、提交到 origin source 远程分支
-```
-git push origin source
-```
-5、切换到master 分支
-```
-git checkout master
-```
-6、更新远程分支source 到master
-```
+git add .
+git commit -m ""
 git pull origin source
-```
-7、更新文档
-8、发布文档
-```
-hexo g && hexo d
+git push origin source
 ```
