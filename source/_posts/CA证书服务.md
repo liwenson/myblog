@@ -2,7 +2,7 @@
 title: 本地搭建CA 证书服务
 date: 2019-12-18 10:00:00
 categories: 
-- Linux
+- linux
 tags:
 - ca
 - ssl
