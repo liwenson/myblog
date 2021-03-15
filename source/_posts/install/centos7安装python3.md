@@ -2,7 +2,7 @@
 title: Centos7安装python3
 date: 2020-12-12 15:32
 categories:
-- python3 
+- centos7
 tags:
 - python
 ---

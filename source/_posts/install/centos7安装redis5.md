@@ -2,7 +2,7 @@
 title: centos7安装redis5
 date: 2021-01-14 14:29
 categories:
-- centos
+- centos7
 tags:
 - redis
 ---
