@@ -114,4 +114,4 @@ deploy:
   type: 'git'
   #repository: 'git@github.com:liwenson/liwenson.github.io.git'
   repository: 'git@gitee.com:wsliwh/wsliwh.git'
-  branch: master
+  branch: main
