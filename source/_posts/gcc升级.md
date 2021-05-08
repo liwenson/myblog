@@ -68,6 +68,7 @@ http://ftp.gnu.org/gnu/gcc/
 
 **安装gcc的依赖软件，gcc的软件包内提供了自动下载需要软件的脚本\**./contrib/download_prerequisites\****   这个过程会持续很久，根据网络情况
 
+网络差可以将离线包放在gcc-9.3.0目录下即可 
 ```
 ./contrib/download_prerequisites
 
@@ -83,6 +84,7 @@ isl-0.18.tar.bz2: 确定
 All prerequisites downloaded successfully.
 
 ```
+
 
 **生成Makefile文件**
 
@@ -141,3 +143,37 @@ gcc -v
 
 ```
 
+
+
+## cmake 安装
+
+### 获取
+```
+https://cmake.org/download/
+
+wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0.tar.gz
+```
+
+
+### 编译
+```
+cd /usr/local/src
+tar xf cmake-3.20.0.tar.gz
+cd cmake-3.20.0
+./configure --prefix=/usr/local/cmake
+make && make install
+```
+
+### 软连接
+```
+ln -s /usr/local/cmake/bin/cmake /usr/bin/cmake
+```
+### 验证
+```
+cmake -version
+```
+```
+cmake version 3.20.0
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+```

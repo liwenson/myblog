@@ -2,12 +2,16 @@
 title: Centos7内核升级
 date: 2020-04-1 14:00:00
 categories: 
-- linux
+- centos7
 tags:
-- linux
+- update
 ---
 
 
+** 内核下载 **
+```
+https://elrepo.org/linux/kernel/el7/x86_64/RPMS/
+```
 
 **安装ELRepo到CentOS**
 
@@ -138,3 +142,4 @@ yum install yum-utils
 ```
 package-cleanup --oldkernels
 ```
+

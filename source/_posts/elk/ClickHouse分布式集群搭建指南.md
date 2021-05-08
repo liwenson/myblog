@@ -87,6 +87,131 @@ echo 1 > /opt/zookeeper/data/myid  # 其他机器分别是2 3
 ## 搭建clickhouse集群
 一分片一副本集群
 
+Clickhouse 仅支持Linux 且必须支持SSE4.2 指令集
+```
+grep -q sse4_2 /proc/cpuinfo && echo "SSE 4.2 supported" || echo "SSE 4.2 not supported"
+```
+```
+SSE 4.2 supported   # 不支持会显示  SSE 4.2 not supported
+```
+如果服务器不支持SSE指令集，则不能直接下载预编译安装包，需要通过源码编译特定版本进行安装
+
+
+## 安装依赖
+### 安装gcc
+
+#### 安装依赖
+```
+yum install git cmake ninja-build libicu-devel clang libicu-devel readline-devel mysql-devel openssl-devel unixODBC_devel bzip2 -y
+```
+
+#### 安装高版本 gcc
+```
+wget ftp://gnu.mirror.iweb.com/gcc/gcc-9.3.0/gcc-9.3.0.tar.xz
+
+tar xvf gcc-9.3.0.tar.xz
+cd gcc-9.3.0
+./contrib/download_prerequisites
+```
+**生成Makefile文件**
+
+```
+./configure --prefix=/usr/local -enable-checking=release -enable-languages=c,c++ -disable-multilib
+
+```
+
+**编译gcc**
+
+```
+make -j4    #多核电脑可以添加 “-j4” ：make对多核处理器的优化选项，此步骤非常耗时
+
+ls /usr/local/bin | grep gcc
+```
+
+**安装gcc**
+
+```
+ make install
+```
+
+**配置gcc**
+
+```
+cd ~
+find /usr/local/src/gcc-9.2.0/ -name "libstdc++.so*"
+
+/usr/local/src/gcc-9.2.0/stage1-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6.0.24
+/usr/local/src/gcc-9.2.0/stage1-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6
+/usr/local/src/gcc-9.2.0/stage1-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so
+/usr/local/src/gcc-9.2.0/prev-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6.0.24
+/usr/local/src/gcc-9.2.0/prev-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6
+/usr/local/src/gcc-9.2.0/prev-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so
+/usr/local/src/gcc-9.2.0/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6.0.24
+/usr/local/src/gcc-9.2.0/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6
+/usr/local/src/gcc-9.2.0/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so
+
+cd /usr/lib64
+cp /usr/local/src/gcc-9.2.0/stage1-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6.0.28 .
+mv libstdc++.so.6 libstdc++.so.6.old
+ln -sv libstdc++.so.6.0.27 libstdc++.so.6
+"libstdc++.so.6" -> "libstdc++.so.6.0.28"
+```
+
+
+
+重启系统
+
+```
+reboot
+
+
+
+gcc -v
+
+```
+
+
+### 安装cmake
+#### 获取
+```
+https://cmake.org/download/
+
+wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0.tar.gz
+```
+
+
+#### 编译
+```
+cd /usr/local/src
+tar xf cmake-3.20.0.tar.gz
+cd cmake-3.20.0
+./configure --prefix=/usr/local/cmake
+make && make install
+```
+
+#### 软连接
+```
+ln -s /usr/local/cmake/bin/cmake /usr/bin/cmake
+```
+#### 验证
+```
+cmake -version
+```
+```
+cmake version 3.20.0
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+```
+
+### 安装ninja
+```
+wget https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip
+unzip ninja-linux.zip -d /usr/local/bin/
+```
+```
+ninja --version
+```
+
 ### 安装clickhouse
 ```
 yum install yum-utils
@@ -96,6 +221,13 @@ yum install ClickHouse-server ClickHouse-client
 mkdir /opt/ClickHouse
 chown -R ClickHouse.ClickHouse /opt/ClickHouse/  #修改权限
 ```
+
+### 源码安装clickhouse
+#### 源码获取
+```
+git clone --recursive https://github.com/ClickHouse/ClickHouse
+```
+
 
 ### 配置
 修改vim /etc/ClickHouse-server/config.xml

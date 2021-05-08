@@ -2,9 +2,9 @@
 title: Centos7系统优化脚本
 date: 2020-09-21 12:40
 categories:
-- linux
+- centos7
 tags:
-- centos7优化
+- 优化
 ---
 
 ```bash

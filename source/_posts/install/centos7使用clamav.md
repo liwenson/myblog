@@ -2,7 +2,7 @@
 title: centos7使用clamav扫描挖矿
 date: 2021-02-01 10:38
 categories:
-- linux
+- centos7
 tags:
 - clamav
 ---
