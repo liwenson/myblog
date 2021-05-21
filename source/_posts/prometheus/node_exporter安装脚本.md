@@ -70,8 +70,8 @@ then
     fi
 #-----------------
     if [  -f "${Server_file}/node_exporter.service" ];then
-	    [[ ! -d /ztocwst/back/ ]] && mkdir -p /ztocwst/back/ || echo "已存在"
-        cp -f ${Server_file}/node_exporter.service /ztocwst/back/node_exporter.service.bak${Time_date}
+	    [[ ! -d /opt/back/ ]] && mkdir -p /opt/back/ || echo "已存在"
+        cp -f ${Server_file}/node_exporter.service /opt/back/node_exporter.service.bak${Time_date}
     fi
     if [ $? == 0 ];then
         echo -e "${GREEN_COLOR}node_exporter.service.bak${Time_date}  File The backup successful${RES}"

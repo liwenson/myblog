@@ -364,7 +364,7 @@ Chrome浏览器可以尝试通过导入CA证书的方式来忽略HTTPS错误警�
 #!/bin/bash -e
 
 SSL_IP=''
-SSL_DNS='wms.qa.ztocwst.com'
+SSL_DNS='wms.qa.opt.com'
 CN=${SSL_DNS}
 SSL_SIZE=2048
 
