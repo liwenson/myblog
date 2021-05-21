@@ -26,7 +26,7 @@ tags:
 #
 #WEB_PATH='http://12.0.94.46:8086'       #这里是我测试环境下的文件下载链接路径
 # https://github.com/prometheus/node_exporter   官方下载地址
-WEB_PATH='https://package-dev-qafc.ztocwst.com/res/node_exporter'
+WEB_PATH='https://package-dev-qafc.aaa.com/res/node_exporter'
 Install_PATH=/opt/node_exporter
 Server_file=/usr/lib/systemd/system
 prot=6301
