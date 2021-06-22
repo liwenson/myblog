@@ -11,8 +11,11 @@ tags:
 摘要: centos7安装bind9
 <!-- more -->
 
-### 编译前环境准备 
-下载bind9
+[TOC]
+
+## 编译前环境准备
+
+### 下载bind9
 [bind官网](https://www.isc.org/bind/)
 前往官网下载源码，当前有3个版本
 
@@ -31,8 +34,9 @@ cd /usr/local/src
 wget https://downloads.isc.org/isc/bind9/9.16.12/bind-9.16.12.tar.xz
 ```
 
-### 编译安装
-安装依赖
+## 编译安装
+
+### 安装依赖
 ```
 yum install -y libuv libuv-devel pcre-devel zlib-devel gcc gcc-c++ autoconf automake make pcre-devel zlib-devel openssl-devel openldap-devel unixODBC-devel gcc libtool openssl  bind-utils python-pip
 ```
@@ -44,7 +48,7 @@ pip install ply
 cd /usr/local/src
 tar -xvf bind-9.16.12.tar.xz
 ```
-编译安装
+### 安装
 ```
 cd bind-9.16.12
 ./configure --prefix=/usr/local/bind9 --sysconfdir=/etc/named/ --enable-largefile --with-tuning=large --with-openssl
@@ -54,7 +58,8 @@ make && make install
 ```
 
 ### 编译错误处理
-错误一
+
+`错误一`
 ```
 configure: error: Python >= 2.7 or >= 3.2 and the PLY package are required for dnssec-keymgr and other Python-based tools. 
 PLY may be available from your OS package manager as python-ply or python3-ply; it can also be installed via pip. To build without Python/PLY, use --without-python.
@@ -64,7 +69,8 @@ PLY may be available from your OS package manager as python-ply or python3-ply; 
 ```
 pip install ply
 ```
-错误二
+
+`错误二`
 ```
 checking for libuv... checking for libuv >= 1.0.0... no
 configure: error: libuv not found
@@ -75,7 +81,8 @@ yum install -y epel-release
 yum install libuv
 yum install libuv-devel
 ```
-错误三
+
+`错误三`
 ```
 configure: error: sys/capability.h header is required for Linux capabilities support. Either install libcap or use --disable-linux-caps.
 ```
@@ -85,27 +92,28 @@ yum install libcap-devel
 ```
 
 
-添加环境变量
+### 添加环境变量
 ```
 vim /etc/profile.d/named.sh
 export PATH=/usr/local/bind9/bin:/usr/local/bind9/sbin:$PATH
 
 . /etc/profile.d/named.sh
 ```
-导出库文件搜索路径
+
+### 导出库文件搜索路径
 ```
 $ vim /etc/ld.so.conf.d/named.conf
 /usr/local/bind9/lib
 $ ldconfig -v
 ```
 
-导出头文件搜索路径
+### 导出头文件搜索路径
 ```
 $ ln -sv /usr/local/bind9/include /usr/include/named
 "/usr/include/named" -> "/usr/local/bind9/include"
 ```
 
-导出帮助文档搜索路径（非必须）
+### 导出帮助文档搜索路径（非必须）
 ```
 $ vim /etc/man.config 
 MANPATH /usr/local/bind9/share/man
@@ -113,8 +121,33 @@ MANPATH /usr/local/bind9/share/man
 
 
 
-### 配置
-#### 主配置
+## 配置
+
+## 准备
+
+
+创建服务专用账户named，禁止本地登陆户
+```
+useradd -d /usr/local/bind9 -s /sbin/nologin named
+```
+
+接下来我们更改所有配置文件的用户为named用户
+```
+mkdir /run/named
+chown -R named:named /usr/local/bind9/
+chown -R named:named /etc/named
+chown -R named:named /var/named/data
+chown -R named:named /run/named
+```
+
+在联网的情况下直接将查询根的结果导入根区域配置文件，我们在named.rfc1912.zones文件中配置了根文件named.ca
+
+```
+$ dig -t NS . > /var/named/named.ca
+```
+
+
+### 主配置
 ```
 $ cd /etc/named
 $ vim named.conf
@@ -173,16 +206,18 @@ zone "." IN { # 根域名
   file "named.ca";
 };
 
-include "/etc/named/named.rfc1912.zones";
+#include "/etc/named/named.rfc1912.zones";
 ```
 
-#### rndc配置
+### rndc配置
 rndc是一个管理程序，可以用它来刷新配置，停止服务，强制同步等
 ```
 rndc-confgen  > /etc/named/rndc.conf
 ```
 打开rndc.conf文件，找到# Use with the following in named.conf, adjusting the allow list as needed:注释，复制其下所有行到named.conf并放开注释。
-
+```
+tail -10 /etc/named/rndc.conf | head -9 | sed s/#\ //g > named.conf
+```
 最终的named.conf文件像下面这样
 ```
 key "rndc-key" {
@@ -209,10 +244,10 @@ zone "." IN { # 根
   file "named.ca";
 };
 
-include "/etc/named/named.rfc1912.zones";
+#include "/etc/named/named.rfc1912.zones";
 ```
 
-#### zones 配置
+### zones 配置
 ```
 $ vim /var/named/abc.com.zone
 
@@ -231,24 +266,156 @@ api       IN      A      192.168.7.133
 a         IN      A      192.168.7.134
 ```
 
-#### 根区域配置
-在联网的情况下直接将查询根的结果导入根区域配置文件，我们在named.rfc1912.zones文件中配置了根文件named.ca
+## 启动
+
+### 检查配置
+
+实时日志
+```
+named -u named -g
+```
 
 ```
-mkdir -p /var/named/data
-$ dig -t NS . > /var/named/named.ca
+vim  /usr/lib/systemd/system/named.service
+
+[Unit]
+Description=Berkeley Internet Name Domain (DNS)
+Wants=nss-lookup.target
+Wants=named-setup-rndc.service
+Before=nss-lookup.target
+After=network.target
+After=named-setup-rndc.service
+
+[Service]
+Type=forking
+Environment=NAMEDCONF=/etc/named/named.conf
+EnvironmentFile=-/etc/sysconfig/named
+Environment=KRB5_KTNAME=/etc/named.keytab
+PIDFile=/run/named/named.pid
+
+ExecStartPre=/bin/bash -c 'if [ ! "$DISABLE_ZONE_CHECKING" == "yes" ]; then /usr/local/bind9/sbin/named-checkconf -z "$NAMEDCONF"; else echo "Checking of zone files is disabled"; fi'
+ExecStart=/usr/local/bind9/sbin/named -u named -c ${NAMEDCONF} $OPTIONS
+
+ExecReload=/bin/sh -c '/usr/local/bind9/sbin/rndc reload > /dev/null 2>&1 || /bin/kill -HUP $MAINPID'
+
+ExecStop=/bin/sh -c '/usr/local/bind9/sbin/rndc stop > /dev/null 2>&1 || /bin/kill -TERM $MAINPID'
+
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+
 ```
 
-创建服务专用账户named，禁止本地登陆户
 ```
-useradd -d /usr/local/bind9 -s /sbin/nologin named
+systemctl status named
+systemctl enable named
+systemctl start named
+systemctl stop named
 ```
 
-接下来我们更改所有配置文件的用户为named用户
+## 测试
+
+## rndc 
+
+rndc（Remote Name Domain Controllerr）是一个远程管理bind的工具，通过这个工具可以在本地或者远程了解当前服务器的运行状况，也可以对服务器进行关闭、重载、刷新缓存、增加删除zone等操作。
+
+使用rndc可以在不停止DNS服务器工作的情况进行数据的更新，使修改后的配置文件生效。在实际情况下，DNS服务器是非常繁忙的，任何短时间的停顿都会给用户的使用带来影响。因此，使用rndc工具可以使DNS服务器更好地为用户提供服务。在使用rndc管理bind前需要使用rndc生成一对密钥文件，一半保存于rndc的配置文件中，另一半保存于bind主配置文件中。rndc的配置文件为/etc/rndc.conf，在CentOS或者RHEL中，rndc的密钥保存在/etc/rndc.key文件中。rndc默认监听在953号端口（TCP），其实在bind9中rndc默认就是可以使用，不需要配置密钥文件。
+
+rndc与DNS服务器实行连接时，需要通过数字证书进行认证，而不是传统的用户名/密码方式。在当前版本下，rndc和named都只支持HMAC-MD5认证算法，在通信两端使用预共享密钥。在当前版本的rndc 和 named中，唯一支持的认证算法是HMAC-MD5，在连接的两端使用共享密钥。它为命令请求和名字服务器的响应提供 TSIG类型的认证。所有经由通道发送的命令都必须被一个服务器所知道的 key_id 签名。为了生成双方都认可的密钥，可以使用rndc-confgen命令产生密钥和相应的配置，再把这些配置分别放入named.conf和rndc的配置文件rndc.conf中。
+
+
+### 更新key
+
 ```
-mkdir /run/named
-chown -R named:named /usr/local/bind9/
-chown -R named:named /etc/named
-chown -R named:named /var/named
-chown -R named:named /run/named
+生成 key 文件
+rndc-confgen -a
+
+wrote key file "/etc/rndc.key"
+```
+
+```
+rndc status
+
+rndc: connection to remote host closed
+This may indicate that
+* the remote server is using an older version of the command protocol,
+* this host is not authorized to connect,
+* the clocks are not synchronized,
+* the key signing algorithm is incorrect, or
+* the key is invalid.
+
+```
+
+### 产生/etc/rndc.conf文件
+
+```
+rndc-confgen > /etc/rndc.conf  
+```
+
+### 配置 named.conf使用rndc秘钥
+```
+tail -10 /etc/named/rndc.conf | head -9 | sed s/#\ //g > named.conf
+```
+
+```
+cat /etc/named/named.conf 
+
+key "rndc-key" {
+    algorithm hmac-sha256;
+    secret "1PX8tBVLFLrCcIhkcQ5r0t9hiPSihtakLkj3s2k3OeU=";
+};
+
+controls {
+  inet 127.0.0.1 port 953
+  allow { 127.0.0.1; } keys { "rndc-key"; };
+};
+
+```
+
+### 测试 RNDC 设置
+```
+rndc status
+
+version: BIND 9.16.12 (Stable Release) <id:aeb943d>
+running on hz01-base-dns-01: Linux x86_64 3.10.0-1160.25.1.el7.x86_64 #1 SMP Wed Apr 28 21:49:45 UTC 2021
+boot time: Thu, 03 Jun 2021 02:45:44 GMT
+last configured: Thu, 03 Jun 2021 09:10:43 GMT
+configuration file: /etc/named/named.conf
+CPUs found: 4
+worker threads: 4
+UDP listeners per interface: 4
+number of zones: 105 (99 automatic)
+debug level: 0
+xfers running: 0
+xfers deferred: 0
+soa queries in progress: 0
+query logging is ON
+recursive clients: 0/900/1000
+tcp clients: 0/150
+TCP high-water: 2
+server is up and running
+```
+
+
+## nsupdate 
+
+nsupdate工具是一个交互式的命令工具, 对应的区配置部分需要配置allow-update语句:  allow-update { any; };
+```
+zone "test.com" {
+	type master;
+	allow-update { any; };
+	file "test.com.zone";
+};
+```
+
+```
+nsupdate
+
+> server 127.0.0.1
+> update add xxx.test.com 300 A 3.3.3.3
+> update detale  abc.test.com 300 A
+> send
+update failed: REFUSED
+>quit
 ```
