@@ -191,3 +191,25 @@ output.elasticsearch:
   username: "elastic"
   password: "xxxxxxxxxxx"
 ```  
+
+
+
+## filebeat 输出到不同的es index 
+```
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["10.4.144.173:9200"]
+  indices:
+    - index: "oom_-java-%{+yyyy.MM.dd}"
+      when.contains:
+        fields:
+          index: 'oom-java'
+
+    - index: "oom-oms-java-%{+yyyy.MM.dd}"
+      when.contains:
+        fields:
+          index: 'oom-oms-java'
+
+  username: "elastic"
+  password: "${ES_PWD}"
+```
