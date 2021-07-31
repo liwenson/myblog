@@ -122,6 +122,8 @@ WantedBy=multi-user.target
 ```
 
 ```
+systemctl daemon-reload
+
 # 启动redis服务
 systemctl start redis.service
 

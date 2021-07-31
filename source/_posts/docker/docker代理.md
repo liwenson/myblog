@@ -13,7 +13,7 @@ tags:
 
 
 ## 配置代理服务器
-创建或修改 /etc/docker/daemon.json：
+创建或修改 /etc/docker/daemon.json
 ```
 {
     "registry-mirrors": [

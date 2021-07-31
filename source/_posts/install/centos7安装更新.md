@@ -23,13 +23,7 @@ wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-
 ```
 更新epel仓库
 ```
-wget -O /etc/yum.repos.d/epel.repo =\
-''
-
-
-
-http
-//mirrors.aliyun.com/repo/epel-7.repo
+wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
 ```
 更新cache
 ```
