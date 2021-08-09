@@ -199,7 +199,137 @@ func main() {
 
 ```
 
-## 关系一对一,一对多,多对多查询
+## 多对多 操作
 ```
+
+
+//文章表
+type Article struct {
+	Id         int      `json:"id"`
+	Title      string   `json:"title"`
+	CategoryId int      `json:"category_id"`
+	Category   Category `json:"category";gorm:"foreignkey:CategoryID"` //指定关联外键
+	Tag        []*Tag   `gorm:"many2many:article_tag" json:"tag"`      //多对多关系.
+	//article_tag表默认article_id字段对应article表id.tag_id字段对应tag表id
+	//可以把对应sql日志打印出来,便于调试
+}
+
+//标签表
+type Tag struct {
+	Id      int    `json:"id" `
+	TagName string `json:"tag_name"`
+	Articles []*Article  `gorm:"many2many:article_tag" json:"article"`      //多对多关系.
+}
+
+//分类表
+type Category struct {
+	ID           int       `json:"id"`
+	CategoryName string    `json:"category_name"`
+	Status       int       `json:"status"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+func main() {
+	db, err := gorm.Open("sqlite3", "db/gorm.db")
+	if err != nil {
+		fmt.Println("%v\n", err)
+		panic(err)
+	}
+	db.LogMode(true)
+	defer db.Close()
+	// 自动迁移
+	//db.AutoMigrate(&Article{},&ArticleTag{},&Tag{},&Category{})
+	//db.AutoMigrate(&Article{},&Tag{},&Category{})
+
+	//// 手动添加tag
+	//newTag := Tag{
+	//	TagName: "科学",
+	//}
+	//db.Create(&newTag)
+	//
+
+	//// 添加 Category 类型
+	//newCategory := Category{
+	//	CategoryName: "Test",
+	//	Status: 1,
+	//}
+	//db.Create(&newCategory)
+	//fmt.Println(newCategory)
+
+
+	//// ############ 增加
+
+	////  01  插入  会重复创建标签并关联
+	//newArticle := Article{Title: fmt.Sprintf("china-01-%s", RandomString(8)) , Tag: []*Tag{&Tag{TagName: "中文"}}}
+	//db.Create(&newArticle)
+	//fmt.Println(newArticle)
+
+	// 02 开始已有标签-不必重复添加标签
+	// 后来文章选择已有标签ID进行关联-还是会更新关联
+	//taglist := []*Tag{}
+	////db.Where("id = 1 ").Find(&taglist)
+	//db.Where("id IN (?)", []int{1,2}).Find(&taglist)
+	//newArticle2 := Article{Title: fmt.Sprintf("计算机基础02-%s", RandomString(8)) }
+	//newArticle2.Tag= taglist
+	//db.Create(&newArticle2)
+	//fmt.Println(newArticle2)
+
+	// 03  正确使用添加后关联-这个不会更新关联
+	//newArticle02 := Article{Title: fmt.Sprintf("china-04-%s", RandomString(8))}
+	//db.Create(&newArticle02)
+	//taglist02 := []*Tag{}
+	////db.First(&taglist02, 1) ## 关联一个
+	//db.Where("id IN (?)", []int{1,2}).Find(&taglist02)  ## 关联多个
+	//db.Model(&newArticle02).Association("Tag").Append(taglist02)
+	//fmt.Println(newArticle02)
+
+
+	// 04 使用标签关联文章
+	//newTag := Tag{
+	//	TagName: "数学",
+	//}
+	//db.Create(&newTag)
+	//
+	//tag01 := Tag{}
+	//db.First(&tag01, newTag.Id)
+	//a := Article{}
+	//db.First(&a, 2)
+	//db.Model(&tag01).Association("Articles").Append(a)
+
+	/// #### 查询
+	//a := Article{}
+	//db.First(&a, 2)
+	// 01 通过 Related 使用 many to many 关联
+	//db.Model(&a).Related(&a.Tag, "Tag")
+
+	// 02 查找匹配的关联
+	//db.Debug().Model(&a).Association("Tag").Find(&a.Tag)
+
+	// 03 预加载分两条查询语句
+	//a := Article{}
+	//db.Debug().Preload("Tag").Find(&a, "id = ?", 2)
+	//
+	//fmt.Print(a.Title + " : [")
+	//for _, tag := range a.Tag {
+	//	fmt.Print( tag.TagName + " ")
+	//}
+	//fmt.Print("]")
+
+
+	// 04 使用标签查询关联的文章
+	//t := Tag{}
+	//db.First(&t, 1)
+	//db.Model(&t).Related(&t.Articles, "Articles")
+	//fmt.Print(t.TagName + " : ")
+	//for _, a := range t.Articles {
+	// fmt.Print(a.Title + "  ")
+	//}
+
+
+
+
+}
+
 
 ```
