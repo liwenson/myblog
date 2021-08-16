@@ -217,6 +217,11 @@ scrape_configs:
         replacement: 10.200.76.70:9115
 ```
 ### 添加ruls
+```
+https://awesome-prometheus-alerts.grep.to/rules
+```
+
+
 cd rules
 
 #### CPU

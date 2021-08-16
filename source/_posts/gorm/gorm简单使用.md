@@ -72,8 +72,9 @@ func main() {
 	db.AutoMigrate(&UserInfo{})
 
 
-	// ######### 添加数据
-
+  // ################
+	//  添加数据
+	// ################  
 	// 定义对象
 	u1 := UserInfo{1, "七米", 18,"男", "篮球"}
 	u2 := UserInfo{2, "沙河娜扎", 23,"女", "足球"}
@@ -83,7 +84,10 @@ func main() {
 	db.Create(&u2)
 
 
-	// ##########  查询
+  // ################
+	//  查询
+	// ################  
+
 	var u = new(UserInfo)
 	db.First(u)
 	fmt.Printf("查询一条： %#v\n", u)
@@ -158,7 +162,6 @@ func main() {
 	db.Where("age<?",db.Table("user_infos").Select("avg(age)").SubQuery()).Find(&u13)
 	fmt.Printf("子查询：%#v\n", u13)
 
-
 	//排序
 	u14 := []UserInfo{}
 	// id Asc 按照id进行升序排序
@@ -186,12 +189,17 @@ func main() {
 	db.Find(&ut).Count(&total)
 	fmt.Printf("总数,%#v\n", total)
 
-	// ################  更新
+  // ################
+	//  更新
+	// ################  
 	//u1 := UserInfo{1, "七米", 18,"男", "篮球"}
 	db.Model(&u).Update("hobby", "双色球")
 	fmt.Printf("查询一条： %#v\n", u)
 
-	// ###############  删除
+  // ################
+	//  删除
+	// ################  
+
 	db.Delete(&u)
 
 }
@@ -199,8 +207,26 @@ func main() {
 
 ```
 
+## 一对多操作
+
+```
+
+
+
+```
+
+
 ## 多对多 操作
 ```
+package main
+
+import (
+	"fmt"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"math/rand"
+	"time"
+)
 
 
 //文章表
@@ -243,11 +269,11 @@ func main() {
 	//db.AutoMigrate(&Article{},&Tag{},&Category{})
 
 	//// 手动添加tag
-	//newTag := Tag{
+	//newTag01 := Tag{
 	//	TagName: "科学",
 	//}
-	//db.Create(&newTag)
-	//
+	//db.Create(&newTag01)
+
 
 	//// 添加 Category 类型
 	//newCategory := Category{
@@ -265,8 +291,8 @@ func main() {
 	//db.Create(&newArticle)
 	//fmt.Println(newArticle)
 
-	// 02 开始已有标签-不必重复添加标签
-	// 后来文章选择已有标签ID进行关联-还是会更新关联
+	////02 开始已有标签-不必重复添加标签
+	////后来文章选择已有标签ID进行关联-还是会更新关联
 	//taglist := []*Tag{}
 	////db.Where("id = 1 ").Find(&taglist)
 	//db.Where("id IN (?)", []int{1,2}).Find(&taglist)
@@ -275,17 +301,16 @@ func main() {
 	//db.Create(&newArticle2)
 	//fmt.Println(newArticle2)
 
-	// 03  正确使用添加后关联-这个不会更新关联
+	////03  正确使用添加后关联-这个不会更新关联
 	//newArticle02 := Article{Title: fmt.Sprintf("china-04-%s", RandomString(8))}
 	//db.Create(&newArticle02)
 	//taglist02 := []*Tag{}
 	////db.First(&taglist02, 1) ## 关联一个
-	//db.Where("id IN (?)", []int{1,2}).Find(&taglist02)  ## 关联多个
+	////db.Where("id IN (?)", []int{1,2}).Find(&taglist02)  ## 关联多个
 	//db.Model(&newArticle02).Association("Tag").Append(taglist02)
 	//fmt.Println(newArticle02)
 
-
-	// 04 使用标签关联文章
+	////04 使用标签关联文章
 	//newTag := Tag{
 	//	TagName: "数学",
 	//}
@@ -327,8 +352,87 @@ func main() {
 	//}
 
 
+	// ### 更新
+	// 用户对象数据
+	//a := Article{}
+	//db.First(&a, 1)
+	//
+	//// 使用创建新关联替换当前关联
+	//// 单个
+	//
+	//t := Tag{}
+	//db.First(&t, 1)
+	//db.Model(&a).Association("Tag").Replace(t)
+
+	//多个
+	//t01 := []*Tag{}
+	//db.Where("id IN (?)", []uint{1, 2}).Find(&t01)
+	//db.Model(&a).Association("Tag").Replace(t01)
+	//fmt.Println(a)
+
+	// = 清除 =
+	// ========
+	////用户对象数据
+	//a1 := Article{}
+	//db.First(&a1, 2)
+	////
+	//////清空对关联的引用，不会删除关联本身
+	//db.Model(&a1).Association("Tag").Clear()
+	////删除关联的引用，不会删除关联本身
+	////&user.Languages 普通查询为空，需要关联查询得到
+	//db.Model(&a).Association("Tag").Delete(&a.Tag)
 
 
+	//// = 删除 =
+	////  删除时，需要先清空引用后再执行删除
+	//// ========
+	//a2 := Article{}
+	//db.First(&a2, 2)
+	//
+	////删除时，需要先清空引用后再执行删除
+	//db.Debug().Delete(&a2)
+	////默认软删除，Unscoped()记录删除
+	//db.Debug().Unscoped().Delete(&a2)
+	//fmt.Println(a2)
+
+	// ========
+	// = 总数 =
+	// ========
+	//a3 := Article{}
+	//db.First(&a3, 2)
+	//// 获取关联的总数
+	//count := db.Model(&a3).Association("Tag").Count()
+	//fmt.Printf("\r\n关联总数：%d", count)
+
+	t3 := Tag{}
+	db.First(&t3, 2)
+	// 获取关联的总数
+	count := db.Model(&t3).Association("Articles").Count()
+	fmt.Printf("\r\n关联总数：%d", count)
+
+}
+
+
+
+
+// 随机数生成 RandomString returns a random string with a fixed length
+func RandomString(n int, allowedChars ...[]rune) string {
+	var defaultLetters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+	var letters []rune
+
+	if len(allowedChars) == 0 {
+		letters = defaultLetters
+	} else {
+		letters = allowedChars[0]
+	}
+
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+
+	return string(b)
 }
 
 
