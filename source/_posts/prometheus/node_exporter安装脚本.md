@@ -4,7 +4,7 @@ date: 2020-09-21 18:47
 categories:
 - prometheus
 tags:
-- prometheus
+- prome
 - node_exporter
 ---
   

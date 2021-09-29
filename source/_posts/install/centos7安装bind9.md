@@ -38,7 +38,7 @@ wget https://downloads.isc.org/isc/bind9/9.16.12/bind-9.16.12.tar.xz
 
 ### 安装依赖
 ```
-yum install -y libuv libuv-devel pcre-devel zlib-devel gcc gcc-c++ autoconf automake make pcre-devel zlib-devel openssl-devel openldap-devel unixODBC-devel gcc libtool openssl  bind-utils python-pip
+yum install -y libuv libuv-devel libcap-devel pcre-devel zlib-devel gcc gcc-c++ autoconf automake make pcre-devel zlib-devel openssl-devel openldap-devel unixODBC-devel gcc libtool openssl  bind-utils python-pip  
 ```
 ```
 pip install ply
@@ -110,6 +110,7 @@ $ ldconfig -v
 ### 导出头文件搜索路径
 ```
 $ ln -sv /usr/local/bind9/include /usr/include/named
+
 "/usr/include/named" -> "/usr/local/bind9/include"
 ```
 
@@ -123,7 +124,7 @@ MANPATH /usr/local/bind9/share/man
 
 ## 配置
 
-## 准备
+### 准备
 
 
 创建服务专用账户named，禁止本地登陆户
@@ -134,10 +135,9 @@ useradd -d /usr/local/bind9 -s /sbin/nologin named
 接下来我们更改所有配置文件的用户为named用户
 ```
 mkdir /run/named
-chown -R named:named /usr/local/bind9/
-chown -R named:named /etc/named
-chown -R named:named /var/named/data
-chown -R named:named /run/named
+mkdir -p /var/named/{dynamic,data,zone}
+
+
 ```
 
 在联网的情况下直接将查询根的结果导入根区域配置文件，我们在named.rfc1912.zones文件中配置了根文件named.ca
@@ -161,7 +161,9 @@ options {
   memstatistics-file "/var/named/data/named_mem_stats.txt";
   allow-query { any; };
   recursion yes; # 允许递归查询
-  max-cache-size 60%;
+  allow-new-zones yes;  #允许添加zone
+  max-cache-size 70%;
+  dnssec-validation no;   # 指定是否提供使用dnssec认证的资源记录.默认为yes.
 
   forward first;
   forwarders {
@@ -268,6 +270,15 @@ a         IN      A      192.168.7.134
 
 ## 启动
 
+### 权限配置
+
+```
+chown -R named:named /usr/local/bind9/
+chown -R named:named /etc/named
+chown -R named:named /var/named/
+chown -R named:named /run/named
+```
+
 ### 检查配置
 
 实时日志
@@ -316,6 +327,57 @@ systemctl stop named
 
 ## 测试
 
+主配置文件
+```
+vim named.conf
+
+zone "test.com" IN {
+  type master;
+  file "zone/test.com.zone";
+  allow-update { none; };
+};
+```
+
+区域配置文件
+```
+vim /var/named/zone/test.com.zone
+
+$TTL      86400
+@     IN SOA      test.com root.test.com (
+                                  42                ; serial (d. adams)
+                                  3H                ; refresh
+                                  15M               ; retry
+                                  1W                ; expiry
+                                  1D )              ; minimum
+                IN NS           @
+                IN A            127.0.0.1
+                IN AAAA         ::1
+www IN A 172.16.100.200
+```
+
+重启
+```
+systemctl restart named
+```
+
+解析测试
+```
+nslookup 
+
+> server 10.200.192.13
+Default server: 10.200.192.13
+Address: 10.200.192.13#53
+> www.test.com
+Server:		10.200.192.13
+Address:	10.200.192.13#53
+
+Name:	www.test.com
+Address: 172.16.100.200
+> exit
+
+```
+
+
 ## rndc 
 
 rndc（Remote Name Domain Controllerr）是一个远程管理bind的工具，通过这个工具可以在本地或者远程了解当前服务器的运行状况，也可以对服务器进行关闭、重载、刷新缓存、增加删除zone等操作。
@@ -355,7 +417,7 @@ rndc-confgen > /etc/rndc.conf
 
 ### 配置 named.conf使用rndc秘钥
 ```
-tail -10 /etc/named/rndc.conf | head -9 | sed s/#\ //g > named.conf
+tail -10 /etc/named/rndc.conf | head -9 | sed s/#\ //g >> named.conf
 ```
 
 ```
@@ -413,9 +475,112 @@ zone "test.com" {
 nsupdate
 
 > server 127.0.0.1
+> zone test.com
 > update add xxx.test.com 300 A 3.3.3.3
 > update detale  abc.test.com 300 A
 > send
-update failed: REFUSED
->quit
+> show
+> quit
+```
+
+### nsupdate 参数
+-d 调试模式。
+-k 从keyfile文件中读取密钥信息。
+-y keyname是密钥的名称,secret是以base64编码的密钥。
+-v 使用TCP协议进行nsupdate.默认是使用UDP协议。
+
+命令格式:
+server servername [ port ]
+送请求到servername服务器的port端口.如果不指定servername,nsupdate将把请求发送给当前去的主DNS服务器.
+如:
+server 192.168.36.54 53
+
+local address [ port ]           发送nsupdate请求时,使用的本地地址和端口.
+zone zonename                    指定需要更新的区名.
+class classname                 指定默认类别.默认的类别是IN.
+key name secret                 指定所有更新使用的密钥.
+prereq nxdomain domain-name               要求domain-name中不存在任何资源记录.
+prereq yxdomain domain-name                 要求domain-name存在,并且至少包含有一条记录.
+prereq nxrrset domain-name [ class ] type        要求domain-name中没有指定类别的资源记录.
+prereq yxrrset domain-name [ class ] type   要求存在一条指定的资源记录.类别和domain-name必须存在.
+update delete domain-name [ ttl ] [ class ] [ type [ data... ] ]     删除domain-name的资源记录.如果指定了type和data,仅删除匹配的记录.
+
+update add domain-name ttl [ class ] type data…      添加一条资源记录.
+show      显示自send命令后,所有的要求信息和更新请求.
+send     将要求信息和更新请求发送到DNS服务器.等同于输入一个空行.
+
+
+
+### 通过TSIG key实现nsupdate功能
+```
+1、使用` dnssec-keygen -a HMAC-MD5 -b 128 -n USER testkey `命令来生成密钥。
+  dnssec-keygen：用来生成更新密钥。
+    -a HMAC-MD5：采用HMAC-MD5加密算法。
+    -b 128：生成的密钥长度为128位。
+    -n USER testkey：密钥的用户名为testkey。
+
+2、密钥生成后，会在当前目录下自动生成两个密钥文件***.+157+xxx.key和***.+157+xxx.private。
+3、查看两个密钥文件的内容：
+  cat ***.+157+xxx.key
+  cat ***.+157+xxx.private
+4、通过同样的方法生成test2key。
+5、添加密钥信息到DNS主配置文件中 
+6、将test.com区域中的allow-update { none; }中的"none"改成"key testkey";
+  将"none"改成"key testkey"的意思是指明采用"key testkey"作为密钥的用户可以动态更新“t
+```
+例子:
+```
+view "view-test" in{
+	match-clients{
+		key testkey;
+		acl1;
+		};//keytestkey;以及acl1;zone"test.com"{
+	type master;
+	file "test.zone";
+	allow-update{
+			key testkey;
+		};
+	};
+};
+```
+
+```
+nsupdate 增删改查
+server 192.168.0.49 53
+删除
+    删除NS记录
+        update delete huiselantian.com  IN NS ns2.huiselantian.com.
+        update delete huiselantian.com  IN NS ns3.huiselantian.com.
+        update delete huiselantian.com  IN NS ns4.huiselantian.com.
+        update delete huiselantian.com  IN NS ns5.huiselantian.com.
+    删除A记录
+        update delete ns2.huiselantian.com  A
+        update delete ns3.huiselantian.com  A
+        update delete ns4.huiselantian.com  A
+        update delete ns5.huiselantian.com  A
+增加
+    增加NS记录
+        update add huiselantian.com 600 IN NS ns2.huiselantian.com.
+        update add huiselantian.com 600 IN NS ns3.huiselantian.com.
+        update add huiselantian.com 600 IN NS ns4.huiselantian.com.    
+    增加A记录
+        update add ns3.huiselantian.com 600 IN A 192.168.0.236
+        update add ns4.huiselantian.com 600 IN A 192.168.0.237
+        update add ns5.huiselantian.com 600 IN A 192.168.1.125    
+查询：
+    查询NS记录
+         dig NS @192.168.0.49 huiselantian.com 
+    查询A记录
+        dig A @192.168.0.49 ns1.huiselantian.com
+    查询SOA记录
+        dig SOA @192.168.0.49 huiselantian.com
+改：
+    先删除后新增
+send
+nsupdate处理ns的时候(如不规范,会报错)
+    添加：
+        先添加A 再添加NS记录 
+    删除
+        先删除ns 再删除A记录
+
 ```

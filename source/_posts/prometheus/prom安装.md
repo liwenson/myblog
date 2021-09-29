@@ -4,7 +4,7 @@ date: 2021-05-17 16:59
 categories:
 - prometheus
 tags:
-- prometheus
+- prome
 ---
   
   
@@ -54,6 +54,7 @@ services:
         source: ./alertmanager/alertmanager.yml
         target: /etc/alertmanager/alertmanager.yml
         read_only: true
+		command: "--config.file=/etc/alertmanager/alertmanager.yml --web.external-url=http://10.200.76.70:9093"
     ports:
       - "9093:9093"
       - "9094:9094"
@@ -80,7 +81,7 @@ services:
         target: /prometheus
       - "/opt/prom/prometheus/rules:/etc/prometheus/rules"
       - "/opt/prom/prometheus/targets:/etc/prometheus/targets"
-    command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention=180d --web.enable-admin-api"
+    command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention=180d --web.enable-admin-api --web.external-url=http://10.200.76.70:9090"
     ports:
       - "9090:9090"
     networks:
@@ -216,6 +217,7 @@ scrape_configs:
       - target_label: __address__
         replacement: 10.200.76.70:9115
 ```
+
 ### 添加ruls
 ```
 https://awesome-prometheus-alerts.grep.to/rules
@@ -467,3 +469,12 @@ vim hostname
 #172.16.105.116  hz01-prod-bi-haizao-01.ops.com
 #172.16.105.119  hz01-prod-bi-haizao-02.ops.com
 ```
+
+
+### 动态更新prometheus的配置项
+
+动态更新Prometheus的配置，即热更新加载，一共有两种方式：
+
+1）向prometheus进程发送SIGHUP信号
+
+2）curl -X POST http://localdns:9090/-/reload 

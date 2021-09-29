@@ -3,7 +3,7 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 避日槐
+title: IT搬瓦工
 subtitle: ''
 description: ''
 keywords:
@@ -106,7 +106,7 @@ ignore:
 ## Themes: https://hexo.io/themes/
 #theme: landscape
 #theme: volantis
-theme: maupassant
+theme: maupassant-hexo-master
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment

@@ -5,7 +5,6 @@ categories:
 - go
 tags:
 - gorm
-- go
 ---
 	
 	
@@ -210,6 +209,134 @@ func main() {
 ## 一对多操作
 
 ```
+package main
+
+import (
+	"fmt"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"math/rand"
+	"time"
+)
+
+
+## 一个文章只属于一个分类，一个分类中有多个文章
+
+//文章表
+type Article struct {
+	Id int `json:"id"`
+	Title string `json:"title"`
+	CategoryId int `json:"category_id"`
+}
+
+//分类表
+type Category struct {
+	ID int `json:"id"`
+	CategoryName string `json:"category_name"`
+	Status int `json:"status"`
+	Articles []*Article `gorm:"foreignkey:Id;ASSOCIATION_FOREIGNKEY:ID"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+
+func main() {
+	db, err := gorm.Open("sqlite3", "db/gorm.db")
+	if err != nil {
+		fmt.Println("%v\n", err)
+		panic(err)
+	}
+	db.LogMode(true)
+	defer db.Close()
+	// 自动迁移
+	db.AutoMigrate(&Article{},&Category{})
+
+
+  // 添加
+	//// 添加分类
+	//fmt.Println(article)
+	//c1 :=Category{
+	//	CategoryName: "中文",
+	//	Status: 1,
+	//}
+	//c2 := Category{
+	//	CategoryName: "历史",
+	//	Status: 0,
+	//}
+	//db.Create(&c1)
+	//db.Create(&c2)
+	//
+
+  //// 添加文章
+	// article01 := Article{
+	//	Title: "语言学",
+	//	CategoryId: 1,
+	//}
+	//article02 := Article{
+	//	Title: "散文集",
+	//	CategoryId: 1,
+	//}
+	//article03 := Article{
+	//	Title: "历史魅力",
+	//	CategoryId: 0,
+	//}
+	
+	//db.Create(&article01)
+	//db.Create(&article02)
+	//db.Create(&article03)
+
+	// 预加载查询 
+	var cc Category
+	db.Where("id = ?",1).First(&cc)
+
+	// 预加载查询
+	db.Preload("Articles").Find(&cc)
+	// 内链查询
+	db.Preload("Articles","Title = ?","数学01").Find(&cc)
+
+	// 自定义预加载SQL
+	db.Preload("Articles", func(db *gorm.DB) *gorm.DB{
+		return db.Where("Title = ?","数学01")
+	}).Find(&cc)
+	fmt.Println(cc)
+	fmt.Println(cc.CategoryName, cc.Articles)
+	fmt.Println(cc.Articles[0].Title)
+	for k,v := range cc.Articles {
+		fmt.Println(k,"--",v.Id,v.Title,v.CategoryId)
+	}
+
+	// 链式预加载查询 
+	
+
+
+
+}
+
+
+
+
+// 随机数生成 RandomString returns a random string with a fixed length
+func RandomString(n int, allowedChars ...[]rune) string {
+	var defaultLetters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+	var letters []rune
+
+	if len(allowedChars) == 0 {
+		letters = defaultLetters
+	} else {
+		letters = allowedChars[0]
+	}
+
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+
+	return string(b)
+}
+
+
+
 
 
 

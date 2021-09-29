@@ -4,7 +4,7 @@ date: 2021-05-17 18:10
 categories:
 - prometheus
 tags:
-- prometheus
+- prome
 ---
   
   

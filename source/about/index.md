@@ -1,9 +1,25 @@
 ---
-layout: page
-title: 关于
-date: 2019-12-13 18:33:26
-body: [article, grid, comments]
-valine:
-  placeholder: 有什么想对我说的呢？
-sidebar: false
+title: 简历
+date: 2018-05-01 16:49:45
+comments: false
 ---
+> ## 简介
+
+
+
+
+> ## 联系我
+
+
+
+
+> ## 其他
+
+
+
+
+<script>$(".header-02-3 a:first").addClass('current');</script>
+
+　　
+
+

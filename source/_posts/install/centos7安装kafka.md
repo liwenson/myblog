@@ -178,3 +178,89 @@ chmod +x /opt/kafka/kafka_2.12-2.8.0/bin/clean_kafka_logs.sh
 执行crontab -e，加入一行
 0 0 * * * /bin/bash /opt/kafka/kafka_2.12-2.8.0/bin/clean_kafka_logs.sh
 ```
+
+
+操作日志清理脚本
+```
+#!/usr/bin/env bash
+#  @author  Yakir.King
+#  @date  2020/8/3 20:14
+# 
+
+# 清除多余日志
+# 清除规则
+## 1、保留个数，kafka默认按照小时保存日志，每小时保存一个，约定保留文件个数，默认72个
+## 2、保留时间，默认保存72小时
+## 3、保存大小，为避免服务出问题导致频繁刷日志，将 磁盘撑满，每个文件保留大小均不可超过1G，超过1G的文件将被清理。
+###   3.1 为保留出问题的现场，所以需要保留第一个超过1G的文件。
+
+# 保留文件个数，默认72
+RETAIN_FILES_NUM=72
+
+# 保留文件时间，默认72小时，单位：小时
+RETAIN_FILES_TIME=72
+
+# 保存文件大小，默认1G，单位：M
+RETAIN_FILE_MB=1024
+
+# 日志保存目录
+LOG_DIR=/opt/kafka/kafka_2.12-2.8.0/logs
+
+# 保留个数方法，由于日志按照小时保存，所以使用保留时间方法即可。
+function retain_files_num() {
+	echo ""
+ }
+# 保留时间方法
+# 传入参数为日志文件前缀，如server.log.2020-08-01-11 传入参数为server
+function retain_files_date(){
+    for file_name in $* ; do
+        FILE_NAME=${file_name}
+        # 确认给定时间之前的时间
+        DELETE_DATE=`date +%Y-%m-%d-%H -d "${RETAIN_FILES_TIME} hours ago"`
+        # 获取所有日志，将日志的时间戳获取
+        # 遍历所有日志文件，截取日志文件的时间戳部分，与delete_date对比，小于等于这个时间的，删除。
+        for log_file in `ls -1 ${LOG_DIR}/${FILE_NAME}.log.20*`;do
+            LOG_FILE_DATE=`ls -1 ${log_file} | awk -F . '{print $(NF)}'`
+            if [[ ${LOG_FILE_DATE} < ${DELETE_DATE} ]]; then
+                echo "当前日志文件：${log_file}, 保存时间已超过${RETAIN_FILES_TIME}个小时，删除中……"
+                rm -f ${LOG_DIR}/${log_file}
+            fi
+        done
+	done
+}
+
+# 保存大小方法
+# 传入参数为日志文件前缀，如server.log.2020-08-01-11 传入参数为server
+function retain_files_size(){
+    for file_name in $* ; do
+        FILE_NAME=${file_name}
+        # 判断出文件大小
+        # 判断超过1G的文件个数，超过两个删除新文件（保留旧的文件，事件现场）。
+        BIG_FILE_NUM=`ls -lh ${LOG_DIR}/${FILE_NAME}.log.20* | grep -v total | grep G | wc -l `
+        if [[ ${BIG_FILE_NUM} > 1 ]];then
+            flag=1
+            for log_file in `ls -lh ${LOG_DIR}/${FILE_NAME}.log.20* | grep -v total | grep G | awk '{print $(NF)}'` ;do
+                if [[ ${flag} -gt 1 ]] ;then
+                    echo "当前日志文件：${log_file}, 大小已超过${RETAIN_FILE_MB}M，删除中……"
+                    rm -f ${LOG_DIR}/${log_file}
+                fi
+                ((flag++))
+            done
+        fi
+        if [[ ${BIG_FILE_NUM} == 1 ]];then
+            echo "剩余1个超过${RETAIN_FILE_MB}M的文件，请检查文件过大内容，如有问题解决问题后清除。"
+        fi
+        echo "${LOG_DIR}/${FILE_NAME}.log的保留文件大小正常"
+    done
+}
+
+# 执行保留时间方法
+retain_files_date server controller kafka-authorizer kafka-request log-cleaner state-change
+# 执行保留大小方法
+retain_files_size server controller kafka-authorizer kafka-request log-cleaner state-change
+
+```
+
+```
+1 */1 * * * /bin/bash ${script_home}/oplogs_cleaner.sh >> oplogs_cleaner.log 2>&1
+```
