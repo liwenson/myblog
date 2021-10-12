@@ -27,7 +27,6 @@ The bits may have been replaced on the origin server, or an attacker may
 have intercepted the download attempt.
 
 For more information, see 'go help module-auth'.
-
 ```
 
 #### 处理
@@ -37,7 +36,8 @@ go clean -modcache
 cd project && rm go.sum
 
 go mod tidy
-````
+```
+
 
 #### 原因
 ```
