@@ -2,7 +2,7 @@
 title: centos7安装RabbitMQ
 date: 2021-07-29 16:00
 categories:
-- linux
+- centos7
 tags:
 - rabbitmq
 ---

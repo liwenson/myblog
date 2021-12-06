@@ -2,7 +2,7 @@
 title: centos7安装ruby
 date: 2021-07-29 13:52
 categories:
-- linux
+- centos7
 tags:
 - ruby
 ---

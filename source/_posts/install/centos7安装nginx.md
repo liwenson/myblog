@@ -2,7 +2,7 @@
 title: centos7 普通用户下安装nginx
 date: 2021-09-28 15:21
 categories:
-- linux
+- centos7
 tags:
 - nginx
 ---

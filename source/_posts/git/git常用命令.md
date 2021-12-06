@@ -161,7 +161,7 @@ git branch -v
 git branch -av
 ```
 
-### 查看本地和远端分支
+### 查看远端分支
 ```
 git branch -rv
 ```

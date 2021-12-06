@@ -2,7 +2,7 @@
 title: CentOS7关闭透明大页面
 date: 2021-07-29 15:42
 categories:
-- linux
+- centos7
 tags:
 - linux
 ---

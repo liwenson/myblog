@@ -2,7 +2,7 @@
 title: centos7安装kafka集群
 date: 2021-07-24 15:29
 categories:
-- Linux
+- centos7
 tags:
 - kafka
 ---

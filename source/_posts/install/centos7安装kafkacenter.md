@@ -2,7 +2,7 @@
 title: centos7 快速启动kafkacenter
 date: 2021-07-24 17:20
 categories:
-- linux
+- centos7
 tags:
 - kafka
 - kafkacenter

@@ -2,7 +2,7 @@
 title: centos7安装sentry
 date: 2021-06-21 09:39
 categories:
-- centos
+- centos7
 tags:
 - sentry
 ---

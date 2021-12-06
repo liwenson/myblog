@@ -2,7 +2,7 @@
 title: centos7 安装mongodb4.4
 date: 2021-07-24 19:13
 categories:
-- linux
+- centos7
 tags:
 - mongodb
 ---

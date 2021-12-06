@@ -2,7 +2,7 @@
 title: centos7安装redismanager
 date: 2021-07-28 15:08
 categories:
-- linux
+- centos7
 tags:
 - redis
 ---

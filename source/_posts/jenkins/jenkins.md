@@ -9,11 +9,14 @@ tags:
 
 
 
-
-
 ### jenkins 工作目录修改
 
-**旧**：
+```
+/etc/sysconfig/jenkins 
+修改 JENKINS_HOME 
+```
+
+**旧**:
 
 ```
 系统管理→系统设置→主目录（的右边问号下面）→高级（是不是忽略了啊\(^o^)/~）→工作空间根目录
@@ -38,7 +41,7 @@ workspace：/home/froad/workspace/${ITEM_FULL_NAME}#前面的目录随便你改�
 find . -type d -name"workspace"|xargs rm -rf#看见find后面的那个点了么，改成你的路径就行了
 ```
 
-**新**：
+**新**:
 
 ```
 在  config.xml   文件内，查找 workspaceDir 关键字，将你的自定义 工作空间根目录 地址替换默认的地址

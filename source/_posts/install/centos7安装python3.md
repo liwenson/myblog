@@ -20,6 +20,10 @@ yum install -y libffi-devel zlib1g-dev
 yum install zlib* -y
 ```
 
+### 准备gcc4.8.5 以上版本
+略
+`注意`： gcc 4.8.5不适用于编译Python3.8 及以上版本，但是可以编译Python 3.7。 使用GCC9.2来编译Python3.9
+
 
 ### python3下载页面
 ```
@@ -35,7 +39,7 @@ tar -xvJf  Python-3.9.0.tar.xz
 ```
 创建编译安装目录
 ```
-mkdir /usr/local/python3 
+mkdir /usr/local/python3
 ```
 
 ### 安装
@@ -54,6 +58,9 @@ make && make install
 ```
 ln -s /usr/local/python3/bin/python3 /usr/local/bin/python3
 ln -s /usr/local/python3/bin/pip3 /usr/local/bin/pip3
+
+ln -s /usr/local/python3/bin/ansible /usr/bin/ansible
+ln -s /usr/local/python3/bin/ansible-playbook /usr/bin/ansible-playbook
 ```
 
 验证是否成功
@@ -101,7 +108,7 @@ zipimport.ZipImportError: can't decompress data; zlib not available Makefile:109
 ```
 解决方式
 ```
-yum -y install zlib1g-dev
+yum install zlib* -y
 ```
 
 ```
@@ -110,6 +117,30 @@ ModuleNotFoundError: No module named '_ctypes'
 解决方式
 ```
 yum -y install libffi-devel
+```
+
+```
+Could not import runpy module
+Traceback (most recent call last):
+  File "/usr/local/src/Python-3.9.0/Lib/runpy.py", line 15, in <module>
+    import importlib.util
+  File "/usr/local/src/Python-3.9.0/Lib/importlib/util.py", line 2, in <module>
+    from . import abc
+  File "/usr/local/src/Python-3.9.0/Lib/importlib/abc.py", line 17, in <module>
+    from typing import Protocol, runtime_checkable
+  File "/usr/local/src/Python-3.9.0/Lib/typing.py", line 21, in <module>
+    import collections
+SystemError: <built-in function compile> returned NULL without setting an error
+generate-posix-vars failed
+make[1]: *** [pybuilddir.txt] Error 1
+make[1]: Leaving directory `/usr/local/src/Python-3.9.0'
+make: *** [profile-opt] Error 2
+```
+
+解决方式 
+```
+升级gcc至高版本，gcc 8.1.0已修复此问题
+
 ```
 
 

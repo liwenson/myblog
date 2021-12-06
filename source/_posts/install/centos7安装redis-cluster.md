@@ -2,7 +2,7 @@
 title: centos7安装redis集群
 date: 2021-07-29 09:22
 categories:
-- linux
+- centos7
 tags:
 - redis
 - redis-cluster

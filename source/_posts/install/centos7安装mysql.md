@@ -2,7 +2,7 @@
 title: centos7安装mysql
 date: 2021-07-28 14:15
 categories:
-- linux
+- centos7
 tags:
 - mysql
 ---

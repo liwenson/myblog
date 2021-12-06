@@ -2,7 +2,7 @@
 title: centos7安装zk集群
 date: 2021-07-24 14:34
 categories:
-- Linux
+- centos7
 tags:
 - zookeeper
 ---
