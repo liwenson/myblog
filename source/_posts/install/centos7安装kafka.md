@@ -264,3 +264,14 @@ retain_files_size server controller kafka-authorizer kafka-request log-cleaner s
 ```
 1 */1 * * * /bin/bash ${script_home}/oplogs_cleaner.sh >> oplogs_cleaner.log 2>&1
 ```
+
+
+## log4j 日志控制
+```
+vim log4j.properties
+
+#当日志文件超过5M的时候重新建立新的日志文件,保留20个日志文件
+
+log4j.appender.logfile.MaxFileSize=51200KB
+log4j.appender.logfile.MaxBackupIndex=20
+```

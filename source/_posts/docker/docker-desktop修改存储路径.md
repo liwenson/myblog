@@ -28,7 +28,7 @@ wsl -l -v --all
   docker-desktop         Stopped         2
 ```
 
-- docker-desktop：保存的是程序
+- docker-desktop：   保存的是程序,占用空间很小,可以不迁移
 - docker-desktop-data: 保存的镜像
 
 **在关闭docker-desktop的情况下再进行操作。**
@@ -40,7 +40,7 @@ wsl --export docker-desktop docker-desktop.tar
 wsl --export docker-desktop-data docker-desktop-data.tar
 ```
 
-#### 删除命令
+#### 注销命令
 ```
 wsl --unregister docker-desktop
 wsl --unregister docker-desktop-data
@@ -48,8 +48,16 @@ wsl --unregister docker-desktop-data
 
 #### 导入命令
 ```
-wsl --import docker-desktop D:\docker\docker-desktop docker-desktop.tar
-wsl --import docker-desktop-data D:\docker\docker-desktop-data docker-desktop-data.tar
+wsl --import docker-desktop-data D:\docker\docker-desktop-data docker-desktop-data.tar  --version 2
+wsl --import docker-desktop D:\docker\docker-desktop docker-desktop.tar  --version 2
+```
+查看
+```
+wsl -l -v --all
+
+  NAME                   STATE           VERSION
+* docker-desktop-data    Stopped         2
+  docker-desktop         Stopped         2
 ```
 
 **注意: 划重点, 两个子系统文件使用的目录限制不能为同一个目录.**
@@ -57,7 +65,7 @@ wsl --import docker-desktop-data D:\docker\docker-desktop-data docker-desktop-da
 完成以上操作启动docker-desktop下载镜像文件就不会保存到C盘啦。
 
 
-## 方案二
+## 方案二 (未验证)
 
 
 对docker默认缓存路径创建联接指向别的磁盘文件。

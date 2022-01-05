@@ -24,6 +24,7 @@ wget https://clamav-site.s3.amazonaws.com/production/release_files/files/000/000
 #### 2、安装编译依赖
 ```
 yum install gcc-c++ openssl openssl-devel -y
+yum install bzip2-devel -y
 ```
 #### 3、编译clamav
 ```
@@ -95,8 +96,8 @@ cp clamd.conf.sample clamd.conf
 cp freshclam.conf.sample freshclam.conf
 
 cat >> clamd.conf <<-eof
-LocalSocket /var/lib/clamav/clamd.socket
-PidFile /var/lib/clamav/clamd.pid
+LocalSocket /usr/local/clamav-103/clamd.socket
+PidFile /usr/local/clamav-103/updata/clamd.pid
 DatabaseDirectory /usr/local/clamav-103/updata
 LogFile /usr/local/clamav-103/logs/clamd.log
 eof
@@ -122,7 +123,36 @@ chown -R clamav:clamav /usr/local/clamav-103
 chown -R clamav:clamav /var/lib/clamav
 ```
 
+
+
 ### 启动clamd
+
+##### systemd 
+```
+vim /usr/lib/systemd/system/clam-freshclam.service
+
+# Run the freshclam as daemon
+[Unit]
+Description = freshclam scanner
+After = network.target
+
+[Service]
+Type = forking
+ExecStart = /usr/local/clamav-103/bin/freshclam -d -c 4
+Restart = on-failure
+PrivateTmp = true
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+```
+sudo systemctl enable clam-freshclam.service
+sudo systemctl start clam-freshclam.service
+sudo systemctl status clam-freshclam.service
+```
+
 
 ##### 更新病毒库
 ```
@@ -146,7 +176,7 @@ clamd start   # 如果报错，提示 'LibClamAV Error: cl_load(): No such file 
 
 使用示例
 ```
-clamscan –ri / -l clamscan.log  --remove   #这里递归扫描根目录 / ，发现感染文件立即删除
+clamscan -ri / -l clamscan.log  --remove   #这里递归扫描根目录 / ，发现感染文件立即删除
 ```
 
 
@@ -168,8 +198,80 @@ clamscan –ri / -l clamscan.log  --remove   #这里递归扫描根目录 / ，�
 | --quiet                  | 输出错误消息                    | clamscan --quiet                  |
 | --infected/-i            | 输出感染文件                    | clamscan -i                       |
 | --suppress-ok-results/-o | 跳过扫描OK的文件                | clamscan -o                       |
-| –no-summary              | 不显示统计信息                  |                                   |
+| –-no-summary             | 不显示统计信息 (只显示找到的病毒信息)    |                              |
 | --bell                   | 扫描到病毒文件发出警报声音      |                                   |
+| --unzip(unrar)           |  解压压缩文件扫描              |                                   |
+
+
+```
+----------- SCAN SUMMARY -----------
+Known viruses: 6490986
+Engine version: 0.99.4
+Scanned directories: 20172
+Scanned files: 72378
+Infected files: 0       # 被感染的文件数
+Total errors: 23809
+Data scanned: 4067.18 MB
+Data read: 4244.65 MB (ratio 0.96:1) 
+Time: 1343.190 sec (22 m 23 s)
+
+```
+
+### 检查配置文件
+```
+./clamconf -n
+
+
+Checking configuration files in /etc
+
+Config file: clamd.conf
+-----------------------
+LogFile = "/usr/local/clamav-103/logs/clamd.log"
+PidFile = "/usr/local/clamav-103/updata/clamd.pid"
+DatabaseDirectory = "/usr/local/clamav-103/updata"
+LocalSocket = "/usr/local/clamav-103/clamd.socket"
+
+Config file: freshclam.conf
+---------------------------
+PidFile = "/usr/local/clamav-103/updata/freshclam.pid"
+DatabaseDirectory = "/usr/local/clamav-103/updata"
+UpdateLogFile = "/usr/local/clamav-103/logs/freshclam.log"
+DatabaseMirror = "database.clamav.net"
+
+clamav-milter.conf not found
+
+Software settings
+-----------------
+Version: 0.103.0
+Optional features supported: MEMPOOL IPv6 AUTOIT_EA06 PCRE ICONV RAR 
+
+Database information
+--------------------
+Database directory: /usr/local/clamav-103/updata
+main.cvd: version 62, sigs: 6647427, built on Thu Sep 16 20:32:42 2021
+daily.cvd: version 26384, sigs: 1950259, built on Sun Dec 12 17:24:43 2021
+bytecode.cvd: version 333, sigs: 92, built on Mon Mar  8 23:21:51 2021
+Total number of signatures: 8597778
+
+Platform information
+--------------------
+uname: Linux 3.10.0-862.11.6.el7.x86_64 #1 SMP Tue Aug 14 21:49:04 UTC 2018 x86_64
+OS: linux-gnu, ARCH: x86_64, CPU: x86_64
+zlib version: 1.2.7 (1.2.7), compile flags: a9
+platform id: 0x0a2179790800000000040805
+
+Build information
+-----------------
+GNU C: 4.8.5 20150623 (Red Hat 4.8.5-44) (4.8.5)
+CPPFLAGS: 
+CFLAGS: -g -O2 -fno-strict-aliasing  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+CXXFLAGS: -g -O2
+LDFLAGS: 
+Configure: '--prefix=/usr/local/clamav-103' '--sysconfdir=/etc' --enable-ltdl-convenience
+sizeof(void*) = 8
+Engine flevel: 121, dconf: 121
+
+```
 
 
 ### 报错处理
@@ -198,7 +300,7 @@ yum install libcurl-devel -y
 
 错误二
 ```
- clamd start
+clamd start
 LibClamAV Error: cli_loaddbdir(): No supported database files found in /usr/local/clamav-103/updata
 ERROR: Can't open file or directory
 ```
@@ -209,7 +311,7 @@ ERROR: Can't open file or directory
 yum安装的ClamAv，病毒库默认路径是:
 /var/lib/clamav
 
-源码安装时，默认的病毒库路径是：
+源码安装时，默认的病毒库路径是:
 /usr/local/share/clamav
 
 而我在/etc/clamav.conf 中配的是 /usr/local/clamav-103/updata
@@ -218,4 +320,27 @@ cd /usr/local/clamav-103/updata
 wget http://database.clamav.net/main.cvd
 wget http://database.clamav.net/daily.cvd
 wget http://database.clamav.net/bytecode.cvd
+```
+
+错误三
+```
+LibClamAV Warning: fmap_readpage: pread fail: asked for 4077 bytes @ offset 19, got 0
+```
+解决方法：
+扫描/sys/会产生大量报错,跳过此文件夹即可
+-i 代表只报出infected的文件
+-r 代表子文件夹也要扫描,/就是根目录了
+```
+clamscan --exclude-dir=/sys/ -i -r /
+```
+
+错误四
+```
+LibClamAV Warning: cli_scanbzip: bzip2 support not compiled in
+```
+解决方法
+```
+yum install bzip2-devel
+
+之后，卸载并重新安装 ClamAV
 ```

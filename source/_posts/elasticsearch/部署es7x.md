@@ -22,6 +22,40 @@ https://www.elastic.co/cn/downloads/elasticsearch
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.8.0-linux-x86_64.tar.gz
 ```
 
+## 系统优化
+
+vim /etc/security/limits.conf
+```
+* soft nofile 65535
+* hard nofile 65536
+* soft nproc  16384
+* hard nproc  16384
+* soft stack  10240
+* soft memlock unlimited
+* hard memlock unlimited
+```
+
+```
+swapoff -a
+# 禁用swapping，开启服务器虚拟内存交换功能会对es产生致命的打击
+```
+
+vim /etc/sysctl.conf
+```
+vm.swappiness = 1
+vm.zone_reclaim_mode = 0
+vm.overcommit_memory=1
+vm.swappiness=0
+net.core.somaxconn=65535
+net.ipv4.tcp_max_syn_backlog=65535
+net.ipv4.tcp_syncookies = 1
+vm.swappiness = 0
+
+vm.dirty_ratio=10
+vm.max_map_count=655360
+```
+
+
 ## 创建用户和用户组
 ```
 useradd -M -s /sbin/nologin es

@@ -52,3 +52,22 @@ nginx:
 ```
 docker run -d --log-opt max-size=1g nginx
 ```
+
+
+
+/etc/sysconfig/docker
+```
+# Modify these options if you want to change the way the docker daemon runs
+OPTIONS='--selinux-enabled --log-driver=journald --signature-verification=false'
+if [ -z "${DOCKER_CERT_PATH}" ]; then
+    DOCKER_CERT_PATH=/etc/docker
+fi
+
+
+# Modify these options if you want to change the way the docker daemon runs
+OPTIONS='--selinux-enabled  --signature-verification=false'
+if [ -z "${DOCKER_CERT_PATH}" ]; then
+    DOCKER_CERT_PATH=/etc/docker
+fi
+
+```
