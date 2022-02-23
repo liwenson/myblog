@@ -2,7 +2,7 @@
 title: init-connect+binlog实现mysql审计
 date: 2019-12-13 14:00:00
 categories: 
-- bigdata
+- mysql
 tags:
 - flume
 ---

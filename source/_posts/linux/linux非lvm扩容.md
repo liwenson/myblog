@@ -4,7 +4,7 @@ date: 2021-09-17 11:24
 categories:
 - linux
 tags:
-- linux
+- lvm
 ---
 	
 	

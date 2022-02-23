@@ -2,9 +2,9 @@
 title: docker 部署code-server
 date: 2021-12-31 17:15
 categories:
-- code
-tags:
 - docker
+tags:
+- code
 ---
   
   

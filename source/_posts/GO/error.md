@@ -2,7 +2,7 @@
 title: golang 碰到的错误
 date: 2021-06-28 11:12
 categories:
-- golang
+- go
 tags:
 - golang
 ---

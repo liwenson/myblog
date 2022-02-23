@@ -29,7 +29,12 @@ tags:
 - Current-Stable 稳定版本
 - Approaching EOL 即将停更版本
 - Current-Stable, ESV 带扩展功能的的稳定版本
+- Unscheduled Releases  非计划版本
 ```
+
+如果在稳定性压倒一切的生产环境运行BIND，选择一个版本部署后，你希望软件尽量不要变动（仍然可以收到补丁更新），推荐ESV版本。这会有一个更长的支持生命周期，并且可以升级解决安全和重要BUG，但是其他方面改动很小。我们会提前提供下个主要版本的信息，稳定后，将称为ESV版本。
+
+
 cd /usr/local/src
 wget https://downloads.isc.org/isc/bind9/9.16.12/bind-9.16.12.tar.xz
 ```
@@ -38,7 +43,7 @@ wget https://downloads.isc.org/isc/bind9/9.16.12/bind-9.16.12.tar.xz
 
 ### 安装依赖
 ```
-yum install -y libuv libuv-devel libcap-devel pcre-devel zlib-devel gcc gcc-c++ autoconf automake make pcre-devel zlib-devel openssl-devel openldap-devel unixODBC-devel gcc libtool openssl  bind-utils python-pip  
+yum install -y libuv libuv-devel libcap-devel pcre-devel zlib-devel gcc gcc-c++ autoconf automake make pcre-devel zlib-devel openssl-devel openldap-devel unixODBC-devel gcc libtool openssl  bind-utils python-pip
 ```
 ```
 pip install ply
@@ -116,7 +121,7 @@ $ ln -sv /usr/local/bind9/include /usr/include/named
 
 ### 导出帮助文档搜索路径（非必须）
 ```
-$ vim /etc/man.config 
+$ vim /etc/man.config
 MANPATH /usr/local/bind9/share/man
 ```
 
@@ -140,14 +145,42 @@ mkdir -p /var/named/{dynamic,data,zone}
 
 ```
 
-在联网的情况下直接将查询根的结果导入根区域配置文件，我们在named.rfc1912.zones文件中配置了根文件named.ca
+在联网的情况下直接将查询根的结果导入根区域配置文件,如果是把bind当作递归查询服务器使用，默认情况下的bind是会自动启用了hint类型的解析
 
 ```
 $ dig -t NS . > /var/named/named.ca
 ```
 
+配置会把所有匹配到这个zone的DNS查询请求转发到/var/named/named.ca文件中的13个根DNS服务器节点，为了减少不必要的干扰，我们可以把文件中的的AAAA记录注释掉。
+
+
+
+### rndc配置
+rndc是一个管理程序，可以用它来刷新配置，停止服务，强制同步等
+```
+rndc-confgen  > /etc/named/rndc.conf
+```
+打开rndc.conf文件，找到# Use with the following in named.conf, adjusting the allow list as needed:注释，复制其下所有行到named.conf并放开注释。
+```
+tail -10 /etc/named/rndc.conf | head -9 | sed s/#\ //g > named.conf
+```
+最终的named.conf文件像下面这样
+```
+key "rndc-key" {
+  algorithm hmac-sha256;
+  secret "...";
+};
+
+controls {
+  inet 127.0.0.1 port 953
+  allow { 127.0.0.1; } keys { "rndc-key"; };
+};
+
+```
 
 ### 主配置
+
+将配置文件追加到  named.conf
 ```
 $ cd /etc/named
 $ vim named.conf
@@ -180,6 +213,7 @@ options {
 
 };
 
+## 开启日志会影响查询速度
 logging {
   channel queries_log {
     file "data/named.run" versions 3 size 300m; # 这里的路径是相对于上面的directory路径
@@ -204,44 +238,6 @@ logging {
 
 
 zone "." IN { # 根域名
-  type hint;
-  file "named.ca";
-};
-
-#include "/etc/named/named.rfc1912.zones";
-```
-
-### rndc配置
-rndc是一个管理程序，可以用它来刷新配置，停止服务，强制同步等
-```
-rndc-confgen  > /etc/named/rndc.conf
-```
-打开rndc.conf文件，找到# Use with the following in named.conf, adjusting the allow list as needed:注释，复制其下所有行到named.conf并放开注释。
-```
-tail -10 /etc/named/rndc.conf | head -9 | sed s/#\ //g > named.conf
-```
-最终的named.conf文件像下面这样
-```
-key "rndc-key" {
-  algorithm hmac-sha256;
-  secret "...";
-};
-
-controls {
-  inet 127.0.0.1 port 953
-  allow { 127.0.0.1; } keys { "rndc-key"; };
-};
-
-options {
-  ...
-};
-
-logging {
-  ...
-};
-
-
-zone "." IN { # 根
   type hint;
   file "named.ca";
 };
@@ -325,6 +321,18 @@ systemctl start named
 systemctl stop named
 ```
 
+## 配置检查
+主配置检查
+```
+named-checkconf /etc/named.conf
+
+```
+
+zone配置检查
+```
+named-checkzone wxl.com /var/named/zone/wxl.com.zone
+```
+
 ## 测试
 
 主配置文件
@@ -362,7 +370,7 @@ systemctl restart named
 
 解析测试
 ```
-nslookup 
+nslookup
 
 > server 10.200.192.13
 Default server: 10.200.192.13
@@ -377,6 +385,67 @@ Address: 172.16.100.200
 
 ```
 
+## 压测
+
+
+```
+yum install dnsperf
+```
+```
+yum install -y epel-release
+```
+
+### Dnsperf 支持下面的这些命令行参数:
+ -s    用来指定DNS服务器的IP地址，默认值是127.0.0.1
+ -p    用来指定DNS服务器的端口，默认值是53
+ -d    用来指定DNS消息的内容文件，该文件中包含要探测的域名和资源记录类型
+ -t    用来指定每个请求的超时时间，默认值是3000ms
+ -Q    用来指定本次压测的最大请求数，默认值是1000
+ -c    用来指定并发探测数，默认值是100. dnsperf会从-d指定的文件中随机选取100个座位探测域名来发送DNS请求
+ -l    用来指定本次压测的时间，默认值是无穷大
+ -e    本选项通过EDNS0，在OPT资源记录中运用edns-client-subnet来指定真实的client ip
+ -i    用来指定前后探测的时间间隔，因为dnsperf是一个压测工具，所以本选项目前还不支持
+ -P    指定用哪个传输层协议发送DNS请求，udp或者tcp。默认值是udp
+ -f    指定用什么地址类型发送DNS请求，inet或者inet6。默认值是inet
+ -v    除了标准的输出外，还输出每个相应码的个数
+ -h    打印帮助
+
+
+```
+vim domain.txt
+
+www.test.com A
+```
+
+```
+dnsperf -d domain.txt -s 10.200.88.202 -l 120
+
+
+DNS Performance Testing Tool
+Version 2.7.1
+
+[Status] Command line: dnsperf -d domain.txt -s 10.200.88.202 -l 120
+[Status] Sending queries (to 10.200.88.202:53)
+[Status] Started at: Thu Feb 17 10:53:23 2022
+[Status] Stopping after 120.000000 seconds
+[Status] Testing complete (time limit)
+
+Statistics:
+
+  Queries sent:         8875078        ## 指本次探测发送的总请求数
+  Queries completed:    8875078 (100.00%)     ## 本次探测收到响应的请求数
+  Queries lost:         0 (0.00%)
+
+  Response codes:       NOERROR 8875078 (100.00%)      ## 本次探测的成功率
+  Average packet size:  request 30, response 46
+  Run time (s):         120.001024
+  Queries per second:   73958.352222      ## 本次探测的QPS
+
+  Average Latency (s):  0.001242 (min 0.000503, max 0.003700)
+  Latency StdDev (s):   0.000202
+
+```
+
 
 ## rndc 
 
@@ -386,6 +455,45 @@ rndc（Remote Name Domain Controllerr）是一个远程管理bind的工具，通
 
 rndc与DNS服务器实行连接时，需要通过数字证书进行认证，而不是传统的用户名/密码方式。在当前版本下，rndc和named都只支持HMAC-MD5认证算法，在通信两端使用预共享密钥。在当前版本的rndc 和 named中，唯一支持的认证算法是HMAC-MD5，在连接的两端使用共享密钥。它为命令请求和名字服务器的响应提供 TSIG类型的认证。所有经由通道发送的命令都必须被一个服务器所知道的 key_id 签名。为了生成双方都认可的密钥，可以使用rndc-confgen命令产生密钥和相应的配置，再把这些配置分别放入named.conf和rndc的配置文件rndc.conf中。
 
+
+### 指令
+
+|命令|解释|
+|---|---|
+|status |#显示bind服务器的工作状态|
+|reload |#重新加载配置文件和区域文件|
+|reload zone_name |#重新加载指定区域|
+|reconfig   |#重读配置文件并加载新增的区域|
+|querylog   |#关闭或开启查询日志   比较有用将查询日志写入named.conf log 字段定义的file 中|
+|dumpdb |#将高速缓存转储到转储文件 (named_dump.db)|
+|freeze    |#暂停更新所有动态zone|
+|freeze zone [class [view]] |#暂停更新一个动态zone|
+|flush [view]  |#刷新服务器的所有高速缓存|
+|flushname name   |#为某一视图刷新服务器的高速缓存|
+|stats   |#将服务器统计信息写入统计文件中   将统计信息写入statistics-file "/var/named/data/named_stats.txt";|
+|stop   |#将暂挂更新保存到主文件并停止服务器|
+|halt   |#停止服务器，但不保存暂挂更新|
+|trace   |#打开debug, debug有级别的概念，每执行一次提升一次级别|
+|trace LEVEL   |#指定 debug 的级别, trace 0 表示关闭debug|
+|notrace |#将调试级别设置为 0|
+|restart |#重新启动服务器（尚未实现）|
+|addzone zone [class [view]] { zone-options } |#增加一个zone|
+|delzone zone [class [view]] |#删除一个zone|
+|tsig-delete keyname [view]  |#删除一个TSIG key|
+|tsig-list  |#查询当前有效的TSIG列表|
+|validation newstate [view]  |#开启/关闭dnssec|
+
+
+**说明**：rndc命令后面可以跟  "-s"和 "-p" 选项连接到远程DNS服务器，以便对远程DNS服务器进行管理，但此时双方的密钥要一致才能正常连接。在设置rndc.conf时一定要注意key的名称和预共享密钥一定要和named.conf相同，否则rndc工具无法正常工作
+
+
+在reload动态zone的时候，需要先freeze 再 reload
+
+在zone配置中如果 allow-update 的值不是none，那么这个zone就是一个动态zone
+如果没有填写 allow-update或者值为none，那么这个zone为静态static
+
+
+动态zone 的记录保存在 _default.nzf 文件中
 
 ### 更新key
 
@@ -528,24 +636,27 @@ send     将要求信息和更新请求发送到DNS服务器.等同于输入一�
 6、将test.com区域中的allow-update { none; }中的"none"改成"key testkey";
   将"none"改成"key testkey"的意思是指明采用"key testkey"作为密钥的用户可以动态更新“t
 ```
+
 例子:
 ```
 view "view-test" in{
 	match-clients{
 		key testkey;
 		acl1;
-		};//keytestkey;以及acl1;zone"test.com"{
-	type master;
-	file "test.zone";
-	allow-update{
-			key testkey;
-		};
+		};//keytestkey;以及acl1;
+  zone"test.com"{
+    type master;
+    file "test.zone";
+    allow-update{
+        key testkey;
+      };
 	};
 };
 ```
 
 ```
 nsupdate 增删改查
+
 server 192.168.0.49 53
 删除
     删除NS记录
@@ -567,14 +678,14 @@ server 192.168.0.49 53
         update add ns3.huiselantian.com 600 IN A 192.168.0.236
         update add ns4.huiselantian.com 600 IN A 192.168.0.237
         update add ns5.huiselantian.com 600 IN A 192.168.1.125    
-查询：
+查询:
     查询NS记录
          dig NS @192.168.0.49 huiselantian.com 
     查询A记录
         dig A @192.168.0.49 ns1.huiselantian.com
     查询SOA记录
         dig SOA @192.168.0.49 huiselantian.com
-改：
+改:
     先删除后新增
 send
 nsupdate处理ns的时候(如不规范,会报错)

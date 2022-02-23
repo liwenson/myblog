@@ -2,9 +2,9 @@
 title: 构建code-server镜像
 date: 2021-12-31 17:32
 categories:
-- code
-tags:
 - docker
+tags:
+- code
 ---
   
   
