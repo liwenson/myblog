@@ -27,23 +27,34 @@ useradd -M -s /sbin/nologin  mysql
 ```
 ### 创建mysql 目录
 ```
-mkdir -p /opt/data/mysql
+mkdir -p /opt/mysql/data/mysql
+```
 
-chown mysql /opt/data/mysql
+### 解压
+```
+tar xvf  https://cdn.mysql.com/archives/mysql-5.7/mysql-5.7.23-linux-glibc2.12-x86_64.tar.gz -C /opt/mysql
+ln -s mysql-5.7.23-linux-glibc2.12-x86_64 mysql
+```
+
+###
+```
+chown -R mysql. /opt/mysql
 ```
 
 ### 配置文件
 ```
 vim /etc/my.cnf
+
 [mysqld]
 bind-address=0.0.0.0
 port=3306
 user=mysql
-basedir=/opt/soft/mysql
-datadir=/opt/data/mysql
-socket=/opt/data/mysql/mysql.sock
-log-error=/opt/data/mysql/mysql.err
-pid-file=/opt/data/mysql/mysql.pid
+basedir=/opt/mysql/mysql
+datadir=/opt/mysql/data/mysql
+
+socket=/opt/mysql/data/mysql/mysql.sock
+log-error=/opt/mysql/data/mysql/mysql.err
+pid-file=/opt/mysql/data/mysql/mysql.pid
 #character config
 character_set_server=utf8mb4
 symbolic-links=0
@@ -54,23 +65,28 @@ explicit_defaults_for_timestamp=true
 
 ### 初始化
 ```
+##参考 ./bin/mysqld --defaults-file=/etc/my.cnf --basedir=/opt/soft/mysql/ --datadir=/opt/data/mysql/ --user=mysql --initialize
+
+
 cd /opt/soft/mysql
-./bin/mysqld --defaults-file=/etc/my.cnf --basedir=/opt/soft/mysql/ --datadir=/opt/data/mysql/ --user=mysql --initialize
+./bin/mysqld --defaults-file=/etc/my.cnf --user=mysql --initialize
 ```
 
 ### 查看密码
 ```
-cat /opt/data/mysql/mysql.err
+cat /opt/mysql/data/mysql/mysql.err | grep generated | awk -F" " '{print $NF}'
+
 ```
 
 ### 启动mysql
 ```
-cp /opt/soft/mysql/support-files/mysql.server /etc/init.d/mysql
+cp /opt/mysql/mysql/support-files/mysql.server /etc/init.d/mysql
 service mysql start
 ```
 
 ### 修改密码
 ```
+
 SET PASSWORD = PASSWORD('123456');
 ALTER USER 'root'@'localhost' PASSWORD EXPIRE NEVER;
 FLUSH PRIVILEGES; 
@@ -78,7 +94,7 @@ FLUSH PRIVILEGES;
 
 ### 远程登录
 ```
-use mysql                                            #访问mysql库
+use mysql;                                            #访问mysql库
 update user set host = '%' where user = 'root';      #使root能再任何host访问
 FLUSH PRIVILEGES;  
 ```
@@ -86,6 +102,6 @@ FLUSH PRIVILEGES;
 
 ### 软连接
 ```
-ln -s  /usr/local/mysql/bin/mysql    /usr/bin
+ln -s  /opt/mysql/mysql/bin/mysql   /usr/bin
 ```
 

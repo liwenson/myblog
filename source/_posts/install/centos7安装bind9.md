@@ -45,18 +45,28 @@ wget https://downloads.isc.org/isc/bind9/9.16.12/bind-9.16.12.tar.xz
 ```
 yum install -y libuv libuv-devel libcap-devel pcre-devel zlib-devel gcc gcc-c++ autoconf automake make pcre-devel zlib-devel openssl-devel openldap-devel unixODBC-devel gcc libtool openssl  bind-utils python-pip
 ```
+
+XML 统计通道需要使用 libxml2
+```
+yum install libxml2 libxml2-devel
+```
+
 ```
 pip install ply
 ```
+
 解压
 ```
 cd /usr/local/src
 tar -xvf bind-9.16.12.tar.xz
 ```
 ### 安装
+
+XML 统计通道需要使用 libxml2 构建 BIND
+
 ```
 cd bind-9.16.12
-./configure --prefix=/usr/local/bind9 --sysconfdir=/etc/named/ --enable-largefile --with-tuning=large --with-openssl
+./configure --prefix=/usr/local/bind9 --sysconfdir=/etc/named/ --enable-largefile --with-tuning=large --with-openssl --with-libxml2
 ```
 ```
 make && make install
@@ -324,7 +334,7 @@ systemctl stop named
 ## 配置检查
 主配置检查
 ```
-named-checkconf /etc/named.conf
+named-checkconf /etc/named/named.conf
 
 ```
 
@@ -695,3 +705,94 @@ nsupdate处理ns的时候(如不规范,会报错)
         先删除ns 再删除A记录
 
 ```
+
+
+
+## 监控
+使用Prometheus监控bind9的DNS服务
+[bind_exporter](https://github.com/prometheus-community/bind_exporter/releases)
+
+### 下载
+```
+mkdir /opt/bind_exporter
+cd /opt/bind_exporter
+
+chmod +x bind_exporter
+```
+
+### systemctl server
+
+```
+vim /etc/systemd/system/bind_exporter.service
+
+[Unit]
+Description=bind_exporter
+Documentation=https://github.com/digitalocean/bind_exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=named
+Group=named
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/opt/bind_exporter/bind_exporter \
+  --bind.pid-file=/run/named/named.pid \
+  --bind.timeout=20s \
+  --web.listen-address=0.0.0.0:9119 \
+  --web.telemetry-path=/metrics \
+  --bind.stats-url=http://localhost:8053/ \
+  --bind.stats-groups=server,view,tasks
+
+SyslogIdentifier=bind_exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 启动
+```
+systemctl daemon-reload
+systemctl restart bind_exporter.service
+```
+
+### 添加named 配置 
+在` /etc/named/named.conf `中添加如下内容，注意"statistics-channels"是与"options"并列的，而不是位于"options"内部
+```
+statistics-channels {
+  inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
+};
+
+options {
+  ......
+}
+```
+重新启动named
+
+```
+# 检查配置
+named-checkconf /etc/named/named.conf
+
+# 重启
+systemctl restart named
+```
+
+检查
+```
+curl -v http://127.0.0.1:8053/xml/v3/server
+```
+
+
+### Prometheus  job
+
+```
+  - job_name: dns-master
+    static_configs:
+      - targets: ['10.85.6.66:9119']
+        labels:
+          alias: dns-master
+```
+
+[grafana 展示](https://grafana.com/grafana/dashboards/12309)
+

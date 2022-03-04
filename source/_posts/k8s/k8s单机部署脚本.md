@@ -181,7 +181,7 @@ Taint 和 toleration 相互配合，可以用来避免 pod 被分配到不合适
 NoSchedule:  一定不能被调度
 PreferNoSchedule:  尽量不要调度
 NoExecute:  不仅不会调度, 还会驱逐Node上已有的Pod
- 
+
 kubectl taint nodes node1 key1=value1:NoSchedule
 kubectl taint nodes node1 key1=value1:NoExecute
 kubectl taint nodes node1 key2=value2:NoSchedule

@@ -40,7 +40,7 @@ ipvs:
   strictARP: true
 ```
 
-重启 kube-proxy：
+重启 kube-proxy:
 ```
 kubectl rollout restart daemonset kube-proxy -n kube-system
 ```

@@ -129,4 +129,8 @@ kubectl replace --raw "/api/v1/namespaces/test/finalize" -f ./test.json
 kubectl get ns
 ```
 
+## k8s 清除状态为Evicted 的pod
+```
+kubectl get pods -n dev| grep Evicted | awk '{print $1}' | xargs kubectl delete pod -n dev
+```
 

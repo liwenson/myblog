@@ -166,7 +166,6 @@ mvn package
 ![项目体系图](./images/20200311092230815.png)
 
 
-
 详细描述：
 ```
 整体分两块，一块存放代码，一块存放工作区。
@@ -180,8 +179,8 @@ config.jelly的字段传入java类中时，会根据字段名称做一次方法�
 
 ### 插件目录结构
 ```
-pom.xml  ：   Maven的构建配置文件
-src/main/java   ：   Java源文件目录
-src/main/resources  ：   插件Jelly/Grovy视图
-src/main/webapps   ：   插件的静态资源如images和html文件
+pom.xml  :   Maven的构建配置文件
+src/main/java   :   Java源文件目录
+src/main/resources  :   插件Jelly/Grovy 视图
+src/main/webapps   :    插件的静态资源如images和html文件（pipeline插件不需要）
 ```
