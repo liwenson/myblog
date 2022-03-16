@@ -783,7 +783,6 @@ systemctl restart named
 curl -v http://127.0.0.1:8053/xml/v3/server
 ```
 
-
 ### Prometheus  job
 
 ```
@@ -796,3 +795,9 @@ curl -v http://127.0.0.1:8053/xml/v3/server
 
 [grafana 展示](https://grafana.com/grafana/dashboards/12309)
 
+
+
+## 参考文档
+```
+https://www.cnblogs.com/wangchaolinux/p/12150187.html
+```

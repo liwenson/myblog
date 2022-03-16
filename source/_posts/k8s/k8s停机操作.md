@@ -53,4 +53,4 @@ systemctl start kube-controller-manager （默认设置了开机启动， master
 
 systemctl start kubelet（node 节点）
 
-systemctl stop kube-proxy（node 节点）
+systemctl start kube-proxy（node 节点）

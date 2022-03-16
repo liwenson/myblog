@@ -199,5 +199,9 @@ kubectl taint node node1 key1-              # 删除指定key所有的effect
 kubectl taint node node1 key2:NoSchedule-
 ```
 
+### 安装失败清理环境重新安装
+```
+kubeadm reset
+```
 
 

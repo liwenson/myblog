@@ -91,8 +91,6 @@ Type "help", "copyright", "credits" or "license" formore information.
 |安装插件 | install_plugin|
 
 
-
-
 ## get获取方法
 |功能	| python方法|
 |---|---|

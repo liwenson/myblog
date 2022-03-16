@@ -70,12 +70,15 @@ addn-hosts=/etc/dnsmasq.d/dnsmasq.hosts
 # 引入配置目录,自动导入这个目录下的配置文件,星号表示包含，不加星号表示排除
 # conf-dir=/etc/dnsmasq.d/,*.conf
 
-#dnsmasq日志设置,谨慎启用，性能影响较大
-# 开启debug模式，记录客户端查询记录到/var/log/debug中
-#log-queries
+#dnsmasq日志设置,性能影响较大
+# 记录dns查询日志，如果指定 log-queries=extra 那么在每行开始处都有额外的日志信息。
+#log-queries=extra
+# 设置日志记录器，'-' 为 stderr，也可以是文件路径。默认为：DAEMON，调试时使用 LOCAL0。
+#log-facility=<facility>
 #log-facility=/data/dnsmasq/dnsmasq.log
-# 异步log，缓解阻塞
-#log-async=20
+# 异步log，缓解阻塞，提高性能。默认为5，最大100。
+#log-async[=<lines>]
+#log-async=50
 
 #dnsmasq缓存设置,设置dns缓存大小,默认为150条
 cache-size=4096
@@ -106,3 +109,79 @@ dnsmasq: syntax check OK.
 略 
 ## tftp
 略
+
+
+## 自动添加github hosts脚本
+
+这个有什么用？最直观的效果是GitHub图片可以正常加载，网页也稳定了。
+
+GitHub Hosts主要是通过修改host的方式加速GitHub访问，解决图片无法加载以及访问速度慢的问题。
+```
+主站: https://github.com/ineo6/hosts
+镜像地址: https://gitee.com/ineo6/hosts
+```
+
+
+```
+vim autoAddGithubHosts.sh
+
+
+#!/bin/bash
+
+# 定义全局变量
+
+config="/etc/dnsmasq.d/dnsmasq.hosts"
+hosts="https://gitee.com/ineo6/hosts/raw/master/hosts"
+tmphosts="/tmp/github.hosts"
+
+## 日志格式
+logger(){
+  msg=$1
+  now_time='['$(date +"%Y-%m-%d %H:%M:%S")']'
+  echo $now_time $msg
+}
+
+#删除 之前加入的hosts
+
+clean(){
+  start=$(grep -n "# GitHub Host Start" $config | cut -d : -f 1)
+  end=$(grep -n "# GitHub Host End" $config | cut -d : -f 1)
+  if [ -n "$start" -a -n "$end" ]; then
+    logger "Start or End is not empty,Perform a clear operation"
+    sed -i ''$start','$end'd' $config
+  fi
+  if [ -z "$start" ]; then
+      logger "Staer is empty,Do not perform cleanup"
+  fi
+  if [ -z "$end" ]; then
+      logger "End is empty,Do not perform cleanup"
+  fi
+
+}
+
+addConfig(){
+# 获取文件
+  curl -s -o $tmphosts  $hosts
+  if [ $? -eq 0 ];then
+  # 追加空行
+  echo "" >> $config
+  # 追加到文件
+  cat /tmp/github.hosts >> $config
+  fi
+}
+
+restart(){
+  systemctl restart dnsmasq
+}
+
+
+main(){
+  clean
+  addConfig
+  restart
+}
+
+
+main
+
+```

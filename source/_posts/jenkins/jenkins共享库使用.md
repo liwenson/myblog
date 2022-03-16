@@ -17,13 +17,12 @@ tags:
 
 安装略
 
-## 安装jenkins 
+## 安装jenkins
 
 jenkins [rpm下载地址](https://mirrors.tuna.tsinghua.edu.cn/jenkins/redhat-stable/)
 
 ```
 yum install jenkins-2.289.3-1.1.noarch.rpm -y
-
 ```
 
 
