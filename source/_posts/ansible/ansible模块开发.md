@@ -23,7 +23,6 @@ Ansible 开发分为两大模块，一是modules，二是plugins。
 
 再者是执行顺序？  `plugins` 先于 `modules` 执行。
 
-
 然后大家明确这两部分内容是干啥用的？
 
 - modules 是ansible的核心内容，它使playbook变得更加简单明了，一个task就是完成某一项功能。ansible模块是被传送到远程主机上运行的。所以它们可以用远程主机可以执行的任何语言编写modules。
@@ -50,6 +49,8 @@ https://github.com/lework/Ansible-dev
 
 https://ansible-tran.readthedocs.io/en/latest/docs/developing_plugins.html
 
+https://ansible.leops.cn/dev/plugins/
+
 
 ## 开发环境
 vscode + docker + ansible-module镜像
@@ -67,12 +68,14 @@ https://gitlab.com/techforce1/ansible-module.git
 
 ### 思路
 
-1、在ansible 服务端将文件现在到临时目录下保存
+1、在 ansible 服务端将文件现在到临时目录下保存
 2、将临时目录中的文件发送的 客户端的临时目录
 3、将客户端临时目录下的文件和客户端路径对比、替换 等操作
+缺点： 速度很慢，无法使用
 
 
 ### minio
+
 ##### plugins
 
 ```
@@ -411,7 +414,8 @@ if __name__ == '__main__':
 #### gitlab 文件下载
 
 ##### plugins
-```
+
+```python
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
@@ -425,55 +429,75 @@ import stat
 import tempfile
 import gitlab
 
-# from ansible.constants import mk_boolean as boolean
 from ansible.errors import AnsibleError, AnsibleFileNotFound
 from ansible.module_utils._text import to_bytes, to_native, to_text
 from ansible.plugins.action import ActionBase
 from ansible.utils.hashing import checksum
 
+from tempfile import TemporaryDirectory
+
 
 class GitlabUtils(object):
+    """
+    操作Gitlab
+    """
+
     def __init__(self, module) -> None:
         self.module = module
-        self.name = module['name']
         self.url = module['url']
-        self.accessToken = module['accessToken']
+        self.access_token = module['accessToken']
         self.src = module['src']
         self.dest = module['dest']
-        self.projectID = module['projectID']
+        self.project_id = module['projectID']
         self.branch = module['branch']
-        self.filenameTmp = module['filenameTmp']
+        # self.filenameTmp = module['filenameTmp']
+        self.tmp_fp = tempfile.TemporaryDirectory()
+        self.git_gl = gitlab.Gitlab(
+            self.url, self.access_token, api_version='4', ssl_verify=False)
 
-    # 登陆
-    def login(self):
-        gl = gitlab.Gitlab(self.url, self.accessToken)
-        return gl
 
     # 获得项目：projectID的格式随意，反正我就写了个数字进去
-    def getProject(self):
-        gl = self.login()
-        projects = gl.projects.get(self.projectID)
-        return projects
+    def get_project(self) -> any:
+        """ 获取项目列表"""
+        projectss = self.git_gl.projects.get(self.project_id)
+        return projectss
 
-    # 获得project下单个文件
-    def getFile(self):
-        projects = self.getProject()
+    def get_file(self):
+        """
+        获得project下单个文件
+        """
+        projects = self.get_project()
         result = {}
+
+        # tmpdir = self.create_tmp()
+        filename_tmp = "{}/{}".format(self.tmp_fp.name,
+                                      self.src.split("/")[-1])
+        print("filename_tmp:", filename_tmp)
 
         try:
             # 获得文件
-            with open("{file}".format( file=self.filenameTmp), 'wb') as f:
+            with open(filename_tmp, 'wb') as f:
                 projects.files.raw(
                     file_path=self.src, ref=self.branch, streamed=True, action=f.write)
 
-            result = {'changed': True, 'msg': "success"}
+            result = {'changed': True, 'msg': "success", "file": filename_tmp}
 
-        except Exception as e:
-            result = {'changed': False, 'msg': e}
+        except Exception as err:
+            print("Exception err: ", err)
+            self._clean_fp_
+            result = {'changed': False, 'msg': err}
 
         return result
 
+    def _clean_fp_(self):
+        self.tmp_fp.cleanup
+
+
 class ActionModule(ActionBase):
+    """
+    ansible 类
+    """
+
     def run(self, tmp=None, task_vars=None):
         ''' handler for file transfer operations '''
         if task_vars is None:
@@ -487,8 +511,6 @@ class ActionModule(ActionBase):
         # 获取参数
         module_args = self._task.args.copy()
 
-        module_args['name'] = self._task.args.get(
-            'name', None)
         module_args['url'] = self._task.args.get(
             'url', None)
         module_args['accessToken'] = self._task.args.get(
@@ -515,65 +537,75 @@ class ActionModule(ActionBase):
         if result.get('failed'):
             return result
 
-        # 创建临时目录
-        tmp = "/tmp"
-
-        # 临时 文件名称
-        module_args['filenameTmp'] = "{}/{}".format(tmp, module_args['src'].split("/")[-1])
-        print("filenameTmp: ",module_args['filenameTmp'])
-
         # 获取gitlab 文件
         gl = GitlabUtils(module_args)
-        res = gl.getFile()
-
+        res = gl.get_file()
 
         # 找到source的路径地址
         try:
-            if ( res['changed'] ):
+            if (res['changed']):
                 print("true")
-                source = self._find_needle('files', module_args['filenameTmp'])
+                source = self._find_needle('files', res['file'])
+                print("source", source)
             else:
-                print("false",res['msg'])
+                print("false", res['msg'])
                 result['failed'] = True
                 result['msg'] = str(res['msg'])
                 return result
-        except AnsibleError as e:
+        except AnsibleError as err:
             result['failed'] = True
-            result['msg'] = to_text(e)
+            result['msg'] = to_text(err)
             return result
 
         # 获取本地文件，不存在抛出异常
         try:
             source_full = self._loader.get_real_file(source)
-            source_rel = os.path.basename(source)
-        except AnsibleFileNotFound as e:
+            source_rel = os.path.basename(source_full)
+
+            print(os.path.isfile(source_full))
+
+            print(source_full, source_rel)
+        except AnsibleFileNotFound as err:
             result['failed'] = True
-            result['msg'] = "could not find src=%s, %s" % (source, e)
-            self._remove_tmp_path(tmp)
+            result['msg'] = "could not find src=%s, %s" % (source, err)
+            self._remove_tmp_path(self._connection._shell.tmpdir)
+
             return result
 
-        # 定义拷贝到远程的文件路径
-        tmp_src = self._connection._shell.join_path(tmp, 'source')
+        try:
+            # 定义拷贝到远程的文件路径
+            tmp_src = self._connection._shell.join_path(
+                "/tmp", 'source')
+        except Exception as err:
+            print(err)
+
+        print("tmp_src: ", tmp_src)
 
         # 判断文件保存的路径
-        if len(module_args['dest'].split(".")) == 1 :
-          module_args['dest'] = "{}/{}".format(module_args['dest'],source_rel)
-          
+        dest = module_args['dest']
+        if self._connection._shell.path_has_trailing_slash(dest):
+            dest_file = self._connection._shell.join_path(dest, source_rel)
+        else:
+            dest_file = dest
+
+        local_checksum = checksum(source_full)
+
         # 远程文件
         remote_path = None
         remote_path = self._transfer_file(source_full, tmp_src)
 
         # 确保我们的文件具有执行权限
         if remote_path:
-            self._fixup_perms2((tmp, remote_path))
+            self._fixup_perms2(("/tmp", remote_path))
 
         # 运行remote_copy 模块
         new_module_args = self._task.args.copy()
         new_module_args.update(
             dict(
                 src=tmp_src,
-                dest=module_args['dest'],
+                dest=dest_file,
                 original_basename=source_rel,
+                checksum=local_checksum
             )
         )
 
@@ -603,39 +635,58 @@ class ActionModule(ActionBase):
 ```
 
 ##### modules
-```
+
+```python
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
 from ansible.module_utils.basic import *
 
 import os
 
+module = None
+
+
+class AnsibleModuleError(Exception):
+    def __init__(self, results):
+        self.results = results
+
 
 def main():
-    # 定义modules需要的参数
+    """
+    Main
+    """
+    global module
+
+    # 检查参数类型
     module = AnsibleModule(
         argument_spec=dict(
-            name=dict(type='str', required=True),
             url=dict(type='str', required=True),
             accessToken=dict(type='str', required=True),
             branch=dict(type='str', required=True),
             projectID=dict(type='str', required=True),
             src=dict(type='str', required=True),
             dest=dict(type='str', required=True),
+            checksum=dict(type='str', required=True),
             original_basename=dict(required=False),
         ),
-        supports_check_mode=True,
+        supports_check_mode=False,
     )
 
     # 获取modules的参数
     original_basename = module.params.get('original_basename', None)
     src = module.params['src']
     dest = module.params['dest']
+    checksum = module.params['checksum']
+
+    # remote_checksum = module.params['local_checksum']
+
     b_src = to_bytes(src, errors='surrogate_or_strict')
     b_dest = to_bytes(dest, errors='surrogate_or_strict')
 
-    print("b_src --> ", b_src)
     # 判断参数是否合规
     if not os.path.exists(b_src):
         module.fail_json(msg="Source %s not found" % (src))
@@ -646,22 +697,35 @@ def main():
             msg="Remote copy does not support recursive copy of directory: %s" % (src))
 
     # 获取文件的sha1
-    checksum_src = module.sha1(src)
     checksum_dest = None
 
-    changed = False
+    if os.path.isfile(src):
+        checksum_src = module.sha1(src)
+    else:
+        checksum_src = None
 
+    if checksum and checksum_src != checksum:
+        module.fail_json(
+            msg='Copied file does not match the expected checksum. Transfer failed.',
+            checksum=checksum_src,
+            expected_checksum=checksum
+        )
+
+    changed = False
     # 确定dest文件路径
-    if original_basename and dest.endswith(os.sep):
+    if original_basename:
         dest = os.path.join(dest, original_basename)
         b_dest = to_bytes(dest, errors='surrogate_or_strict')
 
     # 判断目标文件是否存在
-    if os.path.exists(b_dest):
+    if os.path.exists(dest):
         module.exit_json(msg="file already exists",
                          src=src, dest=dest, changed=False)
+
         if os.access(b_dest, os.R_OK):
             checksum_dest = module.sha1(dest)
+
+    # checksum_dest = module.sha1(b_dest)
 
     # 源文件与目标文件sha1值不一致时覆盖源文件
     if checksum_src != checksum_dest:
@@ -677,13 +741,13 @@ def main():
 
     # 返回值
     res_args = dict(
-        dest=dest, src=src, checksum=checksum_src, changed=changed
+        dest=dest, src=src, checksum=checksum_src, b_src=b_src, changed=changed
     )
 
     module.exit_json(**res_args)
 
+
 if __name__ == '__main__':
     main()
-
 
 ```
