@@ -1,4 +1,3 @@
-
 ---
 title: es7.x 安装
 date: 2020-09-21 12:48
@@ -9,23 +8,21 @@ tags:
 - elasticsearch
 ---
 
-
-
-
 ## 下载elasticsearch
 
-```
+```txt
 https://www.elastic.co/cn/downloads/elasticsearch
 ```
 
-```
+```bash
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.8.0-linux-x86_64.tar.gz
 ```
 
 ## 系统优化
 
 vim /etc/security/limits.conf
-```
+
+```txt
 * soft nofile 65535
 * hard nofile 65536
 * soft nproc  16384
@@ -110,21 +107,17 @@ cluster.routing.allocation.node_initial_primaries_recoveries: 16
 EOF
 ```
 
-
-
-启动
+## 启动
 
 ```
 su - es -c "/home/es/elasticsearch/bin/elasticsearch -d"
 ```
 
-
-
 启动二
 
 配置 services 文件
 
-```
+```bash
 vim /lib/systemd/system/elasticsearch.service
 
 
@@ -145,16 +138,9 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
-
-
-
-
-```
+```bash
 systemctl daemon-reload
 systemctl start elasticsearch
 systemctl status elasticsearch
 systemctl stop elasticsearch
 ```
-
-
-

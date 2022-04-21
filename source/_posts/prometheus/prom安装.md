@@ -8,7 +8,7 @@ tags:
 ---
   
   
-摘要: prometheus使用docker-compose 
+摘要: prometheus使用docker-compose
 <!-- more -->
 
 
@@ -134,15 +134,21 @@ networks:
 ```
 
 ## prometheus 配置文件
+
 ### 初始化目录
-```
+
+```bash
 mkdir -p data rules targets
 ```
 
 ### 创建prometheus.yml配置文件
+
+```bash
 cd prometheus
 vim prometheus.yml
 ```
+
+```yaml
 global:
   scrape_interval:     15s
   evaluation_interval: 15s
@@ -219,7 +225,8 @@ scrape_configs:
 ```
 
 ### 添加ruls
-```
+
+```txt
 https://awesome-prometheus-alerts.grep.to/rules
 ```
 

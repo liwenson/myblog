@@ -11,10 +11,11 @@ tags:
 摘要: docker 配置代理
 <!-- more -->
 
-
 ## 配置代理服务器
+
 创建或修改 /etc/docker/daemon.json
-```
+
+```yaml
 {
     "registry-mirrors": [
         "https://1nj0zren.mirror.aliyuncs.com",
@@ -26,7 +27,8 @@ tags:
 ```
 
 加载配置：
-```
+
+```bash
 sudo systemctl daemon-reload
 sudo systemctl restart docker
 ```
@@ -35,7 +37,7 @@ sudo systemctl restart docker
 命令行执行 `docker info`，查看配置是否已经生效。
 可以看到日志的最后部分有下面配置，说明就已经生效了。
 
-```
+```yaml
 Registry Mirrors:
  https://1nj0zren.mirror.aliyuncs.com/
  https://docker.mirrors.ustc.edu.cn/
@@ -43,7 +45,6 @@ Registry Mirrors:
  https://registry.docker-cn.com/
 Live Restore Enabled: true
 ```
-
 
 Docker Hub 镜像加速器列表
 

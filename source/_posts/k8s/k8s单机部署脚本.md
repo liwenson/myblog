@@ -13,18 +13,49 @@ tags:
 
 用于k8s 实验
 
+kubadm集群版本教程参考
+
+```txt
+https://chen2ha.blog.csdn.net/article/details/122984097
+```
+
+配置IPVS
+
 ```bash
-#!/bin/sh
+cat <<-EOF >/etc/sysconfig/modules/ipvs.modules
+#!/bin/bash
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+modprobe -- nf_conntrack_ipv4
+EOF
+
+chmod 755 /etc/sysconfig/modules/ipvs.modules 
+source /etc/sysconfig/modules/ipvs.modules 
+
+```
+
+安装ipset软件包
+
+```bash
+yum install -y ipset ipvsadm
+```
+
+```bash
+#!/bin/bash
 
 . /etc/rc.d/init.d/functions
 export LANG=zh_CN.UTF-8
+
+set -e
 
 #--------------------------------------------
 # 此脚本用于Centos7自动部署k8s服务
 # 安装K8S前先去查看k8s仪表板最新支持的版本
 # 因为仪表板支持的版本落后于最新版本
 # 得根据仪表板支持的最新版本进行安装
-# 2021年10月31日
+# 2022年04月11日
 #--------------------------------------------
 
 msg() {
@@ -113,8 +144,7 @@ install.containerd(){
   fi
 
   containerd config default > /etc/containerd/config.toml
-  sed -i "s@k8s.gcr.io/pause:3.5@registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.5@g" /etc/containerd/config.toml
-
+  sed -i "s@k8s.gcr.io/pause:3.5@registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.5@g;s@SystemdCgroup = false@SystemdCgroup = true@g" /etc/containerd/config.toml
 
 cat <<EOF > /etc/systemd/system/containerd.service
 [Unit]
@@ -292,11 +322,19 @@ main
 
 ```
 
-单节点部署完成之后去掉 污点
+### 单节点部署完成之后去掉 污点
+
 当创建单机版的 k8s 时，这个时候 master 节点是默认不允许调度 pod 。
 
 ```bash
 kubectl taint nodes --all node-role.kubernetes.io/master-
+```
+
+查看
+
+```bash
+kubectl describe node master | grep Taints    //查看修改后的状态
+Taints:             <none>
 ```
 
 将 master 标记为可调度即可
@@ -337,4 +375,30 @@ kubectl taint node node1 key2:NoSchedule-
 
 ```bash
 kubeadm reset
+```
+
+### 开启IPVS，修改ConfigMap的kube-system/kube-proxy中的模式为ipvs
+
+```bash
+kubectl edit cm kube-proxy -n kube-system
+```
+
+```yaml
+mode: "ipvs"
+```
+
+### 开启strictARP
+
+```yaml
+    ipvs:
+      excludeCIDRs: null
+      minSyncPeriod: 0s
+      scheduler: ""
+      strictARP: true   # 将false改为true
+```
+
+### 重启kube-proxy
+
+```bash
+kubectl get pod -n kube-system | grep kube-proxy | awk '{system("kubectl delete pod "$1" -n kube-system")}'
 ```

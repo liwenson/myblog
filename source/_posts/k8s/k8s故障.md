@@ -47,8 +47,9 @@ kubernetes-dashboard is running at http://localhost:8080/api/v1/namespaces/kube-
 删除已经停止的 namespace 和 删除 普通的 pod 、deployment、svc等不同。不能使用 --force
 
 导出描述的json文件
-```
-kubectl get ns test -o json > test.json
+
+```bash
+kubectl get ns kuboard -o json > test.json
 ```
 
 打开导出的json文件 test.json
@@ -120,17 +121,20 @@ kubectl get ns test -o json > test.json
 ```
 
 执行清除命令
-```
-kubectl replace --raw "/api/v1/namespaces/test/finalize" -f ./test.json
+
+```bash
+kubectl replace --raw "/api/v1/namespaces/kuboard/finalize" -f ./test.json
 ```
 
 查看
-```
+
+```bash
 kubectl get ns
 ```
 
 ## k8s 清除状态为Evicted 的pod
-```
+
+```bash
 kubectl get pods -n dev| grep Evicted | awk '{print $1}' | xargs kubectl delete pod -n dev
 ```
 

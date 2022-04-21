@@ -14,9 +14,11 @@ tags:
 <!-- more -->
 
 
-## 安装k8s 
+## 安装k8s
+
 一键部署脚本
-```
+
+```txy
 https://gitee.com/q7104475/K8s
 ```
 

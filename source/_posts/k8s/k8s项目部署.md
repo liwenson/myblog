@@ -266,7 +266,7 @@ build user vars
 系统管理 --> Dependency-Track --> Dependency-Track URL --> API key --> Auto Create Projects
 
 ##### 钉钉配置
-系统管理 --> 系统配置 --> 钉钉 
+系统管理 --> 系统配置 --> 钉钉
 
 
 ##### k8s 配置
