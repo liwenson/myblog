@@ -6,11 +6,10 @@ categories:
 tags:
 - cmd
 ---
-  
-  
+
+
 摘要: linux 日常命令
 <!-- more -->
-
 
 ## 文件中过滤所有的ip地址
 
@@ -20,5 +19,53 @@ grep -Eo '([^0-9]|\b)((1[0-9]{2}|2[0-4][0-9]|25[0-5]|[1-9][0-9]|[0-9])\.){3}(1[0
 
 #或者：
 grep -Eo '([^0-9]|\b)((1[0-9]{2}|2[0-4][0-9]|25[0-5]|[1-9][0-9]|[0-9])\.){3}(1[0-9][0-9]|2[0-4][0-9]|25[0-5]|[1-9][0-9]|[0-9])([^0-9]|\b)' '这里填你要提取的文档路径' | sed -nr 's/([^0-9]|^\b)(.*)([^0-9]|\b$)/\2/p'
+
+#或者：
+grep -o -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'  '这里填你要提取的文档路径'
+```
+
+## 检查ip是否存活
+
+```bash
+#!/bin/bash
+
+set -e
+
+cat /dev/null > host03
+cat /dev/null > host03.offline
+
+cat host02 | while read ip; do
+
+if ping -c2 -W1 $ip &>/dev/null
+then 
+  echo -e "$ip is\033[1;32m online.\033[0m"
+  echo $ip >> host03
+else
+  echo -e "$ip is\033[1;31m offline\033[0m"
+  echo $ip >> host03.offline
+fi
+
+done
+
+```
+
+## sed删除注释
+
+```bash
+sed -i 's/^[^#].*swap*/#&/g'  fstab：注释掉含有“swap”的行，& 符号在sed命令中代表上次匹配的结果。
+
+sed -i '/^#.*swap/s/^#//g'  fstab：取消含有字符串swap的行最前面的注释符号#，//两杠表示空格，以空格替换#，等价取消#。
+
+sed -i '/^#/d' file1  ：删除注释行。
+
+sed -i '/^$/d' file1  ：删除空格行。
+
+sed -i 's/.//'  file1：删除每行第一个字符。
+
+sed  -i 's/..//' file1：删除每行前两个字符。
+
+sed  -i 's/.\{5\}//' file1：删除每行前k个字符，例如k=5 。
+
+sed -i '1,4s/^/#/g' file1：将文件的1-4行注释掉。
 
 ```

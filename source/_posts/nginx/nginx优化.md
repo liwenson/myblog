@@ -12,31 +12,36 @@ tags:
 <!-- more -->
 
 ## 安装nginx
+
 略
 
 ## 配置证书
+
 略
 
 ## ssl优化
 
 ### 配置路径
-```
+
+```bash
 mkdir -p /opt/nginx/params
 ```
 
 ### 生成 dhparam.pem
+
 一般网站使用的SSL证书都是RSA证书，这种证书基本都是2048位的密钥，但是证书密钥交换密钥必须要比证书密钥更长才能安全，而默认的只有1024位，所以我们需要手动生成一个更强的密钥。
 
 OpenSSL 的 dhparam 用于生成和管理 dh 文件。dh(Diffie-Hellman) 是著名的密钥交换协议，它可以保证通信双方安全地交换密钥。
 
 使用如下命令生成一个 dhparam.pem 文件：
-```
+
+```bash
 openssl dhparam -out /opt/nginx/params/dhparam.pem 2048
 ```
 
 ### SSL 参数
 
-```
+```bash
 vim  ssl-params.conf
 # ssl params setting
 #
@@ -70,7 +75,8 @@ add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsaf
 ```
 
 通用参数
-```
+
+```txt
 ssl_protocols: 加密协议;
 ssl_ciphers: 加密算法;
 ssl_dhparam: DH交换秘钥文件位置
@@ -82,4 +88,3 @@ ssl_session_tickets: 为复用会话创建或加载Ticket Key.
 ssl_certificate:  证书
 ssl_certificate_key: 证书私钥
 ```
-

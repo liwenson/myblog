@@ -11,40 +11,43 @@ tags:
 摘要: centos7 安装zookeeper集群
 <!-- more -->
 
-|服务器编号	|服务器 IP 地址 |	LF 通信端口 |	LF 选举端口	| 客户端端口|	
+|服务器编号 |服务器 IP 地址 | LF 通信端口 | LF 选举端口 | 客户端端口|
 |---|---|---|---|---|
-|1	|10.200.75.177	|2010	|6008|	2180|
-|2	|10.200.75.178	|2010	|6008|	2180|
-|3	|10.200.75.179	|2010	|6008|	2180|
-
+|1 |10.200.75.177 |2010 |6008| 2180|
+|2 |10.200.75.178 |2010 |6008| 2180|
+|3 |10.200.75.179 |2010 |6008| 2180|
 
 目录创建
-```
+
+```bash
 mkdir -p /opt/zookeeper/
 ```
 
-```
+```bash
 tar xf apache-zookeeper-3.7.0-bin.tar.gz -C /opt/zookeeper/
 ```
 
 mylog、mydata
 
 目录创建
-```
+
+```bash
 mkdir -p /opt/zookeeper/apache-zookeeper-3.7.0-bin/{mylog,mydata}
 ```
 
 配置JVM, java.env 文件需要创建
 
 vim conf/java.env
-```
+
+```bash
 #!/bin/sh
 export JAVA_HOME=/opt/jdk1.8.0_161/
 export JVMFLAGS="-Xms512m $JVMFLAGS"
 ```
 
 改 -Xmx
-```
+
+```bash
 vim bin/zkEnv.sh 
 
 ZK_SERVER_HEAP="${ZK_SERVER_HEAP:-1000}"

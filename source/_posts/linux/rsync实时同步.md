@@ -38,7 +38,7 @@ tags:
 
 ## 同步原理
 
-### 同步过程：
+### 同步过程
 
 1. 在同步服务器上开启sersync服务，sersync负责监控配置路径中的文件系统事件变化;
 
@@ -46,7 +46,7 @@ tags:
 
 3. 需要在主服务器配置sersync，在同步目标服务器配置rsync server（注意：是rsync服务）
 
-### 同步过程和原理：
+### 同步过程和原理:
 
     1. 用户实时的往sersync服务器上写入更新文件数据；
 
@@ -319,7 +319,258 @@ chmod 600 /etc/rsync.pass
 rsync -avH --port 873 --progress --delete /etc/ansible admin@10.200.192.46::ansible_config --password-file=/etc/rsync.pass
 ```
 
-
-
 ## 安装sersync
 
+安装sersync
+
+
+## 安装lsyncd
+
+### yum 安装
+
+#### 安装 epel
+```
+yum install https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-14.noarch.rpm
+```
+
+#### 安装 lsyncd
+```
+yum install lsyncd
+```
+
+#### RPM 仓库
+```
+http://www.rpmfind.net/linux/rpm2html/search.php?query=lsyncd
+```
+
+### 源码安装
+
+#### 安装依赖
+
+```bash
+yum groupinstall 'Development Tools'
+
+yum install lua lua-libs lua-devel cmake unzip wget rsync
+```
+
+#### 下载 lsyncd 代码以及构建
+
+```
+wget https://github.com/axkibe/lsyncd/archive/master.zip
+```
+
+#### 构建
+
+```bash
+unzip master.zip
+
+cd lsyncd-master
+
+mkdir build && cd build
+
+cmake ..
+make
+make install
+```
+
+完成后，您应该安装 lsyncd 二进制文件，并通过 /usr/local/bin 使用
+
+#### system
+
+创建 lsyncd 服务文件
+
+```txt
+vim /usr/lib/systemd/system/lsyncd.servic
+
+
+[Unit]
+Description=Live Syncing (Mirror) Daemon
+After=network.target
+
+[Service]
+Restart=always
+Type=simple
+Nice=19
+ExecStart=/usr/local/bin/lsyncd -nodaemon -pidfile /run/lsyncd.pid /etc/lsyncd.conf
+ExecReload=/bin/kill -HUP $MAINPID
+PIDFile=/run/lsyncd.pid
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+重新加载 systemctl 守护程序
+```
+systemctl daemon-reload
+```
+
+
+### 示例配置
+
+无论您选择了什么方法安装 lsyncd，您都需要一个配置文件： /etc/lsyncd.conf。 
+
+```
+vim  /etc/lsyncd.conf
+
+settings {
+    logfile = "/var/log/lsyncd.log",
+    statusFile = "/var/log/lsyncd-status.log",
+    statusInterval = 20,
+    maxProcesses = 1
+}
+
+sync {
+    default.rsyncssh,
+    source="/home",
+    host="root@192.168.1.40",
+    excludeFrom="/etc/lsyncd.exclude",
+    targetdir="/home",
+    rsync = {
+     archive = true,
+     compress = false,
+     whole_file = false
+    },
+    ssh = {
+      port = 22
+    }
+}
+
+
+```
+
+#### lsyncd.exclude文件
+每个排除的文件或目录只是列在文件中，每行一个
+```
+touch /etc/lsyncd.exclude
+
+/etc/hostname
+/etc/hosts
+/etc/networks
+/etc/fstab
+```
+
+#### 启动
+```
+systemctl start lsyncd
+```
+
+
+#### 配置文件
+
+官方文档
+
+```
+https://lsyncd.github.io/lsyncd/manual/config/file/
+```
+
+
+```
+-- 由于该配置文件实际上是lua语言的语法，所以写注释要用--，--是lua语言的注释符号
+-- Lsyncd本身的配置
+settings {
+    -- 指定日志文件位置
+    logfile = "/var/log/lsyncd/lsyncd.log",
+
+    -- 指定状态文件位置
+    statusFile = "/var/log/lsyncd/lsyncd.status",
+
+    -- inotify事件模式，什么事件才同步，CloseWrite表示文件关闭的时候同步(创建文件，修改文件后保存都会触发CloseWrite事件)
+    inotifyMode = "CloseWrite",
+
+    -- 最大同步进程数(default.rsyncssh模式，则必须设置为1，这就是rsyncssh模式的缺点了，如果是default.rsync模式则可以设置大于1，这样会有多个同步进程，速度更快)
+    maxProcesses = 8,
+    -- maxProcesses = 1,
+
+    -- 配合下面的delay选项使用，delay单位是秒，当delay时间到了，不管maxDelays设置多少，都会同步，同样，当maxDelays达到了设定值，不管是否到delay时间，都会同步，即两个选项有一个满足即会触发同步，为了实时同>步，我们一般设置为1，表示即使只有一个文件改变也同步
+    maxDelays = 1,
+
+    -- 是否以后台的方式运行，注意它是nodaemon，所以是双重否定，如果填false，意思就是“不要不后台运行”(即后台运行)，非后台运行一般用于调试，把rsync的verbose也设置为true，这样会把同步的细节输出到控制台，方便调试
+    nodaemon = false,
+}
+
+---- 同步配置default.rsync模式(比如配置从哪同步到哪，要忽略哪些文件，多久同步一次等)，可以有多个sync模块，每个模块用于设置一台目标机器
+sync {
+    -- 有default.rsync/default.direct/default.rsyncssh三种模式，我们默认都用default.rsync即可。
+    default.rsync,
+
+    -- 同步源目录(本机某个目录)
+    source = "/data/",
+
+    -- 同步目标地址，不同同步模式有不同写法，由于绝大多数情况都采用rsync同步，所以这里写的是rsync的同步地址
+    target = "xiebruce@10.1.1.135::ftpdata",
+
+    -- 默认true，允许删除目录服务器中的某些文件(即删除“那些在源服务器中不存在的文件”)，可选值有: true/false/startup/running，startup就是只在启动lsyncd服务的时候判断目标服务器中有哪些文件在源服务器中没有，然后把这些文件删除，但启动之后如果目标服务器又新增了文件，这些文件即使在源服务器不存在，也不会被删除；而running与startup正好相反，是在启动的时候不会删除，启动之后会删除，true=running+startup，false相当于running和startup都不做。
+    delete = false,
+
+    -- 哪些文件不同步(可用正则))
+    -- exclude = {
+    --    '.**',
+    --    '.git/**',
+    --    '*.bak',
+    --    '*.tmp',
+    --   'runtime/**',
+    --   'cache/**'
+    -- },
+
+    -- 与上边的maxDelays配合，maxDelays是累计事件数(单位：个)，delay是时间(单位：秒)，这两个只要有一个符合条件就会同步一次，但为了确保实时同步，maxDelays我们一般设置为1，也就是只要有一个文件变化事件，就会同步一次，而delay是比较大的，默认是15。当然，假如我们把maxDelays设置为100，那可能15秒到了也没有达到100个文件变化，但由于到达时间了，它也会同步。
+    delay = 15,
+
+    -- 当init = false时只同步进程启动以后发生改动事件的文件，原有的目录即使有差异也不会同步，如果为true，则启动后如果源目录与目标目录的文件有差异，就会同步，我们当然要设置为true，默认为true，所以这个设置可以不写，写在这里是为了解释它。
+    -- init = false,
+
+    -- rsync的配置（这是default.rsync模式，如果是default.rsyncssh模式，该模块的配置会有所不同）
+    rsync = {
+        -- rsync可执行文件的绝对路径
+        binary = "/usr/bin/rsync",
+
+        -- 密码文件路径(default.rsyncssh模式不需要该项)
+        password_file = "/etc/rsyncd.password",
+
+        -- 打包后再同步(注意，打包不等于压缩，打包即可以压缩也可以不压缩)
+        archive = true,
+
+        -- 压缩后再同步
+        compress = false,
+
+        -- 输出同步信息(由于是后台执行，所以没必要输出，如果非后台执行可以设置为true，非后台执行主要用于调试)
+        verbose  = false,
+
+        -- 由于rsync有非常多的选项(请自己rsync --help查看)，部分非主要选项可以用_extra的方式指定，双引号引住，逗号分隔(bwlimit中的bw是bandwith，即带宽，整个意思是带宽限制，omit-link-times忽略符号链接的修改时间)
+        _extra = {"--bwlimit=200", "--omit-link-times"}
+    }
+}
+
+```
+
+
+### 错误
+
+```
+Error: Terminating since out of inotify watches.
+Consider increasing /proc/sys/fs/inotify/max_user_watches
+```
+
+修改方法1
+
+```
+echo 10008192 > /proc/sys/fs/inotify/max_user_watches
+```
+修改后，Linux系统重启inotify配置max_user_watches无效被恢复默认值8192）
+
+修改方法2
+
+```
+vim /etc/sysctl.conf
+
+fs.inotify.max_user_watches=99999999
+```
+
+注意添加的内容：
+
+fs.inotify.max_user_watches=99999999（你想设置的值，此方法修改后重启linux，max_user_watches值不会恢复默认值8192）
+
+重新启动 lsyncd 
+```
+service lsyncd restart
+```

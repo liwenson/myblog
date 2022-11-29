@@ -248,7 +248,8 @@ spec:
       serviceAccount: nfs-client-provisioner
       containers:
         - name: nfs-provisioner
-          image: registry.cn-hangzhou.aliyuncs.com/open-ali/nfs-client-provisioner
+          # image: registry.cn-hangzhou.aliyuncs.com/open-ali/nfs-client-provisioner
+          image: registry.cn-beijing.aliyuncs.com/mydlq/nfs-subdir-external-provisioner:v4.0.0
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
@@ -391,9 +392,18 @@ spec:
 ## 错误
 
 ```txt
+4 pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.
+```
+
+查看nfs 日志得到报错
+
+```txt
 provision "default/test-claim" class "managed-nfs-storage": unexpected error getting claim reference: selfLink was empty, can't make reference
 ```
-kubernetes1.20在v1.20之后默认删除了 metadata.selfLink 字段，然而，部分应用仍然依赖于这个字段，例如 nfs-client-provisioner； 需要在/etc/kubernetes/manifests/kube-apiserver.yaml 添加 - --feature-gates=RemoveSelfLink=false 重新启用metadata.selfLink字段；
+
+镜像需要用比较新的
+
+kubernetes1.20在v1.20之后默认删除了 metadata.selfLink 字段，然而，部分应用仍然依赖于这个字段，例如 nfs-client-provisioner； 需要在/etc/kubernetes/manifests/kube-apiserver.yaml 添加 - --feature-gates=RemoveSelfLink=false 重新启用metadata.selfLink字段, k8s1.24.0 版本默认是true,不支持修改为false,否则apiserver会启动失败！
 
 ```yaml
 spec:

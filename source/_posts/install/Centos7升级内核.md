@@ -8,40 +8,37 @@ tags:
 ---
 
 
-** 内核下载 **
-```
+## 内核下载
+
+```txt
 https://elrepo.org/linux/kernel/el7/x86_64/RPMS/
 ```
 
-**安装ELRepo到CentOS**
+## 安装ELRepo到CentOS
 
-```
+```bash
 rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 yum install https://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
 ```
 
+## 添加 repository 后, 列出可以使用的kernel包版本**
 
-
-**添加 repository 后, 列出可以使用的kernel包版本**
-
-```
+```bash
 yum --disablerepo="*" --enablerepo="elrepo-kernel" list available
 ```
 
-**安装需要的kernel版本，这里安装 kernel-lt**
+## 安装需要的kernel版本，这里安装 kernel-lt
 
-```
+```bash
 yum --enablerepo=elrepo-kernel install kernel-lt
 ```
 
-内核版本介绍：
+内核版本介绍
 
 - **lt**:longterm的缩写：长期维护版；
 - **ml**:mainline的缩写：最新稳定版；
 
-
-
-方式一：
+## 方式一
 
 **检查kernel启动顺序**
 
@@ -81,10 +78,11 @@ rpm -qa|grep kernel
 
 方式二：
 
-####  查看系统上的所有可以内核：
+####  查看系统上的所有可以内核
 
 ```
-# sudo awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
+awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
+
 0 : CentOS Linux (4.15.6-1.el7.elrepo.x86_64) 7 (Core)
 1 : CentOS Linux (3.10.0-514.26.2.el7.x86_64) 7 (Core)
 2 : CentOS Linux (3.10.0-327.el7.x86_64) 7 (Core)

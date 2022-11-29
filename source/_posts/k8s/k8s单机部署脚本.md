@@ -241,6 +241,7 @@ config.k8s(){
 
 network.k8s(){
   msg "green" "安装calico网络.."
+  ## calico 在v3.24.0 开始添加了一个新的功能需要挂载 bpffs 目录，目前没有找到这个问题的处理方式，降级到 3.23.1
   kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 }
 

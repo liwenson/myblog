@@ -182,7 +182,7 @@ servicemonitor.monitoring.coreos.com/prometheus-operator created
 ## 检查部署情况
 
 ```bash
-kubectl get po -n monitoring
+watch kubectl get po -n monitoring
 ```
 
 ```txt

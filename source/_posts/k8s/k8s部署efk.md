@@ -135,7 +135,7 @@ spec:
       initContainers:
       - name: increase-vm-max-map-ulimit
         image: busybox
-        command: ["/bin/bash", "-c", "sysctl -w vm.max_map_count=262144; ulimit -l unlimited"]
+        command: ["/bin/sh", "-c", "sysctl -w vm.max_map_count=262144; ulimit -l unlimited"]
         securityContext:
           privileged: true
       containers:
@@ -239,7 +239,7 @@ spec:
     spec:
       containers:
       - name: kibana
-        image: docker.elastic.co/kibana/kibana:7.6.2
+        image: docker.elastic.co/kibana/kibana:7.10.2
         resources:
           limits:
             cpu: 1000m
@@ -279,7 +279,7 @@ kubectl create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes
 kubectl create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes-logging/master/fluent-bit-role-binding.yaml
 ```
 
-Kubernetes v1.22 版本
+Kubernetes v1.22 及以上的版本
 
 ```bash
 kubectl create namespace logging
@@ -288,10 +288,12 @@ kubectl create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes
 kubectl create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes-logging/master/fluent-bit-role-binding-1.22.yaml
 ```
 
+注意: **教程为Kubernetes v1.23**
+
 或者
 
 ```bash
-vim fluent-bit-service-rbac.yaml
+vim fluent-bit-rbac.yaml
 ```
 
 ```yaml
@@ -305,7 +307,7 @@ metadata:
 
 ---
 # source fluent-bit-role.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: fluent-bit-read
@@ -318,7 +320,7 @@ rules:
 
 ---
 # source fluent-bit-role-binding.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: fluent-bit-read
@@ -331,7 +333,6 @@ subjects:
   name: fluent-bit
   namespace: logging
 ```
-
 
 #### Fluent Bit to Elasticsearch
 
@@ -508,7 +509,7 @@ spec:
     spec:
       containers:
       - name: fluent-bit
-        image: fluent/fluent-bit:1.9
+        image: fluent/fluent-bit:1.9.2
         imagePullPolicy: Always
         ports:
           - containerPort: 2020
@@ -545,7 +546,6 @@ spec:
         effect: "NoExecute"
       - operator: "Exists"
         effect: "NoSchedule"
-
 ```
 
 如果 docker 的根目录路径修改过，需要将 varlibdockercontainers 修改为对应的目录
@@ -554,6 +554,14 @@ spec:
       - name: varlibdockercontainers
         hostPath:
           path: /home/docker/containers
+```
+
+如果使用 containerd ，需要将 varlibdockercontainers 修改为对应的目录
+
+```yaml
+      - name: varlibdockercontainers
+        hostPath:
+          path:  /var/log/containers
 ```
 
 #### Fluent Bit to Kafka
@@ -571,6 +579,7 @@ kubectl create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes
 ```
 
 gohangout
+
 
 ```yaml
 apiVersion: apps/v1
@@ -635,7 +644,7 @@ metadata:
 data:
   # Configuration files: server, input, filters and output
   # ======================================================
-  gohangout.conf: |
+  config.yaml: |
   inputs:
     - Kafka:
         topic:

@@ -56,7 +56,6 @@ systemctl start kubelet（node 节点）
 systemctl start kube-proxy（node 节点）
 
 
-
 systemctl start flanneld （node 节点）
 
 systemctl restart kube-apiserver.service  (默认设置了开机启动， master 节点)

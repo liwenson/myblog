@@ -280,6 +280,3 @@ config.xml
 jobs
 credentials.xml
 plugins
-
-
-

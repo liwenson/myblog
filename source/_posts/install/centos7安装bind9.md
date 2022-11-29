@@ -42,73 +42,87 @@ wget https://downloads.isc.org/isc/bind9/9.16.12/bind-9.16.12.tar.xz
 ## 编译安装
 
 ### 安装依赖
-```
+
+```bash
 yum install -y libuv libuv-devel libcap-devel pcre-devel zlib-devel gcc gcc-c++ autoconf automake make pcre-devel zlib-devel openssl-devel openldap-devel unixODBC-devel gcc libtool openssl  bind-utils python-pip
 ```
 
 XML 统计通道需要使用 libxml2
-```
+
+```bash
 yum install libxml2 libxml2-devel
 ```
 
-```
+```bash
 pip install ply
 ```
 
 解压
-```
+
+```bash
 cd /usr/local/src
 tar -xvf bind-9.16.12.tar.xz
 ```
+
 ### 安装
 
 XML 统计通道需要使用 libxml2 构建 BIND
 
-```
+```bash
 cd bind-9.16.12
 ./configure --prefix=/usr/local/bind9 --sysconfdir=/etc/named/ --enable-largefile --with-tuning=large --with-openssl --with-libxml2
-```
-```
+
+# 编译
 make && make install
 ```
 
 ### 编译错误处理
 
 `错误一`
-```
+
+```txt
 configure: error: Python >= 2.7 or >= 3.2 and the PLY package are required for dnssec-keymgr and other Python-based tools. 
 PLY may be available from your OS package manager as python-ply or python3-ply; it can also be installed via pip. To build without Python/PLY, use --without-python.
 ```
+
 处理
 执行pip install ply安装ply，安装前要确保此时setuptools和pip已经安装，如果未安装则需要单独安装。如果不安装ply模块，bind在编译时会报错如下。
-```
+
+```bash
 pip install ply
 ```
 
 `错误二`
-```
+
+```txt
 checking for libuv... checking for libuv >= 1.0.0... no
 configure: error: libuv not found
 ```
+
 处理
-```
+
+```bash
 yum install -y epel-release
 yum install libuv
 yum install libuv-devel
 ```
 
 `错误三`
-```
+
+```txt
 configure: error: sys/capability.h header is required for Linux capabilities support. Either install libcap or use --disable-linux-caps.
 ```
+
 处理
-```
+
+```bash
 yum install libcap-devel
 ```
 
 
 ### 添加环境变量
-```
+
+```bash
 vim /etc/profile.d/named.sh
 export PATH=/usr/local/bind9/bin:/usr/local/bind9/sbin:$PATH
 
@@ -116,39 +130,42 @@ export PATH=/usr/local/bind9/bin:/usr/local/bind9/sbin:$PATH
 ```
 
 ### 导出库文件搜索路径
-```
-$ vim /etc/ld.so.conf.d/named.conf
+
+```bash
+vim /etc/ld.so.conf.d/named.conf
 /usr/local/bind9/lib
-$ ldconfig -v
+
+ldconfig -v
 ```
 
 ### 导出头文件搜索路径
-```
-$ ln -sv /usr/local/bind9/include /usr/include/named
+
+```bash
+ln -sv /usr/local/bind9/include /usr/include/named
 
 "/usr/include/named" -> "/usr/local/bind9/include"
 ```
 
 ### 导出帮助文档搜索路径（非必须）
-```
-$ vim /etc/man.config
+
+```bash
+vim /etc/man.config
 MANPATH /usr/local/bind9/share/man
 ```
-
-
 
 ## 配置
 
 ### 准备
 
-
 创建服务专用账户named，禁止本地登陆户
-```
+
+```bash
 useradd -d /usr/local/bind9 -s /sbin/nologin named
 ```
 
 接下来我们更改所有配置文件的用户为named用户
-```
+
+```bash
 mkdir /run/named
 mkdir -p /var/named/{dynamic,data,zone}
 
@@ -157,25 +174,29 @@ mkdir -p /var/named/{dynamic,data,zone}
 
 在联网的情况下直接将查询根的结果导入根区域配置文件,如果是把bind当作递归查询服务器使用，默认情况下的bind是会自动启用了hint类型的解析
 
-```
-$ dig -t NS . > /var/named/named.ca
+```bash
+dig -t NS . > /var/named/named.ca
 ```
 
 配置会把所有匹配到这个zone的DNS查询请求转发到/var/named/named.ca文件中的13个根DNS服务器节点，为了减少不必要的干扰，我们可以把文件中的的AAAA记录注释掉。
 
 
-
 ### rndc配置
 rndc是一个管理程序，可以用它来刷新配置，停止服务，强制同步等
-```
+
+```bash
 rndc-confgen  > /etc/named/rndc.conf
 ```
+
 打开rndc.conf文件，找到# Use with the following in named.conf, adjusting the allow list as needed:注释，复制其下所有行到named.conf并放开注释。
-```
+
+```bash
 tail -10 /etc/named/rndc.conf | head -9 | sed s/#\ //g > named.conf
 ```
+
 最终的named.conf文件像下面这样
-```
+
+```bash
 key "rndc-key" {
   algorithm hmac-sha256;
   secret "...";
@@ -191,9 +212,10 @@ controls {
 ### 主配置
 
 将配置文件追加到  named.conf
-```
-$ cd /etc/named
-$ vim named.conf
+
+```bash
+cd /etc/named
+vim named.conf
 
 options {
   listen-on port 53 { any; };
@@ -226,8 +248,8 @@ options {
 ## 开启日志会影响查询速度
 logging {
   channel queries_log {
-    file "data/named.run" versions 3 size 300m; # 这里的路径是相对于上面的directory路径
-    print-time yes;                  # 日志文件每300MB切割一次
+    file "data/named.run" versions 3 size 300m;    # 这里的路径是相对于上面的directory路径
+    print-time yes;                                # 日志文件每300MB切割一次
     print-category yes;
     print-severity yes;
     severity info;
@@ -252,12 +274,13 @@ zone "." IN { # 根域名
   file "named.ca";
 };
 
-#include "/etc/named/named.rfc1912.zones";
+#include "/etc/named/named.rfc1912.zones";  动态更新zone，不需要引入zone文件
 ```
 
 ### zones 配置
-```
-$ vim /var/named/abc.com.zone
+
+```bash
+vim /var/named/abc.com.zone
 
 $TTL 10M  ;time to live  信息存放在高速缓存中的时间长度，以秒为单位
 @       IN      SOA     abc.com.      admin.abc.com. (
@@ -274,11 +297,25 @@ api       IN      A      192.168.7.133
 a         IN      A      192.168.7.134
 ```
 
+### zone配置关键字说明
+
+TTL : 存活时间
+NS ：设置域名服务器的域名name server
+IN 是internet记录
+SOA 记录 @ 取代在/etc/named.conf中指定的域名其中中的数字分别为：序列号、刷新、重试、过期、生存期
+
+- 序列号：序列号用于DNS数据库文件的版本控制,每当数据被改变,这个序列号就应该被增加
+- 刷新：从服务器向主服务器查询最新数据的间隔周期。每一次检查时从服务器的数据是否需要更改,则根据序列号来判别
+- 重试：一旦从服务器尝试连接主服务器失败,下一次查询主服务器的延迟时间
+- 过期：如果从服务器无法连通主服务器,则在经过此时间后,宣告其数据过期
+- 生存期：服务器回答 '无此域名' 的间隔时间
+- 数字的默认单位为秒,否则：D= 日、H= 小时、W= 周、M= 分钟
+
 ## 启动
 
 ### 权限配置
 
-```
+```bash
 chown -R named:named /usr/local/bind9/
 chown -R named:named /etc/named
 chown -R named:named /var/named/
@@ -288,11 +325,14 @@ chown -R named:named /run/named
 ### 检查配置
 
 实时日志
-```
+
+```bash
 named -u named -g
 ```
 
-```
+### systemd 配置
+
+```bash
 vim  /usr/lib/systemd/system/named.service
 
 [Unit]
@@ -324,7 +364,9 @@ WantedBy=multi-user.target
 
 ```
 
-```
+### 应用管理
+
+```bash
 systemctl status named
 systemctl enable named
 systemctl start named
@@ -332,21 +374,44 @@ systemctl stop named
 ```
 
 ## 配置检查
+
 主配置检查
-```
+
+named-checkconf  检查命名配置文件的语法，而不是语义。解析文件并检查语法错误，以及它包含的所有文件。如果未指定文件，则输入​​/etc/named.conf​​默认为读取。
+
+```bash
+# 常规测试
 named-checkconf /etc/named/named.conf
 
+# named以及包含文件配置文件无错误则输出所有配置参数项
+named-checkconf -p
+
 ```
 
+zone文件有效性检查或转换工具
+
 zone配置检查
-```
+
+named-checkzone 检查区域文件的语法和完整性。它执行与named相同的检查加载区。这使得named-checkzone在将区域文件配置为名称之前检查它们非常有用。
+
+```bash
 named-checkzone wxl.com /var/named/zone/wxl.com.zone
+```
+
+zone配置转换
+
+named-compilezone 与前者类似，但它总是将区域内容转储到指定的文件中指定的格式。此外，它在默认情况下应用更严格的检查级别，因为转储输出将为作为一个实际的区域文件，由named加载。手动指定时，检查级别必须至少与指定的配置文件中指定的一样严格
+
+```bash
+named-compilezone
+
 ```
 
 ## 测试
 
 主配置文件
-```
+
+```bash
 vim named.conf
 
 zone "test.com" IN {
@@ -357,7 +422,8 @@ zone "test.com" IN {
 ```
 
 区域配置文件
-```
+
+```bash
 vim /var/named/zone/test.com.zone
 
 $TTL      86400
@@ -374,22 +440,24 @@ www IN A 172.16.100.200
 ```
 
 重启
-```
+
+```bash
 systemctl restart named
 ```
 
 解析测试
-```
+
+```bash
 nslookup
 
 > server 10.200.192.13
 Default server: 10.200.192.13
 Address: 10.200.192.13#53
 > www.test.com
-Server:		10.200.192.13
-Address:	10.200.192.13#53
+Server:  10.200.192.13
+Address:  10.200.192.13#53
 
-Name:	www.test.com
+Name: www.test.com
 Address: 172.16.100.200
 > exit
 
@@ -397,15 +465,14 @@ Address: 172.16.100.200
 
 ## 压测
 
-
-```
+```bash
 yum install dnsperf
-```
-```
+
 yum install -y epel-release
 ```
 
 ### Dnsperf 支持下面的这些命令行参数:
+
  -s    用来指定DNS服务器的IP地址，默认值是127.0.0.1
  -p    用来指定DNS服务器的端口，默认值是53
  -d    用来指定DNS消息的内容文件，该文件中包含要探测的域名和资源记录类型
@@ -421,13 +488,13 @@ yum install -y epel-release
  -h    打印帮助
 
 
-```
+```bash
 vim domain.txt
 
 www.test.com A
 ```
 
-```
+```bash
 dnsperf -d domain.txt -s 10.200.88.202 -l 120
 
 
@@ -456,15 +523,15 @@ Statistics:
 
 ```
 
+<hr\>
 
-## rndc 
+## rndc
 
 rndc（Remote Name Domain Controllerr）是一个远程管理bind的工具，通过这个工具可以在本地或者远程了解当前服务器的运行状况，也可以对服务器进行关闭、重载、刷新缓存、增加删除zone等操作。
 
 使用rndc可以在不停止DNS服务器工作的情况进行数据的更新，使修改后的配置文件生效。在实际情况下，DNS服务器是非常繁忙的，任何短时间的停顿都会给用户的使用带来影响。因此，使用rndc工具可以使DNS服务器更好地为用户提供服务。在使用rndc管理bind前需要使用rndc生成一对密钥文件，一半保存于rndc的配置文件中，另一半保存于bind主配置文件中。rndc的配置文件为/etc/rndc.conf，在CentOS或者RHEL中，rndc的密钥保存在/etc/rndc.key文件中。rndc默认监听在953号端口（TCP），其实在bind9中rndc默认就是可以使用，不需要配置密钥文件。
 
 rndc与DNS服务器实行连接时，需要通过数字证书进行认证，而不是传统的用户名/密码方式。在当前版本下，rndc和named都只支持HMAC-MD5认证算法，在通信两端使用预共享密钥。在当前版本的rndc 和 named中，唯一支持的认证算法是HMAC-MD5，在连接的两端使用共享密钥。它为命令请求和名字服务器的响应提供 TSIG类型的认证。所有经由通道发送的命令都必须被一个服务器所知道的 key_id 签名。为了生成双方都认可的密钥，可以使用rndc-confgen命令产生密钥和相应的配置，再把这些配置分别放入named.conf和rndc的配置文件rndc.conf中。
-
 
 ### 指令
 
@@ -493,28 +560,25 @@ rndc与DNS服务器实行连接时，需要通过数字证书进行认证，而�
 |tsig-list  |#查询当前有效的TSIG列表|
 |validation newstate [view]  |#开启/关闭dnssec|
 
-
 **说明**：rndc命令后面可以跟  "-s"和 "-p" 选项连接到远程DNS服务器，以便对远程DNS服务器进行管理，但此时双方的密钥要一致才能正常连接。在设置rndc.conf时一定要注意key的名称和预共享密钥一定要和named.conf相同，否则rndc工具无法正常工作
-
 
 在reload动态zone的时候，需要先freeze 再 reload
 
 在zone配置中如果 allow-update 的值不是none，那么这个zone就是一个动态zone
 如果没有填写 allow-update或者值为none，那么这个zone为静态static
 
-
 动态zone 的记录保存在 _default.nzf 文件中
 
 ### 更新key
 
-```
+```bash
 生成 key 文件
 rndc-confgen -a
 
 wrote key file "/etc/rndc.key"
 ```
 
-```
+```bash
 rndc status
 
 rndc: connection to remote host closed
@@ -529,16 +593,17 @@ This may indicate that
 
 ### 产生/etc/rndc.conf文件
 
-```
+```bash
 rndc-confgen > /etc/rndc.conf  
 ```
 
 ### 配置 named.conf使用rndc秘钥
-```
+
+```bash
 tail -10 /etc/named/rndc.conf | head -9 | sed s/#\ //g >> named.conf
 ```
 
-```
+```bash
 cat /etc/named/named.conf 
 
 key "rndc-key" {
@@ -553,8 +618,9 @@ controls {
 
 ```
 
-### 测试 RNDC 设置
-```
+### 测试 rndc 设置
+
+```bash
 rndc status
 
 version: BIND 9.16.12 (Stable Release) <id:aeb943d>
@@ -577,19 +643,53 @@ TCP high-water: 2
 server is up and running
 ```
 
+### RNDC 操作
 
-## nsupdate 
+```
+# 运行状态
+rndc status
+
+# 检查区域设置
+rndc zonestatus abc.com
+
+# 清除缓存 , 删除通过递归查询检索到的记录的缓存,即使还没过期也会清除
+rndc flush
+
+# 重新加载配置文件
+rndc reload
+
+# 切换查询日志
+rndc querylog on|off
+
+# 指定调试级别
+rndc trace
+
+# 追加统计文件
+rndc stats
+
+# 暂停动态 DNS
+rndc freeze abc.com
+
+# 恢复动态 DNS 
+rndc thaw abc.com
+
+# 将日志文件应用到区域文件
+rndc sync abc.com
+```
+
+## nsupdate
 
 nsupdate工具是一个交互式的命令工具, 对应的区配置部分需要配置allow-update语句:  allow-update { any; };
-```
+
+```bash
 zone "test.com" {
-	type master;
-	allow-update { any; };
-	file "test.com.zone";
+  type master;
+  allow-update { any; };
+  file "test.com.zone";
 };
 ```
 
-```
+```bash
 nsupdate
 
 > server 127.0.0.1
@@ -602,6 +702,7 @@ nsupdate
 ```
 
 ### nsupdate 参数
+
 -d 调试模式。
 -k 从keyfile文件中读取密钥信息。
 -y keyname是密钥的名称,secret是以base64编码的密钥。
@@ -628,9 +729,9 @@ show      显示自send命令后,所有的要求信息和更新请求.
 send     将要求信息和更新请求发送到DNS服务器.等同于输入一个空行.
 
 
-
 ### 通过TSIG key实现nsupdate功能
-```
+
+```bash
 1、使用` dnssec-keygen -a HMAC-MD5 -b 128 -n USER testkey `命令来生成密钥。
   dnssec-keygen：用来生成更新密钥。
     -a HMAC-MD5：采用HMAC-MD5加密算法。
@@ -648,7 +749,8 @@ send     将要求信息和更新请求发送到DNS服务器.等同于输入一�
 ```
 
 例子:
-```
+
+```bash
 view "view-test" in{
 	match-clients{
 		key testkey;
@@ -664,7 +766,7 @@ view "view-test" in{
 };
 ```
 
-```
+```bash
 nsupdate 增删改查
 
 server 192.168.0.49 53
@@ -706,14 +808,14 @@ nsupdate处理ns的时候(如不规范,会报错)
 
 ```
 
-
-
 ## 监控
+
 使用Prometheus监控bind9的DNS服务
 [bind_exporter](https://github.com/prometheus-community/bind_exporter/releases)
 
 ### 下载
-```
+
+```bash
 mkdir /opt/bind_exporter
 cd /opt/bind_exporter
 
@@ -722,7 +824,7 @@ chmod +x bind_exporter
 
 ### systemctl server
 
-```
+```bash
 vim /etc/systemd/system/bind_exporter.service
 
 [Unit]
@@ -751,15 +853,18 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
-### 启动
-```
+### 启动管理
+
+```bash
 systemctl daemon-reload
 systemctl restart bind_exporter.service
 ```
 
-### 添加named 配置 
+### 添加named 配置
+
 在` /etc/named/named.conf `中添加如下内容，注意"statistics-channels"是与"options"并列的，而不是位于"options"内部
-```
+
+```bash
 statistics-channels {
   inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
 };
@@ -768,9 +873,10 @@ options {
   ......
 }
 ```
+
 重新启动named
 
-```
+```bash
 # 检查配置
 named-checkconf /etc/named/named.conf
 
@@ -779,13 +885,14 @@ systemctl restart named
 ```
 
 检查
-```
+
+```bash
 curl -v http://127.0.0.1:8053/xml/v3/server
 ```
 
 ### Prometheus  job
 
-```
+```yaml
   - job_name: dns-master
     static_configs:
       - targets: ['10.85.6.66:9119']
@@ -795,9 +902,8 @@ curl -v http://127.0.0.1:8053/xml/v3/server
 
 [grafana 展示](https://grafana.com/grafana/dashboards/12309)
 
-
-
 ## 参考文档
-```
+
+```txt
 https://www.cnblogs.com/wangchaolinux/p/12150187.html
 ```

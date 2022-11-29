@@ -11,20 +11,24 @@ tags:
 <!-- more -->
 
 ## 下载Redis
+
 从[Redis官网](https://redis.io/download)下载后上传CentOS目录`/usr/local`, 当然, 你也可以使用wget命令下载
-```
+
+```bash
 wget http://download.redis.io/releases/redis-5.0.3.tar.gz
 ```
 
 ## 安装编译环境
-```
+
+```bash
 yum -y install gcc-c++
 ```
 
 ## 安装及配置Redis
 
 ### 安装Redis
-```
+
+```bash
 # 解压
 cd /usr/local
 tar -zxvf redis-5.0.8.tar.gz
@@ -50,7 +54,8 @@ export PATH=$PATH:/usr/local/redis/bin
 ```
 
 ### 修改配置文件
-```
+
+```txt
 # 打开配置文件
 cd /usr/local/redis
 vim redis.conf
@@ -76,10 +81,29 @@ dir /usr/local/redis/data
 # 修改log存放路径, 默认为"", 修改为"/usr/local/redis/data/redis_6379.log"
 logfile "/usr/local/redis/data/redis_6379.log"
 
+#save seconds changes  设置RDB的
+save 900 1
+save 300 10
+save 60 10000
+
+# 开启aof持久化
+appendonly yes
+
+# 指定文件名
+appendfilename "appendonly.aof"
+
+#每秒执行一次
+#appendfsync everysec  每秒执行一次持久化(一般选这个,默认值)
+#appendfsync always  执行一次写操作就执行一次持久化
+#appendfsync no  根据操作系统的不同，环境的不同在一定时间内执行一次持久化
+
+appendfsync everysec
+
 ```
 
 ## 启动Redis
-```
+
+```bash
 # 启动
 redis-server /usr/local/redis/etc/redis.conf
 
@@ -121,7 +145,7 @@ WantedBy=multi-user.target
 
 ```
 
-```
+```bash
 systemctl daemon-reload
 
 # 启动redis服务

@@ -11,7 +11,9 @@ tags:
 摘要: gorm  简单使用
 <!-- more -->
 
-
+```
+https://19981115.xyz/posts/3751
+```
 
 ## 创建例子
 ```
@@ -47,9 +49,9 @@ func main() {
 
 ```
 
-## 简单 CURD 
+## 简单 CURD
 
-```
+```go
 
 // UserInfo 用户信息
 type UserInfo struct {
@@ -208,7 +210,7 @@ func main() {
 
 ## 一对多操作
 
-```
+```go
 package main
 
 import (
@@ -305,13 +307,9 @@ func main() {
 		fmt.Println(k,"--",v.Id,v.Title,v.CategoryId)
 	}
 
-	// 链式预加载查询 
-	
-
-
+	// 链式预加载查询
 
 }
-
 
 
 
@@ -336,15 +334,11 @@ func RandomString(n int, allowedChars ...[]rune) string {
 }
 
 
-
-
-
-
 ```
 
 
 ## 多对多 操作
-```
+```go
 package main
 
 import (

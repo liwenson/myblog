@@ -125,6 +125,15 @@ client  = &http.Client{
 
 而一般如果有运维部门帮你给每台服务器都添加证书，当然他们只能使用第二种，这样，你的程序完全可以不用考虑这个问题了。
 
+## unrecognized relocation (0x2a) in section `.text'
+
+处理方案
+
+```bash
+rm -rf ~/.cache/go-build/*  # 删除历史构建信息
+yum install binutils    # 安装binutils软件
+```
+
 
 
 

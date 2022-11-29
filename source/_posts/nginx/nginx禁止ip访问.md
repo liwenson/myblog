@@ -17,7 +17,8 @@ tags:
 Nginx 上对于 SSL 服务器在不配置证书的时候会出现协议错误，哪怕端口上配置了其他网站也会报错。解决方法就是随便生成一个证书填进去就好。
 
 nginx.conf
-```
+
+```nginx
     server {
         listen 80 default;
         listen 443 default_server;
@@ -32,8 +33,8 @@ nginx.conf
         resolver 8.8.8.8 8.8.4.4 valid=300s;
         resolver_timeout 5s;
         ssl_prefer_server_ciphers on;
-        ssl_certificate /ztocwst/nginx/cert/fullchain1.pem;
-        ssl_certificate_key /ztocwst/nginx/cert/privkey1.pem;
+        ssl_certificate /opt/nginx/cert/fullchain1.pem;
+        ssl_certificate_key /opt/nginx/cert/privkey1.pem;
         ssl_session_timeout 5m;
         ssl_session_tickets on;
         ssl_stapling on;
