@@ -32,13 +32,14 @@ vim /etc/security/limits.conf
 * hard memlock unlimited
 ```
 
-```
+```bash
 swapoff -a
 # 禁用swapping，开启服务器虚拟内存交换功能会对es产生致命的打击
 ```
 
+```bash
 vim /etc/sysctl.conf
-```
+
 vm.swappiness = 1
 vm.zone_reclaim_mode = 0
 vm.overcommit_memory=1
@@ -52,14 +53,15 @@ vm.dirty_ratio=10
 vm.max_map_count=655360
 ```
 
-
 ## 创建用户和用户组
-```
+
+```bash
 useradd -M -s /sbin/nologin es
 ```
 
+## 安装
 
-```
+```bash
 tar xf elasticsearch-7.8.0-linux-x86_64.tar.gz
 mv elasticsearch-7.8.0 /home/es/elasticsearch-7.8.0
 
@@ -68,11 +70,9 @@ ln -s /home/es/elasticsearch-7.8.0 /home/es/elasticsearch
 mkdir /home/es/elasticsearch/data
 ```
 
-
-
 ## 配置es
 
-```
+```bash
 cat >> config/elasticsearch.yml <<EOF
 
 # ======================== Elasticsearch Configuration =========================
@@ -109,13 +109,13 @@ EOF
 
 ## 启动
 
-```
+```bash
 su - es -c "/home/es/elasticsearch/bin/elasticsearch -d"
 ```
 
 启动二
 
-配置 services 文件
+配置 system 文件
 
 ```bash
 vim /lib/systemd/system/elasticsearch.service
@@ -129,6 +129,7 @@ Type=simple
 User=es
 Group=es
 WorkingDirectory=/opt/elasticsearch
+Environment=JAVA_HOME=/usr/local/jdk1.8.0_161
 LimitNOFILE=100000
 LimitNPROC=100000
 Restart=no

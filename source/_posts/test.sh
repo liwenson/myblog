@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+token=$(curl -s -X POST --user admin:ztyc1234 http://10.200.92.78:8888/api/pve/user/ | jq ".data.token")
+
+curl -X OPTIONS -H "token: ${token}" "http://10.200.92.78:8888/api/pve/"
+
 currentTime=$(date "+%Y-%m-%d %H:%M:%S")
 
 currentTimeStamp=$(date -d "$currentTime" +%s)

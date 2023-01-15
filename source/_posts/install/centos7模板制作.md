@@ -11,24 +11,24 @@ tags:
 摘要: 系统镜像模板的制作
 <!-- more -->
 
-
 ## 安装QEMU Guest Agent
-```
-# 安装qemu agent
- dnf install -y qemu-guest-agent
- 或
- apt-get install qemu-guest-agent
- 或
- yum install qemu-guest-agent
 
- reboot
+```bash
+# 安装qemu agent
+dnf install -y qemu-guest-agent
+或
+apt-get install qemu-guest-agent
+或
+yum install qemu-guest-agent
+
+reboot
 ```
 
 安装重启后，确保在[概要]中可以看到对应IP信息，如果无法看到对应IP信息，说明QEMU Guest Agent未启用，需要在[选项]中启用。(需要虚拟化平台支持)
 
-
 ## 系统初始化设置
-```
+
+```bash
 # 更新系统
 dnf update
 

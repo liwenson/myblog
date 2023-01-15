@@ -69,69 +69,6 @@ reposync 选项
 
 ---
 
-## 配置nginx
-
-```nginx
-server {
-    listen       80;
-    server_name  mirrors.yum.com;
-    root         /data/yum/mirrors/;   #这里是yum源存放目录
-
-    location / { 
-        autoindex on;        #打开目录浏览功能
-        autoindex_exact_size off;  # off：以可读的方式显示文件大小
-        autoindex_localtime on; # on、off：是否以服务器的文件时间作为显示的时间
-        charset utf-8,gbk; #展示中文文件名
-        index index.html;
-    }
-
-    # 禁止访问的文件或目录
-    location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.project|LICENSE|RESDME.md) {
-      return 404;
-    }
-
-    error_page   500 502 503 504  /50x.html;
-    location = /50x.html {
-        root   html;
-    }   
-}
-
-```
-
-vim CentOS-Base.repo
-
-```txt
-[base]
-name=CentOS-Base
-baseurl=http://mirrors.ztoyc.zt/7/repo/base/
-enabled=1
-
-[updates]
-name=CentOS-Updates
-baseurl=http://mirrors.ztoyc.zt/7/repo/updates/
-enabled=1
-
-[extras]
-name=CentOS-Extras
-baseurl=http://mirrors.ztoyc.zt/7/repo/extras/
-enabled=1
-
-[epel]
-name=CentOS-Epel
-baseurl=http://mirrors.ztoyc.zt/7/repo/epel/
-enabled=1
-
-[docker]
-name=docker-ce
-baseurl=http://mirrors.ztoyc.zt/7/repo/docker-ce-stable/
-enabled=1
-
-[kubernetes]
-name=kubernetes
-baseurl=http://mirrors.ztoyc.zt/7/repo/kubernetes/
-enabled=1
-```
-
 
 ### update.sh
 
@@ -186,16 +123,234 @@ createrepo --update /data/yum/mirrors/7/repo/epel/
 
 ### nginx autoindex theme
 
-```bash
-cd /data/yum/yum.repo/
+#### 配置nginx
 
-mkdir .theme
-cd .theme
+```nginx
+server {
+    listen       80;
+    server_name  mirrors.test.com;
+    root         /ztocwst/yum/mirrors;   #这里是yum源存放目录
+
+
+    location /yum { 
+        autoindex on;           #打开目录浏览功能
+        autoindex_exact_size off;  # off：以可读的方式显示文件大小
+        autoindex_localtime on; # on、off：是否以服务器的文件时间作为显示的时间
+
+        add_before_body /.theme/header.html;
+        add_after_body /.theme/footer.html;
+
+
+        charset utf-8,gbk; #展示中文文件名
+        client_max_body_size 4G;
+        alias /ztocwst/yum/mirrors/yum/;
+    }
+    
+    location / {    #文档页面
+        index index.html;
+    }
+
+    # 禁止访问的文件或目录
+    location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.project|LICENSE|RESDME.md) {
+      return 404;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   html;
+    }   
+}
 
 ```
 
+
+#### 配置文档页面
+
+index 页面
+
+```bash
+cd /ztocwst/yum/mirrors
+mkdir css help
+
+vim index.html
+```
+
+```html
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>CentOS镜像使用帮助</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./css/mirror.css"
+      media="screen"
+    />
+    <link rel="shortcut icon" href="/.media/favicon.ico" />
+  </head>
+  <body>
+    <h1>CentOS镜像使用帮助</h1>
+
+    <div id="mirror-usage">
+      <h2>仓库</h2>
+      <ul>
+        <li><a href="/yum">CentOS7</a></li>
+      </ul>
+
+      <h2>使用说明</h2>
+
+      <p>首先备份/etc/yum.repos.d/CentOS-Base.repo</p>
+      <pre>
+mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup</pre
+      >
+      <h3>方式一</h3>
+      <p>下载对应版本repo文件, 放入/etc/yum.repos.d/(操作前请做好相应备份)</p>
+      <ul>
+        <li><a href="./help/CentOS7-Base-lan.repo">CentOS7</a></li>
+      </ul>
+      <p>运行以下命令生成缓存</p>
+      <pre>
+curl -o /etc/yum.repos.d/CentOS7-Base-lan.repo http://mirrors.ztoyc.zt/help/CentOS7-Base-lan.repo
+yum clean all
+yum makecache</pre
+      >
+
+      <h3>方式二</h3>
+      <p>复制repo内容, 粘贴到/etc/yum.repos.d/repo文件(操作前请做好相应备份)</p>
+      <pre>
+[base]
+name=CentOS-Base
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/base/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[updates]
+name=CentOS-Updates
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/updates/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[extras]
+name=CentOS-Extras
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/extras/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[epel]
+name=CentOS-Epel
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/epel/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[docker-ce]
+name=docker-ce
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/docker-ce-stable/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[kubernetes]
+name=kubernetes
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/kubernetes/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+      </pre>
+    </div>
+    <div class="hr"><hr /></div>
+
+    <div id="footer">
+      <p id="copyright">Centos7 yum 仓库</p>
+    </div>
+  </body>
+</html>
+
+```
+
+repo 文件
+
+```
+vim help/CentOS7-Base-lan.repo
+```
+
+```ini
+[base]
+name=CentOS-Base
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/base/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[updates]
+name=CentOS-Updates
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/updates/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[extras]
+name=CentOS-Extras
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/extras/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[epel]
+name=CentOS-Epel
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/epel/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[docker-ce]
+name=docker-ce
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/docker-ce-stable/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+
+[kubernetes]
+name=kubernetes
+baseurl=http://mirrors.ztoyc.zt/yum/7/repo/kubernetes/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+```
+
+
+#### 配置主题
+
+```bash
+cd /data/yum/mirrors/
+
+mkdir .theme/css
+cd .theme
+```
+
+页面
+
+```html
+vim .theme/header.html
+
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="/.theme/style.css">
+		<link rel="stylesheet" href="/.theme/icons.css">
+	</head>
+<body>
+<div id="page">
+```
+
 ```css
-/* vim style.css    */
+/* vim .theme/style.css    */
 
 * {
   margin: 0;
@@ -264,8 +419,9 @@ footer {
 }
 ```
 
+
 ```css
-/* vim icons.css */
+/* vim .them/icons.css */
 
 pre a[href]:before,
 pre a[href$="/"]:before {
@@ -598,5 +754,13 @@ a[href$=".less"]:before {
 	background: url('icons/less.png');
 }
 
+```
 
+
+icon 文件
+
+```
+https://github.com/silvus/nginx-autoindex-theme.git
+
+将 icons 目录复制到 .theme/  中
 ```

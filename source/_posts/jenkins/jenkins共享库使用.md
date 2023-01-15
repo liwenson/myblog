@@ -28,7 +28,7 @@ yum install jenkins-2.289.3-1.1.noarch.rpm -y
 
 默认安装路径
 
-自动安装完成之后： 
+自动安装完成之后:
 ```
 /etc/rc.d/init.d/jenkins  启动脚本
 

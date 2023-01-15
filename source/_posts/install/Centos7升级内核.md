@@ -59,7 +59,7 @@ rpm -qa|grep kernel|grep 3.10|xargs yum remove -y
 
 ### 安装新版本工具包
 
-```
+```bash
 yum --disablerepo=\* --enablerepo=elrepo-kernel install -y kernel-ml-tools.x86_64
 
 rpm -qa|grep kernel
@@ -74,13 +74,11 @@ rpm -qa|grep kernel
  reboot   # 重启
 ```
 
-
-
 方式二：
 
 ####  查看系统上的所有可以内核
 
-```
+```bash
 awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
 
 0 : CentOS Linux (4.15.6-1.el7.elrepo.x86_64) 7 (Core)
@@ -97,9 +95,6 @@ grub2-set-default 0
 
 reboot  #重启
 ```
-
-
-
 
 
 ## 删除旧内核

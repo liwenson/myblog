@@ -20,21 +20,22 @@ tags:
 
 [安装包下载](https://github.com/coder/code-server/releases)
 
-
 ## 安装
 
 ubuntu
-```
+
+```bash
 curl -fOL https://github.com/cdr/code-server/releases/download/v$VERSION/code-server_$VERSION_amd64.deb
 sudo dpkg -i code-server_$VERSION_amd64.deb
 sudo systemctl enable --now code-server@$USER
-sudo system start code-server@$USER
+sudo systemctl start code-server@$USER
 
 # Now visit http://127.0.0.1:8080. Your password is in ~/.config/code-server/config.yaml
 ```
 
 centos
-```
+
+```bash
 curl -fOL https://github.com/cdr/code-server/releases/download/v$VERSION/code-server_$VERSION_amd64.rpm
 yum install code-server_$VERSION_amd64.rpm
 systemctl enable --now code-server@$USER

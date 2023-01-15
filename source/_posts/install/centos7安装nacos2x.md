@@ -98,6 +98,8 @@ After=syslog.target network.target remote-fs.target nss-lookup.target
 
 [Service]
 Type=forking
+Environment="JAVA_HOME=/usr/local/jdk1.8.0_161"  # 不加java的环境变量，脚本会找不到系统中的java环境变量
+WorkingDirectory=/opt/nacos               # 工作目录，不加work 目录和access.log 会在 / 下面
 ExecStart=/opt/nacos/bin/startup.sh       #这个地址更换为你得安装地址
 ExecStop=/opt/nacos/bin/shutdown.sh       #这个地址更换为你得安装地址
 Restart=always
@@ -202,3 +204,7 @@ http {
 }
 
 ```
+
+## 注意
+
+nacos 控制台 nginx 配置https ，nacos 会302跳转到http,nginx 需要配置80 跳转443 ，并开启80 访问的防火墙

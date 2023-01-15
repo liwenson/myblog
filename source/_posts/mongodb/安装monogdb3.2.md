@@ -79,13 +79,7 @@ root      4801     1  1 15:25 ?        00:00:22 /opt/mongodb-27017/bin/mongod -f
 root      4849     1  1 15:29 ?        00:00:18 /opt/mongodb-27018/bin/mongod -f /opt/mongodb-27018/conf/mongod.conf
 ```
 
-
-
-
-
 ### monodb 用户管理
-
-
 
 角色
 
