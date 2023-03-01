@@ -21,11 +21,11 @@ Proxmox VE是Linux开发者Dietmar和Martin Maurer为了解决OpenVZ不提供备
 
 |主机名 | 管理ip | Ceph ip | 域 | 端口聚合|
 |---|---|---|---|---|
-|pve01.ztyc.zt | 10.200.77.1 |192.168.10.1| ztyc.zt| eno1,eno2聚合为vmbr0 eno3,eno4聚合为vmbr1|
-|pve02.ztyc.zt| 10.200.77.2 |192.168.10.2 |ztyc.zt |eno1,eno2聚合为vmbr0  eno3,eno4聚合为vmbr1|
-|pve03.ztyc.zt |10.200.77.3 |192.168.10.3| ztyc.zt |eno1,eno2聚合为vmbr0  eno3,eno4聚合为vmbr1|
-|pve04.ztyc.zt |10.200.77.4 |192.168.10.4| ztyc.zt |eno1,eno2聚合为vmbr0  eno3,eno4聚合为vmbr1|
-|pve05.ztyc.zt |10.200.77.5| 192.168.10.5| ztyc.zt | eno1,eno2聚合为vmbr0  eno3,eno4聚合为vmbr1|
+|pve01.ztyc.zt | 10.200.77.1 |192.168.10.1| ztyc.zt| eno1,eno2聚合为vmbr0  <br/>eno3,eno4聚合为vmbr1|
+|pve02.ztyc.zt| 10.200.77.2 |192.168.10.2 |ztyc.zt |eno1,eno2聚合为vmbr0  <br/>eno3,eno4聚合为vmbr1|
+|pve03.ztyc.zt |10.200.77.3 |192.168.10.3| ztyc.zt |eno1,eno2聚合为vmbr0  <br/>eno3,eno4聚合为vmbr1|
+|pve04.ztyc.zt |10.200.77.4 |192.168.10.4| ztyc.zt |eno1,eno2聚合为vmbr0  <br/>eno3,eno4聚合为vmbr1|
+|pve05.ztyc.zt |10.200.77.5| 192.168.10.5| ztyc.zt | eno1,eno2聚合为vmbr0  <br/>eno3,eno4聚合为vmbr1|
 
 <hr/>
 
@@ -77,7 +77,7 @@ https://www.proxmox.com/en/downloads/category/iso-images-pve
 | 名称 | source文件路径 ||
 |---|---|---|
 |debain | /etc/apt/sources.list||
-| pve | /etc/apt/sources.list.d/pve-no-subscription.list | | 
+| pve | /etc/apt/sources.list.d/pve-no-subscription.list | |
 | ceph | /etc/apt/sources.list.d/ceph.list | 这个文件默认没有，需要自行创建|
 
 操作命令
@@ -86,15 +86,16 @@ https://www.proxmox.com/en/downloads/category/iso-images-pve
 #关掉官方源
 echo "#deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise" > /etc/apt/sources.list.d/pve-enterprise.list
 
+# 证书
 wget https://mirrors.ustc.edu.cn/proxmox/debian/proxmox-release-bullseye.gpg -O /etc/apt/trusted.gpg.d/proxmox-release-bullseye.gpg
 
-# 中科大源
+# 中科大源非企业源
 echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/pve bullseye pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
 
-#中科大源
+# ceph中科大源 会被下面的模板覆盖，不需要执行
 echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/ceph-pacific bullseye main" > /etc/apt/sources.list.d/ceph.list
 
-#中科大源
+#中科大ceph源
 sed -i.bak "s#http://download.proxmox.com/debian#https://mirrors.ustc.edu.cn/proxmox/debian#g" /usr/share/perl5/PVE/CLI/pveceph.pm
 
 #清华Debian源
@@ -176,6 +177,49 @@ sed -i.backup -z "s/res === null || res === undefined || \!res || res\n\t\t\t.da
 
 systemctl restart pveproxy
 
+```
+
+### 使用vm名称作为主机名
+
+默认vm名称必须符合fqdn格式才会作为主机名。不符合fqdn格式的vm名称，默认主机名为localhost
+
+修改fqdn 校验
+
+```bash
+vim /usr/share/perl5/PVE/QemuServer/Cloudinit.pm
+
+sub get_hostname_fqdn {
+    my ($conf, $vmid) = @_;
+    my $hostname = $conf->{name} // "VM$vmid";
+    my $fqdn;
+    if ($hostname =~ /\./) {
+      $fqdn = $hostname;
+      $hostname =~ s/\..*$//;
+          } elsif (my $search = $conf->{searchdomain}) {
+      $fqdn = "$hostname.$search";
+    }
+    return ($hostname, $fqdn);
+}
+
+修改为如下
+
+sub get_hostname_fqdn {
+    my ($conf, $vmid) = @_;
+    my $hostname = $conf->{name} // "VM$vmid";
+    my $fqdn = $hostname;
+    #if ($hostname =~ /\./) {
+    #    $fqdn = $hostname;
+    #    $hostname =~ s/\..*$//;
+    #} elsif (my $search = $conf->{searchdomain}) {
+    #    $fqdn = "$hostname.$search";
+    #}
+    return ($hostname, $fqdn);
+}
+
+```
+
+```bash
+systemctl restart pvedaemon
 ```
 
 ### 显示CPU频率(按需优化,未验证)
@@ -425,7 +469,7 @@ apt install openvswitch-switch -y
 
 ```bash
 # 备份interfaces 文件
-cp /etc/network/interfaces /opt/
+cp /etc/network/interfaces /opt/interfaces.bak
 
 cat > /etc/network/interfaces <EOF
 # Loopback interface
@@ -451,68 +495,146 @@ auto eno4
 iface eno4 inet manual
   ovs_mtu 9000
 
+# 端口聚合
 auto bond0
 iface bond0 inet manual
-  # 端口聚合
   ovs_bridge vmbr0
   ovs_type OVSBond
   ovs_bonds eno1 eno2
   ovs_options bond_mode=balance-tcp lacp=active other_config:lacp-time=fast
   ovs_mtu 9000
   pre-up ( ip link set mtu 9000 dev eno1 && ip link set mtu 9000 dev eno2 )
+  bridge_vlan_aware yes
 
 auto bond1
 iface bond1 inet manual
-  # 端口聚合
   ovs_bridge vmbr1
   ovs_type OVSBond
   ovs_bonds eno3 eno4
   ovs_options bond_mode=balance-tcp lacp=active other_config:lacp-time=fast
   ovs_mtu 9000
   pre-up ( ip link set mtu 9000 dev eno3 && ip link set mtu 9000 dev eno4 )
+  bridge_vlan_aware yes
 
-# Bridge for our bond and vlan virtual interfaces (our VMs will
-# also attach to this bridge)
+
+## 网桥
 auto vmbr0
 iface vmbr0 inet manual
-  # 端口绑定
+  # 虚拟机网桥
   ovs_type OVSBridge
-  ovs_ports bond0 vlan83 vlan84 vlan91 vlan92
+  ovs_ports bond0 vlan92 vlan91 vlan183 vlan184 vlan191 vlan192 vlan75 vlan76
   ovs_mtu 9000
+  bridge_vlan_aware yes
 
-
-# Bridge for our bond and vlan virtual interfaces (our VMs will
-# also attach to this bridge)
 auto vmbr1
 iface vmbr1 inet manual
-  # 端口绑定
+  # 存储网桥
   ovs_type OVSBridge
-  ovs_ports bond1
+  ovs_ports bond1 storage-iface cluster-iface
   ovs_mtu 9000
+  bridge_vlan_aware yes
 
+## 接口
 
 # Proxmox cluster communication vlan
 auto vlan92
 iface vlan92 inet static
-  ## 集群网络
+  # 管理网络
   ovs_type OVSIntPort
   ovs_bridge vmbr0
   ovs_options tag=92
-  address 10.200.92.77
-  netmask 255.255.252.0
-  gateway 10.200.92.1
   ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+  address 10.200.95.1/22
+  gateway 10.200.92.1
+  bridge_vlan_aware yes
+
+
+auto vlan91
+iface vlan91 inet static
+  # vm网络
+  ovs_type OVSIntPort
+  ovs_bridge vmbr0
+  ovs_options tag=91
+  ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+
+auto vlan183
+iface vlan183 inet static
+  # vm网络
+  ovs_type OVSIntPort
+  ovs_bridge vmbr0
+  ovs_options tag=183
+  ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+
+auto vlan184
+iface vlan184 inet static
+  # vm网络
+  ovs_type OVSIntPort
+  ovs_bridge vmbr0
+  ovs_options tag=184
+  ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+
+auto vlan191
+iface vlan191 inet static
+  # vm网络
+  ovs_type OVSIntPort
+  ovs_bridge vmbr0
+  ovs_options tag=191
+  ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+
+auto vlan192
+iface vlan192 inet static
+  # vm网络
+  ovs_type OVSIntPort
+  ovs_bridge vmbr0
+  ovs_options tag=192
+  ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+
+auto vlan75
+iface vlan75 inet static
+  # vm网络
+  ovs_type OVSIntPort
+  ovs_bridge vmbr0
+  ovs_options tag=75
+  ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+
+auto vlan76
+iface vlan76 inet static
+  # vm网络
+  ovs_type OVSIntPort
+  ovs_bridge vmbr0
+  ovs_options tag=76
+  ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+
+# cluster communication vlan
+auto cluster-iface
+iface cluster-iface inet static
+  # cluster 网络
+  ovs_type OVSIntPort
+  ovs_bridge vmbr1
+  ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+  address 192.168.30.1/24
+  bridge_vlan_aware yes
+
 
 # Ceph cluster communication vlan
-auto vlan1920
-iface vlan1920 inet static
+auto storage-iface
+iface storage-iface inet static
   # Ceph 网络
   ovs_type OVSIntPort
   ovs_bridge vmbr1
-  ovs_options tag=1920
-  address 192.168.20.8/24
-  gateway 192.168.20.1
   ovs_mtu 1500
+  ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)-${IFACE}-vif
+  address 192.168.20.1/24
+  bridge_vlan_aware yes
 
 
 EOF
@@ -520,6 +642,44 @@ EOF
 # 重启网络
 systemctl restart networking
 ```
+
+检查网络是否配置正确
+
+```bash
+# 查看绑定状态
+ovs-appctl bond/show <bond name>
+
+# 查看详细的 LACP 特定信息
+ovs-appctl lacp/show <bond name>
+
+# 查看绑定的配置详细信息
+ovs-vsctl list port bond0
+
+_uuid               : 171e4748-1676-470b-b4fb-5fe6f9a81642
+bond_active_slave   : "14:18:77:63:9d:dc"
+bond_downdelay      : 0
+bond_fake_iface     : true
+bond_mode           : balance-tcp  #检查模式
+bond_updelay        : 0
+cvlans              : []
+external_ids        : {}
+fake_bridge         : false
+interfaces          : [17b4fa1d-5b10-47c4-b37c-4b5333f0cad5, 910f63ee-4928-4535-b0be-a7f7e7d5ee38]
+lacp                : active    # 检查lacp
+mac                 : []
+name                : bond0
+other_config        : {lacp-time=fast}
+protected           : false
+qos                 : []
+rstp_statistics     : {}
+rstp_status         : {}
+statistics          : {}
+status              : {}
+tag                 : []
+trunks              : []
+vlan_mode           : []
+```
+
 
 使用openvswith网络后，创建的虚拟机（vm），需要添加网络标签（vlan id）
 
@@ -618,7 +778,6 @@ pvecm delnode pve10
 ```
 
 修好回来，再重新加入集群即可
-
 
 ## Ceph
 
@@ -785,6 +944,327 @@ rados -p test cleanup
 ceph osd pool delete test test --yes-i-really-really-mean-it
 ```
 
+### Ceph 添加ssd 用于bluestore的db和wal分区
+
+BlueStore 是 OSD 守护进程的新后端对象存储。在 BlueStore 之前，Ceph OSD 守护进程的后端对象存储是 FileStore。与 FileStore 相比，BlueSore 有着明显的优势：它将对象数据直接存在于块设备上，而不是像 FileStore 那样那样存放在底层的 XFS 文件系统上。因此 BlueStore 的 I/O 路径要短于 FileStore
+
+|主机|server|sda|sdb|sdc|
+|---|---|---|---|---|
+|ceph-01|OSD、Monitor 和 Manager|os|db、wal|osd|
+|ceph-01|OSD、Monitor 和 Manager|os|db、wal|osd|
+|ceph-01|OSD、Monitor 和 Manager|os|db、wal|osd|
+
+#### 将sdb 分区
+
+### Ceph添加ssd作为缓存池
+
+#### 缓存池原理
+
+缓存分层特性也是在Ceph的Firefly版中正式发布的，这也是Ceph的Firefly版本中被谈论最多的一个特性。缓存分层是在更快的磁盘（通常是 ssd 或者 NVME），上创建一个Ceph池。这个缓存池应放置在一个常规的复制池或erasure池的前端，这样所有的客户端I/O操作都首先由缓存池处理。之后，再将数据写回到现有的数据池中。客户端能够在缓存池上享受高性能，而它们的数据显而易见最终是被写入到常规池中的。
+
+Ceph 缓存池的设计跟数据池是完全解藕的形式，在缓存层和数据层之间的数据迁移都是自动触发且对客户端透明的。正如官方文档里所说的：
+
+>我们应该能够创建缓存池并将其添加到现有数据池中，然后在不中断服务或迁移数据的情况下将其删除。
+
+#### 缓存层的工作模式
+
+Ceph 缓存池主要有以下两种工作模式
+
+- WRITEBACK: 回写模式，也是 Ceph 缓冲池的默认工作模式
+
+>**写入数据**: 客户端将数据写入缓存池，然后会立即收到写入确认。缓存池会根据你配置的策略（比如每隔半小时），将数据回写到真实存储数据的后端存储池。并最终由缓存代理将其从缓存层中删除。
+**读取数据**: 处理来自客户端的读操作时，首先由缓存分层代理将数据从存储层迁移至缓存层，然后再将其返回给客户端。只到数据变得不再活跃或者成为冷数据时，再将其从缓存池中删除。
+
+- READ-ONLY POOL：它只适用于处理客户端的读操作（弱一致性）。客户端的写操作不涉及缓存分层，所有的客户端写都在存储层上完成。
+
+>**写入数据**: 不缓存，直接写入后端的数据存储池。
+**读取数据**: 如果缓存池中有命中缓存，则直接返回数据，否则缓存分层代理将请求的数据从后端存储层复制到缓存层，再返回给客户端。 然后缓存池会基于你配置的策略，将不活跃的对象从缓存池中删除。这种方法非常适合多个客户端需要大量读取某个文件的场景。 如果你对 Filecoin 挖矿比较熟悉的话，那么你立马就会发现这种模式最适合存储复制证明和时空证明的参数了，一次写入，然后大量的 worker 需要并发读取，完全吻合需求。
+
+#### 配置 crush class
+
+ceph 从 LUMINOUS 版本开始新增了个功能叫 crush class，又被称之为磁盘智能分组。因为这个功能就是根据磁盘类型自动进行属性关联，然后进行分类减少了很多的人为操作。 在这个功能之前，如果我们需要对 ssd 和 hdd 进行分组的时候，需要大量的修改 crushmap，然后绑定不同的存储池到不同的crush树上面，而这个功能让我们简化了这种逻辑。
+
+ceph中的每个设备都可以选择一个class类型与之关联，通常有三种class类型:
+
+>hdd
+ssd
+nvme
+
+#### 启用 ssd class
+
+默认情况下，我们所有的 osd crush class 类型都是 hdd。
+
+```bash
+root@pve:~# ceph osd tree
+
+ID   CLASS  WEIGHT   TYPE NAME       STATUS  REWEIGHT  PRI-AFF
+ -1         6.53760  root default                             
+ -3         1.08960      host pve02                           
+  0    hdd  0.54480          osd.0       up   1.00000  1.00000
+  1    hdd  0.54480          osd.1       up   1.00000  1.00000
+-15         1.08960      host pve03                           
+ 12    hdd  0.54480          osd.12      up   1.00000  1.00000
+ 13    hdd  0.54480          osd.13      up   1.00000  1.00000
+-13         1.08960      host pve06                           
+ 10    hdd  0.54480          osd.10    down         0  1.00000
+ 11    hdd  0.54480          osd.11    down         0  1.00000
+-11         1.08960      host pve07                           
+  8    hdd  0.54480          osd.8     down         0  1.00000
+  9    hdd  0.54480          osd.9     down         0  1.00000
+ -7         1.08960      host pve09                           
+  4    hdd  0.54480          osd.4       up   1.00000  1.00000
+  5    hdd  0.54480          osd.5       up   1.00000  1.00000
+ -5         1.08960      host pve10                           
+  2    hdd  0.54480          osd.2       up   1.00000  1.00000
+  3    hdd  0.54480          osd.3       up   1.00000  1.00000
+```
+
+你也可以使用下面的命令来列出当前集群中所有启用的 osd crush class
+
+```bash
+root@pve:~# ceph osd crush class ls
+[
+    "hdd"
+]
+```
+
+#### 将所有的 ssd 的 osd 从 hdd class 中删除
+
+```bash
+ceph osd crush rm-device-class osd.1
+ceph osd crush rm-device-class osd.2
+ceph osd crush rm-device-class osd.3
+```
+
+#### 将刚刚删除的 osd 添加到 ssd class
+
+```bash
+ceph osd crush set-device-class ssd osd.1
+ceph osd crush set-device-class ssd osd.2
+ceph osd crush set-device-class ssd osd.3
+```
+
+#### 查看 crush class
+
+多出了一个名为 ssd 的 class
+
+```bash
+ceph osd crush class ls
+[
+    "hdd",
+    "ssd"
+]
+```
+
+#### 创建基于 ssd 的 class rule
+
+创建一个 class rule，取名为 ssd_rule，使用 ssd 的 osd：
+
+```bash
+ceph osd crush rule create-replicated ssd_rule default host ssd
+```
+
+查看集群rule
+
+```bash
+ceph osd crush rule list
+
+replicated_rule
+ssd_rule
+```
+
+#### 配置缓存池
+
+我们先创建一个常规存储池 data
+
+```bash
+ceph osd pool create data 64 64
+```
+
+创建一个缓存池，使用crush rule。
+
+```bash
+ceph osd pool create cache 64 64 ssd_rule
+```
+
+验证迁移是否成功:
+
+```bash
+root@ceph1:~# ceph osd pool get cache crush_rule
+crush_rule: ssd_rule
+```
+
+#### 设置缓存层
+
+- **WRITEBACK** 缓存池配置
+
+```bash
+# 将 cache pool 放置到 data pool 前端
+ceph osd tier add data cache
+
+# 设置缓存模式为 writeback
+ceph osd tier cache-mode cache writeback
+
+# 将所有客户端请求从标准池引导至缓存池
+ceph osd tier set-overlay data cache
+```
+
+- **READ-ONLY** 缓存池配置
+
+```bash
+# 将 cache pool 放置到 data pool 前端
+
+ceph osd tier add data cache
+
+# 设置缓存模式为 readonly
+
+ceph osd tier cache-mode cache readonly
+```
+
+#### 查看 data pool 和 cache pool 的详细信息
+
+```bash
+ceph osd dump |egrep 'data|cache'
+
+pool 1 'data' replicated size 2 min_size 2 crush_rule 0 object_hash rjenkins pg_num 64 pgp_num 64 last_change 40 lfor 39/39 flags hashpspool tiers 2 read_tier 2 write_tier 2 stripe_width 0
+pool 2 'cache' replicated size 2 min_size 2 crush_rule 1 object_hash rjenkins pg_num 64 pgp_num 64 last_change 42 lfor 39/39 flags hashpspool,incomplete_clones tier_of 1 cache_mode writeback stripe_width 0
+
+```
+
+#### 对缓存池做一些基本的配置
+
+```bash
+# 启用hit set tracking，生产环境通常使用bloom过滤器
+ceph osd pool set cache hit_set_type bloom
+
+# 启用hit set count,即缓存池中存储的hit set（命中集）的数量，数量越大，OSD占用的内存量就越大
+ceph osd pool set cache hit_set_count 1
+
+# 启用hit set period，命中集在缓存池中的有效期，以秒为单位
+ceph osd pool set cache hit_set_period 3600   # 1 hour
+
+# 设置缓存池中允许放的最大字节数
+ceph osd pool set cache target_max_bytes 1000000000000  # 1 TB
+
+# 设置缓存池中允许放的最大对象数,RBD默认对象大小是4MB，1GB包含256个4MB对象
+ceph osd pool set cache target_max_objects 10000000
+
+# 设置缓存数据刷新到存储层和缓存层中删除这些数据的最小时间间隔（分钟为单位）
+ceph osd pool set cache cache_min_flush_age 60
+ceph osd pool set cache cache_min_evict_age 600
+
+# 设置在处理读写操作时候，检查多少个 HitSet,如果设置为 1，就只检查当前 HitSet 
+ceph osd pool set cache min_read_recency_for_promote 1
+ceph osd pool set cache min_write_recency_for_promote 1
+
+# 缓存池里，如果被修改的数据达到一个阈值（容量百分比），就将数据写到存储层
+#### 脏对象占比达到40%就将数据刷盘
+ceph osd pool set cache cache_target_dirty_ratio 0.4
+#### 当脏对象占比达到60%时开始高速刷盘
+ceph osd pool set cache cache_target_dirty_high_ratio 0.6
+
+# 当缓存池的使用量达到其总量的一定百分比时，将未修改的（干净的）对象刷盘
+ceph osd pool set cache cache_target_full_ratio 0.8
+```
+
+### 删除writeback缓存池
+
+由于回写缓存可能具有修改的数据，所以必须采取措施以确保在禁用和删除缓存前，不丢失缓存中对象的最近的任何更改。
+
+#### 将缓存模式更改为转发，以便新的和修改的对象刷新至后端存储池
+
+```bash
+ceph osd tier cache-mode cache forward --yes-i-really-mean-it
+```
+
+#### 查看缓存池以确保所有的对象都被刷新（这可能需要点时间）
+
+```bash
+rados -p cache ls
+```
+
+#### 如果缓存池中仍然有对象，也可以手动刷新
+
+```bash
+rados -p cache cache-flush-evict-all
+```
+
+#### 删除覆盖层，以使客户端不再将流量引导至缓存
+
+```bash
+ceph osd tier remove-overlay data
+```
+
+#### 解除存储池与缓存池的绑定
+
+```bash
+ceph osd tier remove data cache
+```
+
+### 删除read-only缓存池
+
+#### 将缓存模式更改为none以禁用缓存
+
+```bash
+ceph osd tier cache-mode cache none
+```
+
+#### 解除绑定
+
+```bash
+ceph osd tier remove data cache
+```
+
+### 安装Ceph Dashboard
+
+```bash
+apt-get install ceph-mgr-dashboard
+ceph mgr module enable dashboard
+ceph dashboard create-self-signed-cert
+ceph dashboard set-ssl-certificate -i dashboard.crt
+ceph dashboard set-ssl-certificate-key -i dashboard.key
+
+openssl req -new -nodes -x509 \
+  -subj "/O=IT/CN=ceph-mgr-dashboard" -days 3650 \
+  -keyout dashboard.key -out dashboard.crt -extensions v3_ca
+  
+echo "xxxxx.1234" > pass.txt
+# ceph dashboard ac-user-create <username> -i <file-containing-password> administrator
+ceph dashboard ac-user-create admin -i pass.txt administrator
+
+# ceph dashboard ac-user-create <username> <pass> administrator
+
+```
+
+### 删除local-lvm给local扩容
+
+```bash
+lvremove pve/data     #移除local-lvm
+
+vgdisplay pve | grep Free  #显示存在的卷组
+
+lvextend -l +100%FREE -f pve/root     #将卷组中的空闲空间扩展到根目录
+
+resize2fs /dev/mapper/pve-root     #刷新扩容根分区
+
+```
+
+### 添加第二硬盘作为LVM-Thin存放虚拟机
+
+```bash
+lsblk  #查看磁盘分区
+
+mkfs.ext4 /dev/sdb1 #格式化分区
+
+pvcreate /dev/sdb1    #将物理硬盘分区初始化为物理卷
+
+vgcreate data /dev/sdb1  #创建data卷组
+
+lvcreate --thin -l 100%FREE -n local-lvm data  #在名为data 卷组 全部空间分配给local-lvm
+
+添加完成后去数据中心添加 LVM-Thin
+```
+
 ## PVE集群节点宕机处理
 
 登录集群任意物理正常节点系统，查看ceph osd状态,在还正常的集群某节点执行即可
@@ -860,9 +1340,11 @@ HA->资源->添加参与ha的容器或者虚拟机(虚拟机一定要是存储�
 
 ![HA的对象](img/ha02.png)
 
-## Cloud-init 模板
+## Cloud-init
 
-Cloud-init 是一个 Linux 虚拟机的初始化工具，被广泛应用在阿里云、华为云、AWS、OpenStack等主流云平台中，用于快速新建虚拟机，并进行一些系统初始化的任务，包括NTP、软件源、主机名、IP、磁盘和SSH密钥等。
+### Cloud-init是什么
+
+Cloud-init是开源的云初始化程序，能够对新创建弹性云服务器中指定的自定义信息（主机名、密钥和用户数据等）进行初始化配置。通过Cloud-init进行弹性云服务器的初始化配置，将对您使用弹性云服务器、镜像服务和弹性伸缩产生影响。简单地讲，cloud-init是一个Linux虚拟机的初始化工具，被广泛应用在AWS和OpenStack等云平台中，用于在新建的虚拟机中进行时间设置、密码设置、扩展分区、安装软件包等初始化设置。
 
 ### Cloud Images 是什么镜像
 
@@ -886,6 +1368,8 @@ Cloud Images 镜像已经内置了 Cloud-Init 组件，我们无需再手动安�
 |Fedoa| <https://alt.fedoraproject.org/cloud/>|
 |RedHat| <https://access.redhat.com/downloads/>|
 |OpenSUSE| <http://download.opensuse.org/repositories/Cloud:/Images:/>|
+
+如果运行KVM的是普通x86_64机器, 下载其中的 x86_64 版本, 建议使用 qcow2 或 qcow2c 后缀. 后者是压缩格式, 下载能省点时间, 使用区别不大.
 
 ### 使用cloud image 创建虚拟机
 
@@ -958,10 +1442,11 @@ qm importdisk 1000 /var/lib/vz/images/CentOS-7-x86_64-GenericCloud-1907.qcow2 lo
 
 配置完成之后就可以启动虚拟机了
 
-### 使用pm 命令创建虚拟机
+
+### 使用qm 命令创建虚拟机
 
 ```bash
-qm create 9002 --name "centos-10-cloudinit-template" --memory 2048 --net0 virtio,bridge=vmbr0  --onboot 1 --agent 1
+qm create 9002 --name "centos-10-cloudinit-template" --memory 2048 --net0 virtio=52:54:00:00:00:04,bridge=vmbr0  --onboot 1 --agent 1
 qm importdisk 9002 centos-image.qcow2 hdd_storage
 qm set 9002 --scsihw virtio-scsi-pci --scsi0 hdd_storage:vm-9002-disk-0
 qm set 9002 --ide2 hdd_storage:cloudinit
@@ -979,6 +1464,192 @@ qm template $vmid
 
 # 调整磁盘大小
 qm resize $vmid scsi0 +18228M
+```
+
+#### 绕过虚拟机检测
+
+```bash
+#打开虚拟机配置文件
+vim /etc/pve/qemu-server/<vm-id>.conf
+插入内容
+
+args: -cpu 'host,-hypervisor,+kvm_pv_unhalt,+kvm_pv_eoi,hv_spinlocks=0x1fff,hv_vapic,hv_time,hv_reset,hv_vpindex,hv_runtime,hv_relaxed,kvm=off,hv_vendor_id=intel'
+```
+
+#### cloudinit 配置查看
+
+PVE 使用 CDROM 只读盘(/dev/sr0)来进行 cloud-init 的配置。 在虚拟机启动后，/dev/sr0 将被卸载。
+
+可挂载上该只读盘，查看其中的初始化配置内容：
+
+```bash
+mkdir cloud-config
+mount /dev/sr0 cloud-config
+mount: /dev/sr0 is write-protected, mounting read-only
+
+ls cloud-config
+meta-data  network-config  user-data
+```
+
+配置硬编码位置是 /usr/share/perl5/PVE/QemuServer/Cloudinit.pm，修改对应的 cloudinit 配置模板，然后重启节点（重启才能重新加载对应的 ruby 程序），即可实现对该硬编码参数的修改。
+
+
+#### qm工具命令
+
+```bash
+用法：qm <命令> [参数] [选项]
+USAGE: qm <COMMAND> [ARGS] [OPTIONS]
+
+————
+
+例如当前目录 `Fate.vmdk` 磁盘文件导入进去 `ID-100` 这台虚拟机的 `NVME` 磁盘里保存为 `qcow2` 文件
+qm importdisk 100 Fate.vmdk NVME --format=qcow2
+
+————
+
+qm 来宾 cmd <vmid> <命令>
+qm guest cmd <vmid> <command>
+
+qm 来宾执行状态 <vmid> <pid>
+qm guest exec-status <vmid> <pid>
+
+qm 来宾 密码 <vmid> <用户名> [选项]
+qm guest passwd <vmid> <username> [OPTIONS]
+
+qm 来宾 执行 <vmid> [<额外参数>] [选项]
+qm guest exec <vmid> [<extra-args>] [OPTIONS]
+
+————
+
+qm 克隆 <vmid> <newid> [选项]
+qm clone <vmid> <newid> [OPTIONS]
+
+qm 配置 <vmid> [选项]
+qm config <vmid> [OPTIONS]
+
+qm 创建 <vmid> [选项]
+qm create <vmid> [OPTIONS]
+
+qm 删除快照 <vmid> <快照名称> [选项]
+qm delsnapshot <vmid> <snapname> [OPTIONS]
+
+qm 销毁 <vmid> [选项]
+qm destroy <vmid> [OPTIONS]
+
+qm 列表 [选项]
+qm list  [OPTIONS]
+
+qm 快照列表 <vmid>
+qm listsnapshot <vmid>
+
+qm 迁移 <vmid> <目标> [选项]
+qm migrate <vmid> <target> [OPTIONS]
+
+qm 移动磁盘 <vmid> <磁盘> [<存储>] [选项]
+qm move-disk <vmid> <disk> [<storage>] [OPTIONS]
+
+qm 挂起 <vmid>
+qm pending <vmid>
+
+qm 重启 <vmid> [选项]
+qm reboot <vmid> [OPTIONS]
+
+qm 重置 <vmid> [选项]
+qm reset <vmid> [OPTIONS]
+
+qm 调整大小 <vmid> <磁盘> <大小> [选项]
+qm resize <vmid> <disk> <size> [OPTIONS]
+
+qm 恢复 <vmid> [选项]
+qm resume <vmid> [OPTIONS]
+
+qm 回滚 <vmid> <快照名称>
+qm rollback <vmid> <snapname>
+
+qm 发送密钥 <vmid> <密钥> [选项]
+qm sendkey <vmid> <key> [OPTIONS]
+
+qm 设置 <vmid> [选项]
+qm set <vmid> [OPTIONS]
+
+qm 关闭 <vmid> [选项]
+qm shutdown <vmid> [OPTIONS]
+
+qm 快照 <vmid> <快照名称> [选项]
+qm snapshot <vmid> <snapname> [OPTIONS]
+
+qm 启动 <vmid> [选项]
+qm start <vmid> [OPTIONS]
+
+qm 停止 <vmid> [选项]
+qm stop <vmid> [OPTIONS]
+
+qm 暂停 <vmid> [选项]
+qm suspend <vmid> [OPTIONS]
+
+qm 模板 <vmid> [选项]
+qm template <vmid> [OPTIONS]
+
+qm 取消链接 <vmid> --idlist <字符串> [选项]
+qm unlink <vmid> --idlist <string> [OPTIONS]
+
+————
+
+qm 导入磁盘 <vmid> <目录> <存储> [选项]
+qm importdisk <vmid> <source> <storage> [OPTIONS]
+
+qm 导入ovf <vmid> <清单> <存储> [选项]
+qm importovf <vmid> <manifest> <storage> [OPTIONS]
+
+————
+
+qm 帮助 [<额外参数>] [选项]
+qm help [<extra-args>] [OPTIONS]
+```
+
+#### pvesh 接口工具
+
+[官方文档](https://pve.proxmox.com/wiki/Proxmox_VE_API)
+
+[官方接口文档](https://pve.proxmox.com/pve-docs/api-viewer/index.html#/cluster/nextid)
+
+[命令参数](https://pve.proxmox.com/pve-docs/pvesh.1.html)
+
+使用方式
+
+```bash
+pvesh get /version
+
+┌─────────┬──────────┐
+│ key     │ value    │
+╞═════════╪══════════╡
+│ release │ 7.3      │
+├─────────┼──────────┤
+│ repoid  │ 723bb6ec │
+├─────────┼──────────┤
+│ version │ 7.3-6    │
+└─────────┴──────────┘
+```
+
+获取空闲ID
+
+```bash
+pvesh get /cluster/nextid
+101
+```
+
+#### 使用virt-edit修改cloud镜像
+
+```bash
+# 安装
+apt-get install libguestfs-tools
+
+# 添加登陆提示
+virt-edit centos-image.qcow2 /etc/motd
+
+# 修改ssh配置
+virt-edit centos-image.qcow2 /etc/ssh/sshd_config
+
 ```
 
 ## Terraform 创建VM
@@ -1753,6 +2424,32 @@ Disk stats (read/write):
   sdb: ios=24523/16134, merge=0/1, ticks=10603/3856, in_queue=14460, util=51.27%
 ```
 
+## 安装docker版Proxmox-Backup-Server
+
+[bingsin/pbs Tags | Docker Hub](https://hub.docker.com/r/bingsin/pbs/tags)
+
+```bash
+docker run -idt \
+--name pbs \
+--hostname pbs \
+-p 8007:8007 \
+--tmpfs /run \
+--tmpfs /tmp \
+-v /data:/data \
+-v /pbsconfig:/etc/proxmox-backup \
+bingsin/pbs:2.2-7-amd64
+
+```
+
+由于是容器，所以只能使用文件目录作为存储后端。不可使用zfs，磁盘等。
+
+第一个是/data 作为数据存储。
+
+/etc/proxmox-backup 作为pbs的系统数据，如指纹，配置文件等等，所以需要个目录来永久存储。
+
+
+
+
 ## 错误处理
 
 ### 华为服务器安装PVE，无法启动gui 安装程序
@@ -1811,4 +2508,27 @@ rm -f /etc/pve/ceph.conf
 rm -f /etc/ceph/ceph.conf
 rm -f /etc/pve/priv/ceph.client.admin.keyring
 pveceph init --network 192.168.1.128/24
+```
+
+### 新磁盘有ceph lvm
+没有做ceph ，但是lsblk 能看到ceph 的osd
+
+```bash
+root@pve02:~# lsblk
+NAME                                                                                                  MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda                                                                                                     8:0    0 558.4G  0 disk 
+├─sda1                                                                                                  8:1    0  1007K  0 part 
+├─sda2                                                                                                  8:2    0   512M  0 part 
+└─sda3                                                                                                  8:3    0 557.9G  0 part 
+  ├─pve-swap                                                                                          253:0    0     8G  0 lvm  [SWAP]
+  └─pve-root                                                                                          253:1    0 549.9G  0 lvm  /
+sdb                                                                                                     8:16   0   7.3T  0 disk 
+└─ceph--49bb64ea--c38d--492f--9951--8bc7632c2ae3-osd--block--3babe396--ca93--46b2--ba94--c1ea9977e8b4 253:4    0   3.6T  0 lvm
+
+```
+
+清除
+
+```bash
+ls /dev/mapper/ceph-* | xargs -I% -- dmsetup remove %
 ```

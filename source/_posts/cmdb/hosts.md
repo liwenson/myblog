@@ -148,9 +148,6 @@ idc  crud
 }
 
 
-
-
-
 ### 项目创建
 ```
 mkdir gocmdb
@@ -185,8 +182,23 @@ config.json         配置文件的映射
 main.go             主程序入口
 ```
 
+## 计划
 
+- cmdb
+- java 应用监控
+  <https://gitee.com/monitoring-platform/phoenix>
+- 数据库托管平台
+  <https://coolify.io/>
+- dns web
+- kafka 管理平台
+  <https://github.com/didi/KnowStreaming>
+- ConsulManager
+  <https://github.com/starsliao/ConsulManager>
+- ldap 管理平台
+ <https://github.com/eryajf/go-ldap-admin>
+- go-zero casbin
+<https://learnku.com/articles/75158>
 
-
-
-
+- Canonical maas 搭建
+  模型即服务
+  [安装文档](https://maas.io/docs/how-to-install-maas)

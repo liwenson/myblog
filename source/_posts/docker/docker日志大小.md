@@ -18,7 +18,7 @@ tags:
 
 修改docker配置文件，`vim /etc/docker/daemon.json`
 
-```
+```bash
 {
   "log-driver":"json-file",
   "log-opts": {"max-size":"500m", "max-file":"3"}

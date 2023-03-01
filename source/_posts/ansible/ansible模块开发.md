@@ -11,7 +11,6 @@ tags:
 摘要: ansible模块开发
 <!-- more -->
 
-
 # 介绍
 
 Ansible 开发分为两大模块，一是modules，二是plugins。
@@ -56,13 +55,14 @@ https://ansible.leops.cn/dev/plugins/
 vscode + docker + ansible-module镜像
 
 ```
-https://gitlab.com/techforce1/ansible-module.git
+https://gitlab.com/techforce1/ansible-module.git   -b blog-setup
 ```
 
 安装好vscode ,docker ，将git仓库拉取下来，使用vscode 打开仓库目录，会自动启动docker，生成开发环境
 
-
 ## 动手
+
+[官方文档](https://ansible.leops.cn/dev/modules/remote_copy/)
 
 开发一个minio 下载插件
 

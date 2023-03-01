@@ -180,8 +180,8 @@ dig -t NS . > /var/named/named.ca
 
 配置会把所有匹配到这个zone的DNS查询请求转发到/var/named/named.ca文件中的13个根DNS服务器节点，为了减少不必要的干扰，我们可以把文件中的的AAAA记录注释掉。
 
-
 ### rndc配置
+
 rndc是一个管理程序，可以用它来刷新配置，停止服务，强制同步等
 
 ```bash

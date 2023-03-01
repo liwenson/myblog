@@ -22,7 +22,7 @@ cd /usr/local/openresty/nginx/config  # openresty
 ```nginx
 vim safe.conf
 
-# 黑名单
+# 黑名单  黑名单脚本
 #access_by_lua_file "/data/nginx/lua/blacklist.lua";
 
 #

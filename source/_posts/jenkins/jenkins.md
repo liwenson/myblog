@@ -12,7 +12,7 @@ tags:
 ## jenkins 工作目录修改
 
 ```
-/etc/sysconfig/jenkins 
+/etc/sysconfig/jenkins
 修改 JENKINS_HOME
 ```
 

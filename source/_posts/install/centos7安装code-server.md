@@ -20,6 +20,8 @@ tags:
 
 [安装包下载](https://github.com/coder/code-server/releases)
 
+多用户参考 <https://github.com/coder/coder>
+
 ## 安装
 
 ubuntu
