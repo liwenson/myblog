@@ -130,10 +130,14 @@ viewGui() {
   fi
 
   if ! VlanID=$(whiptail --title "Create pve VM" --radiolist "选择网络?" 10 60 5 \
-    "184" "测试网络" ON \
-    "183" "研发网络" OFF \
-    "191" "生产网络" OFF \
-    "192" "运维网络" OFF 3>&1 1>&2 2>&3); then
+    "84" "测试网络" OFF \
+    "83" "研发网络" OFF \
+    "91" "生产网络" OFF \
+    "184" "(私有云)测试网络" ON \
+    "183" "(私有云)研发网络" OFF \
+    "191" "(私有云)生产网络" OFF \
+    "192" "(私有云)运维网络" OFF \
+    3>&1 1>&2 2>&3); then
     whiptail --title "Create pve VM" --msgbox "虚拟机创建终止..." 10 60
     exit 1
   fi

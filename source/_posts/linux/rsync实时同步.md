@@ -110,7 +110,7 @@ rsync监听的端口：873
 
 两种方案，rsync都有对应的命令来实现。
 
-### rsync命令的基本用法：
+### rsync命令的基本用法
 
 格式：rsync 【选项】 源文件 目标文件
 
@@ -160,6 +160,7 @@ rsync [选项] SRC DEST
 ```
 
 `-shell远程同步`，类似于scp命令
+
 ```
 # 远程主机文件同步到主机
 rsync [选项] USER@HOST:SRC DEST
@@ -168,6 +169,7 @@ rsync [选项] SRC USER@HOST:DEST
 ```
 
 `-daemon远程同步`
+
 ```
 # 远程主机文件同步到本地，可使用::或用rsync://指定daemon模式
 rsync [选项] USER@HOST::SRC DEST
@@ -184,7 +186,7 @@ shell和daemon模式的区别是shell模式使用一个冒号:，而daemon模式
 
 ## 配置rsync
 
-### rsyncd.conf配置文件：
+### rsyncd.conf配置文件
 
 配置文件分为两部分：全局参数、模块参数。
 
@@ -192,8 +194,9 @@ shell和daemon模式的区别是shell模式使用一个冒号:，而daemon模式
 
 模块参数：定义需要通过rsync输出的目录定义的参数。
 
-### 常见的全局参数：
-```
+### 常见的全局参数
+
+```txt
 port：指定后台程序使用的端口号，默认为873。
 
 uid：该选项指定当该模块传输文件时守护进程应该具有的uid，配合gid选项使用可以确定哪些可以访问怎么样的文件权限，默认值是” nobody”。
@@ -212,9 +215,11 @@ pid file：指定rsync的pid文件，通常指定为“/var/run/rsyncd.pid”，
 
 hosts allow：单个IP地址或网络地址，允许访问的客户机地址。
 ```
-### 常见的模块参数：
+
+### 常见的模块参数
 
 主要是定义服务器哪个要被同步输出，其格式必须为“ [ 共享模块名 ]” 形式，这个名字就是在 rsync 客户端看到的名字，其实很像 samba 服务器提供的共享名。而服务器真正同步的数据是通过 path 来指定的。
+
 ```
 Comment：给模块指定一个描述，该描述连同模块名在客户连接得到模块列表时显示给客户。默认没有描述定义。
 
@@ -270,11 +275,15 @@ auth users = admin
 ```
 
 ## rsync 例子
+
 ### 安装
+
 ```
 yum install rsync -y
 ```
+
 ### 配置服务端
+
 ```
 vim /etc/rsyncd.conf
 
@@ -297,7 +306,9 @@ max connections = 200
 timeout = 600
 auth users = admin
 ```
+
 ### 创建密码文件
+
 ```
 echo "admin:123456" >> /etc/rsync.pass
 chmod 600 /etc/rsync.pass
@@ -308,13 +319,16 @@ systemctl start rsyncd
 ```
 
 ### 客户端操作
+
 #### 配置密码
+
 ```
 echo "123456" >> /etc/rsync.pass
 chmod 600 /etc/rsync.pass
 ```
 
-#### 推送数据
+#### 客户端推送数据
+
 ```
 rsync -avH --port 873 --progress --delete /etc/ansible admin@10.200.192.46::ansible_config --password-file=/etc/rsync.pass
 ```

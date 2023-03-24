@@ -1493,7 +1493,6 @@ meta-data  network-config  user-data
 
 配置硬编码位置是 /usr/share/perl5/PVE/QemuServer/Cloudinit.pm，修改对应的 cloudinit 配置模板，然后重启节点（重启才能重新加载对应的 ruby 程序），即可实现对该硬编码参数的修改。
 
-
 #### qm工具命令
 
 ```bash

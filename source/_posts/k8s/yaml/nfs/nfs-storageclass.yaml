@@ -1,0 +1,8 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: managed-nfs-storage
+provisioner: fuseim.pri/ifs   # 这里的名称要和provisioner配置文件中的环境变量PROVISIONER_NAME保持一致
+reclaimPolicy: Retain     # 默认为delete
+parameters:
+  archiveOnDelete: "false"   # false表示pv被删除时，在nfs下面对应的文件夹也会被删除,true正相反

@@ -104,4 +104,3 @@ FLUSH PRIVILEGES;
 ```
 ln -s  /opt/mysql/mysql/bin/mysql   /usr/bin
 ```
-

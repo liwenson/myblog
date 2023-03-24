@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: gohangout-logging
+  name: gohangout
+  namespace: logging
+spec:
+  replicas: 1  #pod副本数
+  selector:
+    matchLabels:
+      k8s-app: gohangout-logging
+  template:
+    metadata:
+      labels:
+        k8s-app: gohangout-logging
+    spec:
+      tolerations: #设置节点容忍度
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+        effect: "NoSchedule"
+      containers:
+      - image: reg.ztoyc.com/library/gohangout:v0.4
+        imagePullPolicy: IfNotPresent ##Always,IfNotPresent,Never
+        command: ["/bin/sh","-c"]
+        #args: ["ping www.baidu.com"]
+        args: ["/opt/gohangout/gohangout --config /opt/gohangout/etc/config.yaml -logtostderr -v 5 --worker 2"]
+        name: gohangout
+        resources:  #资源限制
+          limits:
+            cpu: 1500m
+            memory: 1200Mi
+          requests:
+            cpu: 1200m
+            memory: 1100Mi
+        volumeMounts:
+        - name: gohangout-config
+          mountPath: /opt/gohangout/etc
+          #subPath: config.yaml
+
+      volumes:
+      - name: gohangout-config
+        configMap:
+          name: gohangout-config
+          items:
+          - key: config.yaml
+            path: config.yaml
+          - key: patterns
+            path: patterns

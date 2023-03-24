@@ -202,3 +202,7 @@ main.go             主程序入口
 - Canonical maas 搭建
   模型即服务
   [安装文档](https://maas.io/docs/how-to-install-maas)
+
+<https://www.cnblogs.com/longbowchi/p/17026436.html>
+
+<https://github.com/qunarcorp/bistoury>

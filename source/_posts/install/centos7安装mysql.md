@@ -11,19 +11,20 @@ tags:
 摘要: centos7安装mysql
 <!-- more -->
 
-
-
 ## 创建目录
+
 ```
 mkdir -p /data/
 ```
 
 ## 获取mysql
+
 ```
 curl -O https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.24-linux-glibc2.12-x86_64.tar.gz
 ```
 
 ## 创建用户和用户组
+
 ```
 useradd -M -s /sbin/nologin mysql
 ```
@@ -36,7 +37,8 @@ yum install libaio -y
 ```
 
 
-## 解压mysql 
+## 解压mysql
+
 ```
 tar -xvzf mysql-5.7.24-linux-glibc2.12-x86_64.tar.gz
 ln -s /opt/soft/mysql-5.7.26-linux-glibc2.12-x86_64 /opt/mysql
@@ -243,6 +245,7 @@ systemctl enable mysqld.service
 
 
 ## 设置mysql远程访问，输入之前生成的临时密码
+
 修改临时密码
 ```
 ./mysql -uroot -p

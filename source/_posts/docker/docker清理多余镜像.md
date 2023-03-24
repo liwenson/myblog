@@ -11,8 +11,7 @@ tags:
 摘要: desc
 <!-- more -->
 
-
-```
+```bash
 #!/bin/bash
 
 
@@ -100,7 +99,7 @@ test_flag=0
         	docker images |grep $images_name | awk '{print $2}' >  $PWD/docker-images/${images_name}/tag.txt
         	sort  $PWD/docker-images/${images_name}/tag.txt >  $PWD/docker-images/${images_name}/array_tag.txt
         fi
-	done        	
+	done
 }
 
 
@@ -136,8 +135,7 @@ function delete_images_tag_file(){
 	done
 }
 
-function delete_file_images()
-{
+function delete_file_images(){
 	detele_images_row=$( sed -n '$=' $PWD/all_delete_images.txt)
 	if [[ $detele_images_row -le 0 ]]; then
 		echo "=================没有需要删除的镜像==================="
@@ -149,7 +147,9 @@ function delete_file_images()
 		echo " $(docker rmi $delete_tag_file)" 
 	done
 }
+
 main
+
 exit 0
 
 ```

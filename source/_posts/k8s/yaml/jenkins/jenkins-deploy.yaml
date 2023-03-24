@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: jenkins-ns
+spec:
+  selector:
+    matchLabels:
+      app: jenkins
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      terminationGracePeriodSeconds: 10
+      serviceAccount: jenkins-sa
+      containers:
+      - name: jenkins
+        #image: bitnami/jenkins:2.332.2
+        image: bitnami/jenkins:2.361.2
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LANG
+          value: en_US.UTF-8
+        - name: JAVA_OPTS
+          value: -XshowSettings:vm -Dhudson.slaves.NodeProvisioner.initialDelay=0 -Dhudson.slaves.NodeProvisioner.MARGIN=50 -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85 -Duser.timezone=Asia/Shanghai -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS=true
+        ports:
+        - containerPort: 8080
+          name: web
+          protocol: TCP
+        - containerPort: 50000
+          name: agent
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "2000m"
+            memory: 4Gi
+          requests:
+            cpu: "2000m"
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /login
+            port: 8080
+          initialDelaySeconds: 130
+          timeoutSeconds: 5
+          failureThreshold: 12
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: 8080
+          initialDelaySeconds: 120
+          timeoutSeconds: 5
+          failureThreshold: 12
+        volumeMounts:
+        - name: jenkinshome
+          mountPath: /bitnami/jenkins/home
+      securityContext:
+        fsGroup: 1000
+      volumes:
+      - name: jenkinshome
+        persistentVolumeClaim:
+          claimName: jenkins-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-srv
+  namespace: jenkins-ns
+  labels:
+    app: jenkins
+spec:
+  selector:
+    app: jenkins
+  #type: NodePort
+  ports:
+  - name: web
+    port: 8080
+    targetPort: web
+    #nodePort: 30002
+  - name: agent
+    port: 50000
+    targetPort: agent
+    #nodePort: 30020

@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gohangout-config
+  namespace: logging
+  labels:
+    k8s-app: gohangout
+data:
+  # Configuration files: server, input, filters and output
+  # ======================================================
+  config.yaml: |
+  inputs:
+    - Kafka:
+        Brokers:
+          - '10.200.70.139:9092'
+        GroupID: 'kube-logs-fluentbit'
+        Topic: 'test'
+        StatsAddr: '10.200.70.139:9092'
+  
+  filters:
+    - Json:
+        field: message
+    - Grok:
+        src: message
+        pattern_paths:
+          - 'patterns'
+        match:
+          - '%{IPORHOST:remote_addr} - %{USERNAME:remote_user} \[%{HTTPDATE:time_local}\] \"%{DATA:request}\" %{INT:status} %{NUMBER:bytes_sent} \"%{DATA:http_referer}\" \"%{DATA:http_user_agent}\"'
+        remove_fields: ['message']
+  
+    - Remove:
+        fields: ["filename","logtag"]
+  
+  outputs:
+    - Elasticsearch:
+        hosts:
+          - 'http://elasticsearch:9200'
+        index: '%{container}_%{+20060102}' #golang里面的渲染方式就是用数字, 而不是用YYMM.
+        index_type: "logs"
+        bulk_actions: 2000
+        bulk_size: 10
+        flush_interval: 30
+        es_version: 7
+

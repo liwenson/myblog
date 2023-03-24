@@ -1,0 +1,44 @@
+#apiVersion: v1
+#kind: Secret
+#metadata:
+#  name: kaniko-secret
+#type: kubernetes.io/basic-auth
+#stringData:
+#  username: admin
+#  password: ztyc1234
+#---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  nodeName: k8s-01
+  #nodeSelector:
+  #  kubernetes.io/hostname: prod-l27-4-23
+  containers:
+  - name: kaniko
+    image: reg.ztoyc.com/library/kaniko-executor:v1.7.0-debug
+    args: ["--verbosity=trace",
+           "--log-format=color",
+           "--dockerfile=Dockerfile",
+           "--context=dir:///data/kaniko",
+           "--destination=reg.ztoyc.com/library/ayena:test",
+           "--skip-tls-verify",
+           "--insecure=true" ]
+    volumeMounts:
+      - name: kaniko-secret
+        mountPath: /kaniko/.docker 
+      - name: context-data
+        mountPath: /data/kaniko
+  restartPolicy: Never
+  volumes:
+    - name: context-data
+      hostPath:
+        path: /data/kaniko
+        type: Directory
+    - name: kaniko-secret
+      secret:
+        secretName: harbor-regsecret-secret
+        items:
+          - key: .dockerconfigjson
+            path: config.json

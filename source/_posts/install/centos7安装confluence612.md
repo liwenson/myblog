@@ -8,7 +8,7 @@ tags:
 ---
   
   
-摘要:centos7安装confluence 6.12 
+摘要:centos7安装confluence 6.12
 <!-- more -->
 
 
