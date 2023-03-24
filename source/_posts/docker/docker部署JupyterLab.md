@@ -114,3 +114,72 @@ services.jupyter.deploy.resources.reservations value Additional properties are n
 ```
 
 需要docker-compose 1.28 以上
+
+## 关闭浏览器后后台执行并保存结果
+
+关掉浏览器的话进程不会结束，已经在运行的 notebook 和里面的 cell 还会继续运行。
+
+关掉浏览器再打开之前还在运行的 notebook 的话，就看不到里面正在运行的 cell 打印的最新的结果了，所以我们需要保存结果。
+
+可以考虑用 python 的 logging，可以把你想要打印的都写在一个日志文件里，这样你关掉浏览器也没关系了。
+
+代码的话比如这样
+
+``` python
+import logging
+import sys
+import datetime
+
+def init_logger(filename, logger_name):
+    '''
+    @brief:
+        initialize logger that redirect info to a file just in case we lost connection to the notebook
+    @params:
+        filename: to which file should we log all the info
+        logger_name: an alias to the logger
+    '''
+
+    # get current timestamp
+    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H-%M-%S')
+    
+    logging.basicConfig(
+        level=logging.INFO, 
+        format='[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(filename=filename),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
+    # Test
+    logger = logging.getLogger(logger_name)
+    logger.info('### Init. Logger {} ###'.format(logger_name))
+    return logger
+
+```
+
+# Initialize
+
+```python
+my_logger = init_logger("./ml_notebook.log", "ml_logger")
+```
+
+
+这样就可以在每一次训练结束的时候，把训练结果用 my_logger.info(“...”) 打印到当前路径下的 ml_notebook.log 的文件里了，每一行还会标好这一行打印的时间，也就是上面 logging.basicConfig 里 format 定义的格式。当然你也可以自己定义自己习惯的格式。
+
+配合 jupyter notebook 的 magic command，还可以把每个 cell 运行的时间记录并且打印到日志文件里。比如在第一个 cell 里：
+
+```
+%%capture out
+%%timeit
+a = 1+1
+
+```
+
+然后在下一个 cell 里：
+
+```python
+my_logger.info("capture & timeit: "+out.stdout)
+```
+
+就能知道上一个 cell 运行了多久了。
