@@ -134,4 +134,14 @@ history  = model.fit(X_train, Y_train, validation_split=0.25, epochs=3, batch_si
 score, acc = model.evaluate(X_test, Y_test, verbose=1, batch_size=64)
 
 print("Model Accuracy: {:0.2f}%".format(acc * 100))
+
+
+# 使用模型的方法
+
+# model.predict(ds_test)
+# model(x_test)
+# model.call(x_test)
+# model.predict_on_batch(x_test)
+# 推荐优先使用model.predict(ds_test)方法，既可以对Dataset，也可以对Tensor使用。
+
 ```

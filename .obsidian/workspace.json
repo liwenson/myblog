@@ -1,0 +1,183 @@
+{
+  "main": {
+    "id": "45d952d2d928b99f",
+    "type": "split",
+    "children": [
+      {
+        "id": "491dc22940e3779d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4fbe87ec9aab8b2e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/react/React+Antd 实现添加和编辑表单form复用.md",
+                "mode": "source",
+                "backlinks": false,
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "5112124563eef725",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/k8s/k8s使用openelb.md",
+                "mode": "preview",
+                "backlinks": false,
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "37673f03e6c26257",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "source/_posts/docker/docker部署codeServer.md",
+                "mode": "source",
+                "backlinks": false,
+                "source": false
+              }
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "4324c59eb18478ff",
+    "type": "split",
+    "children": [
+      {
+        "id": "780cb76554cfca8f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3213d3b104d53cf4",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "cb665579d4c7c5f7",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:#ci",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "cc7a5a20a9cb7e8a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 363.5
+  },
+  "right": {
+    "id": "61afed99e243d61f",
+    "type": "split",
+    "children": [
+      {
+        "id": "38464ac67710d44a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6adc9a6461f6977a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "9e41fac940c34d47",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "source/_posts/docker/docker部署codeServer.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false
+    }
+  },
+  "active": "37673f03e6c26257",
+  "lastOpenFiles": [
+    "source/_posts/k8s/k8s使用metallb.md",
+    "source/_posts/k8s/k8s使用openelb.md",
+    "source/_posts/k8s/ingress-controller-nginx安装.md",
+    "source/_posts/Todo.md",
+    "source/_posts/ldap/ldap部署.md",
+    "source/_posts/react/React+Antd 实现添加和编辑表单form复用.md",
+    "source/_posts/k8s/镜像代理仓库.md",
+    "source/_posts/python/python多线程使用.md",
+    "source/_posts/docker/安装docker-compose.md",
+    "source/_posts/react",
+    "source/apple-touch-icon.png",
+    "node_modules/stylus/node_modules/debug/README.md",
+    "未命名.canvas",
+    "未命名 1.canvas",
+    "source/_posts/jenkins/python-jenkinsAPI使用.md",
+    "source/_posts/jenkins/python-jenkinsAPI方法.md",
+    "source/_posts/k8s/k8s项目部署.md",
+    "source/_posts/jenkins/jenkins插件开发.md",
+    "source/_posts/docker/docker代理.md",
+    "source/_posts/docker/docker清理多余镜像.md",
+    "source/_posts/docker/docker日常故障记录.md",
+    "source/_posts/docker/docker日志大小.md",
+    "source/_posts/GO/设计模式.md",
+    "source/_posts/GO/自动化平台.md",
+    "source/_posts/k8s/k8s部署jenkins.md",
+    "source/_posts/jenkins/jenkins.md",
+    "source/_posts/jenkins/Jenkins备份job配置.md",
+    "source/_posts/jenkins/jenkins插件地址更新.md",
+    "source/_posts/jenkins/jenkins动态agent.md",
+    "source/_posts/jenkins/jenkins共享库使用.md",
+    "source/_posts/jenkins/images/20200311092230815.png",
+    "source/_posts/python"
+  ]
+}

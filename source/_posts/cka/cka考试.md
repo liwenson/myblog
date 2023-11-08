@@ -39,7 +39,7 @@ Kubernetes指南（博客地址），可下载电子版的pdf。
 在此阶段可通过Kubeadm等K8S搭建工具快速搭建一个K8S环境来熟悉和认识Kubernetes相关概念以及知识点。
 
 
-#### 实操
+#### 环境
 
 有两个白嫖的方法
 
@@ -49,10 +49,16 @@ Kubernetes指南（博客地址），可下载电子版的pdf。
 
 play with kubernetes 使用参考 https://blog.csdn.net/Penguin_zlh/article/details/116303993
 
-二、
+
+https://killercoda.com/playgrounds/scenario/kubernetes
+
+https://killercoda.com/playgrounds
+
+官方环境 https://killer.sh , 通过邮件登录
 
 
-#### 部署
+
+二、 部署
 首先练习手动部署一套Kubernetes环境。不借助任何K8S的快速安装工具，通过手工部署K8S，能够更好的理解和熟悉K8S的各个组件和整体架构。
 
 下面推荐一个手动部署教程：
@@ -60,4 +66,20 @@ play with kubernetes 使用参考 https://blog.csdn.net/Penguin_zlh/article/deta
 [和我一步步部署 kubernetes 集群 git](https://github.com/opsnull/follow-me-install-kubernetes-cluster)
 
 [和我一步步部署 kubernetes 集群 blog](https://k8s-install.opsnull.com/)
+
+
+```
+# 配置国内软件源
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+sudo sed -i "s@http://.*archive.ubuntu.com@http://repo.huaweicloud.com@g" /etc/apt/sources.list
+sudo sed -i "s@http://.*security.ubuntu.com@http://repo.huaweicloud.com@g" /etc/apt/sources.list
+sudo apt-get update
+# 部署 k8s
+export release=3.2.0
+wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
+chmod +x ./ezdown
+./ezdown -D
+./ezdown -S
+docker exec -it kubeasz ezctl start-aio
+```
 

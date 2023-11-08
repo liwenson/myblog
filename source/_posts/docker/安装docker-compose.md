@@ -22,7 +22,7 @@ sudo curl -L https://github.com/docker/compose/releases/download/v2.16.0/docker-
 若是github访问太慢，可以用daocloud下载
 
 ```bash
-sudo curl -L https://get.daocloud.io/docker/compose/releases/download/v2.16.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo curl -L https://get.daocloud.io/docker/compose/releases/download/v2.19.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 ```
 
 添加可执行权限
