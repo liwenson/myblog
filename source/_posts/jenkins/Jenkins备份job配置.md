@@ -2,7 +2,10 @@
 
 ## 备份当前 jenkins 所有项目的配置
 
-"""备份 jenkins 配置, 需要调用 jenkins-cli.jar"""
+```
+备份 jenkins 配置, 需要调用 jenkins-cli.jar
+```
+
 
 ```
 #!/usr/bin/python3

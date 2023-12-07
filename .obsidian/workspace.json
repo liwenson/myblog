@@ -39,8 +39,8 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "source/_posts/docker/docker部署codeServer.md",
-                "mode": "source",
+                "file": "source/_posts/docker/docker日志大小.md",
+                "mode": "preview",
                 "backlinks": false,
                 "source": false
               }
@@ -97,7 +97,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 363.5
+    "width": 358.5
   },
   "right": {
     "id": "61afed99e243d61f",
@@ -124,7 +124,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "source/_posts/docker/docker部署codeServer.md"
+                "file": "source/_posts/docker/docker日志大小.md"
               }
             }
           }
@@ -147,36 +147,36 @@
   },
   "active": "37673f03e6c26257",
   "lastOpenFiles": [
-    "source/_posts/k8s/k8s使用metallb.md",
-    "source/_posts/k8s/k8s使用openelb.md",
-    "source/_posts/k8s/ingress-controller-nginx安装.md",
-    "source/_posts/Todo.md",
-    "source/_posts/ldap/ldap部署.md",
-    "source/_posts/react/React+Antd 实现添加和编辑表单form复用.md",
-    "source/_posts/k8s/镜像代理仓库.md",
-    "source/_posts/python/python多线程使用.md",
     "source/_posts/docker/安装docker-compose.md",
-    "source/_posts/react",
-    "source/apple-touch-icon.png",
-    "node_modules/stylus/node_modules/debug/README.md",
-    "未命名.canvas",
-    "未命名 1.canvas",
-    "source/_posts/jenkins/python-jenkinsAPI使用.md",
-    "source/_posts/jenkins/python-jenkinsAPI方法.md",
-    "source/_posts/k8s/k8s项目部署.md",
-    "source/_posts/jenkins/jenkins插件开发.md",
-    "source/_posts/docker/docker代理.md",
-    "source/_posts/docker/docker清理多余镜像.md",
-    "source/_posts/docker/docker日常故障记录.md",
-    "source/_posts/docker/docker日志大小.md",
-    "source/_posts/GO/设计模式.md",
-    "source/_posts/GO/自动化平台.md",
-    "source/_posts/k8s/k8s部署jenkins.md",
-    "source/_posts/jenkins/jenkins.md",
     "source/_posts/jenkins/Jenkins备份job配置.md",
     "source/_posts/jenkins/jenkins插件地址更新.md",
-    "source/_posts/jenkins/jenkins动态agent.md",
-    "source/_posts/jenkins/jenkins共享库使用.md",
+    "source/_posts/jenkins/jenkins.md",
+    "source/_posts/k8s/coreDns测试.md",
+    "source/_posts/k8s/ctr简单使用.md",
+    "source/_posts/k8s/OpenKruise.md",
+    "source/_posts/k8s/k8s中使用kaniko构建镜像.md",
+    "source/_posts/k8s/k8s项目部署.md",
+    "source/_posts/k8s/k8s停机操作.md",
+    "source/_posts/k8s/k8s使用nfs存储.md",
+    "source/_posts/k8s/k8s使用metallb.md",
+    "source/_posts/k8s/k8s使用KubeLinter检查资源文件.md",
+    "source/_posts/k8s/k8s开启临时容器.md",
+    "source/_posts/k8s/k8s金丝雀更新.md",
+    "source/_posts/k8s/k8s滚动更新.md",
+    "source/_posts/k8s/k8s部署kafka.md",
+    "source/_posts/k8s/k8s部署jenkins.md",
+    "source/_posts/docker/docker部署codeServer.md",
+    "source/_posts/elasticsearch/部署es7x.md",
+    "source/_posts/elasticsearch/es白金版.md",
+    "source/_posts/elk/ClickHouse分布式集群搭建指南.md",
+    "source/_posts/elk/filebeat.md",
+    "source/_posts/elk/filebeat案例.md",
+    "source/_posts/elk/flume.md",
+    "source/_posts/elk/flume安装.md",
+    "source/_posts/react",
+    "source/apple-touch-icon.png",
+    "未命名.canvas",
+    "未命名 1.canvas",
     "source/_posts/jenkins/images/20200311092230815.png",
     "source/_posts/python"
   ]
